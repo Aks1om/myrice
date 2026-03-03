@@ -1,0 +1,4 @@
+# AUR (optional)
+hyprshot
+catppuccin-gtk-theme-mocha
+bibata-cursor-theme-bin

@@ -1,0 +1,11 @@
+font-family = "JetBrainsMono Nerd Font"
+font-size = 12
+
+theme = "tokyonight"
+background-opacity = 0.95
+
+window-padding-x = 10
+window-padding-y = 10
+
+cursor-style = block
+cursor-style-blink = false

@@ -1,0 +1,76 @@
+configuration {
+  modi: "drun,run,window";
+  show-icons: true;
+  icon-theme: "Papirus";
+  terminal: "ghostty";
+  drun-display-format: "{name}";
+  location: 0;
+  disable-history: false;
+  hide-scrollbar: true;
+  display-drun: "apps";
+  display-run: "run";
+  display-window: "win";
+  sidebar-mode: false;
+}
+
+* {
+  bg: #1a1b26ee;
+  bg-alt: #24283bcc;
+  fg: #c0caf5;
+  selected: #7aa2f7;
+  urgent: #f7768e;
+  border: #414868;
+}
+
+window {
+  width: 36%;
+  border: 2px;
+  border-color: @border;
+  border-radius: 12px;
+  background-color: @bg;
+}
+
+mainbox {
+  padding: 12px;
+  spacing: 10px;
+  background-color: transparent;
+}
+
+inputbar {
+  padding: 10px;
+  border-radius: 8px;
+  background-color: @bg-alt;
+  text-color: @fg;
+}
+
+prompt {
+  enabled: false;
+}
+
+entry {
+  text-color: @fg;
+}
+
+listview {
+  lines: 10;
+  columns: 1;
+  fixed-height: false;
+  background-color: transparent;
+  spacing: 6px;
+}
+
+element {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background-color: transparent;
+  text-color: @fg;
+}
+
+element selected {
+  background-color: @selected;
+  text-color: #11111b;
+}
+
+element urgent {
+  text-color: @urgent;
+}

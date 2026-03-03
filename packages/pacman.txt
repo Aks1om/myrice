@@ -1,0 +1,55 @@
+# Core
+hyprland
+xdg-desktop-portal-hyprland
+xorg-xwayland
+
+# Hypr ecosystem
+hyprpaper
+hyprlock
+hypridle
+
+# UI tools
+waybar
+rofi-wayland
+ghostty
+mako
+
+# Daily tools
+nemo
+nemo-fileroller
+file-roller
+gvfs
+network-manager-applet
+blueman
+pavucontrol
+brightnessctl
+playerctl
+polkit-gnome
+
+# Screenshots / clipboard
+grim
+slurp
+wl-clipboard
+cliphist
+
+# Shell
+zsh
+starship
+
+# Optional but useful
+ttf-jetbrains-mono-nerd
+noto-fonts
+noto-fonts-cjk
+noto-fonts-emoji
+ttf-font-awesome
+lm_sensors
+btop
+fastfetch
+
+# Optional for clean mac-like theming
+nwg-look
+adw-gtk-theme
+papirus-icon-theme
+qt5ct
+qt6ct
+kvantum
