@@ -81,6 +81,9 @@ Minimal but complete starter dotfiles for an Arch Linux + Hyprland setup.
 ## Notes
 
 - This is a sane baseline. Tune monitor names, keyboard layout, and app choices.
+- Russian keyboard layout is already enabled in `~/.config/hypr/input.conf` (`us,ru`, switch with `Alt+Shift`).
+- Russian locale is exported from `~/.config/hypr/env.conf`, but on Arch you still need to generate it system-wide: enable `ru_RU.UTF-8 UTF-8` in `/etc/locale.gen`, run `sudo locale-gen`, then `sudo localectl set-locale LANG=ru_RU.UTF-8`.
+- Package install now includes Russian spellchecking dictionaries (`hunspell-ru`, `aspell-ru`).
 - If you use another shell/editor/file manager, update binds in `~/.config/hypr/bindings.conf`.
 - Waybar now includes a GPU module (`~/.config/waybar/scripts/gpu.sh`) with NVIDIA/AMD/Intel fallback.
 - For better temp readings run `sudo sensors-detect` once and reboot.
