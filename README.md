@@ -64,12 +64,14 @@ Minimal but complete starter dotfiles for an Arch Linux + Hyprland setup.
 
 ## Default keybinds
 
-- `SUPER + Return`: open terminal (ghostty)
+- `SUPER + T`: open terminal (ghostty)
 - `SUPER + Q`: close active window
 - `SUPER + E`: open file manager (nemo)
-- `SUPER + R`: launcher (rofi)
+- `SUPER + Space`: launcher (rofi)
 - `SUPER + V`: toggle floating
+- `SUPER + Shift + V`: float all windows in current workspace
 - `SUPER + F`: fullscreen
+- `SUPER + Shift + T`: restore tiled layout
 - `SUPER + H/J/K/L`: move focus
 - `SUPER + SHIFT + H/J/K/L`: move active window
 - `SUPER + 1..0`: switch workspace
@@ -84,6 +86,7 @@ Minimal but complete starter dotfiles for an Arch Linux + Hyprland setup.
 - Russian keyboard layout is already enabled in `~/.config/hypr/input.conf` (`us,ru`, switch with `Alt+Shift`).
 - Russian locale is exported from `~/.config/hypr/env.conf`, but on Arch you still need to generate it system-wide: enable `ru_RU.UTF-8 UTF-8` in `/etc/locale.gen`, run `sudo locale-gen`, then `sudo localectl set-locale LANG=ru_RU.UTF-8`.
 - Package install now includes Russian spellchecking dictionaries (`hunspell-ru`, `aspell-ru`).
+- Waybar keeps FHD-sized defaults, and `~/.config/waybar/launch.sh` auto-applies extra GTK scaling on very high-res internal displays. Set `WAYBAR_SCALE=1.25` (or another value) if you want to override it manually.
 - If you use another shell/editor/file manager, update binds in `~/.config/hypr/bindings.conf`.
 - Waybar now includes a GPU module (`~/.config/waybar/scripts/gpu.sh`) with NVIDIA/AMD/Intel fallback.
 - For better temp readings run `sudo sensors-detect` once and reboot.

@@ -21,6 +21,7 @@ FILES=(
   ".config/hypr/scripts/powermenu.sh"
   ".config/waybar/config.jsonc"
   ".config/waybar/style.css"
+  ".config/waybar/launch.sh"
   ".config/waybar/scripts/gpu.sh"
   ".config/ghostty/config"
   ".config/rofi/config.rasi"
