@@ -16,7 +16,7 @@ Screen
 
   if [[ -n "${WAYLAND_DISPLAY:-}" ]] && command -v wofi >/dev/null 2>&1; then
     choice="$(printf '%s' "${menu_input}" | wofi --dmenu --prompt 'screenshot' \
-      --width 420 --height 180 --location center --hide-search \
+      --width 360 --height 175 --location center --hide-search --hide-scroll \
       --style "$HOME/.config/wofi/screenshot.css" || true)"
   elif command -v rofi >/dev/null 2>&1; then
     choice="$(printf '%s' "${menu_input}" | rofi -dmenu -i -p 'screenshot' || true)"

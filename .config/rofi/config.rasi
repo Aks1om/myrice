@@ -17,7 +17,7 @@ configuration {
   bg: #000000f2;
   bg-alt: #080808f2;
   fg: #ffffff;
-  selected: #ffffff;
+  selected: #ffffff1a;
   urgent: #b0b0b0;
   border: #5f5f5f;
 }
@@ -70,7 +70,9 @@ element {
 
 element selected {
   background-color: @selected;
-  text-color: #000000;
+  border: 1px;
+  border-color: #ffffff2e;
+  text-color: @fg;
 }
 
 element urgent {

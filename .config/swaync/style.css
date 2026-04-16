@@ -1,0 +1,66 @@
+@import url("/etc/xdg/swaync/style.css");
+
+:root {
+  --cc-bg: rgba(10, 10, 10, 0.96);
+  --noti-border-color: rgba(255, 255, 255, 0.16);
+  --noti-bg: 12, 12, 12;
+  --noti-bg-alpha: 0.95;
+  --noti-bg-darker: rgb(16, 16, 16);
+  --noti-bg-hover: rgb(28, 28, 28);
+  --noti-bg-focus: rgba(255, 255, 255, 0.08);
+  --noti-close-bg: rgba(255, 255, 255, 0.08);
+  --noti-close-bg-hover: rgba(255, 255, 255, 0.14);
+  --text-color: rgb(255, 255, 255);
+  --text-color-disabled: rgb(156, 156, 156);
+  --bg-selected: rgb(255, 255, 255);
+  --notification-icon-size: 48px;
+  --notification-app-icon-size: 20px;
+  --border-radius: 18px;
+  --notification-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  --font-size-body: 14px;
+  --font-size-summary: 15px;
+}
+
+.control-center {
+  background: var(--cc-bg);
+  border: 1px solid var(--noti-border-color);
+  border-radius: 22px;
+  box-shadow: var(--notification-shadow);
+  padding: 14px;
+}
+
+.notification-row .notification-background {
+  padding: 8px 12px;
+}
+
+.notification-row .notification-background .notification {
+  box-shadow: var(--notification-shadow);
+}
+
+.notification-row .notification-background .notification .notification-default-action {
+  padding: 6px;
+}
+
+.widget-title,
+.widget-dnd {
+  color: var(--text-color);
+}
+
+.widget-title > button {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-color);
+  border-radius: 12px;
+  border: 1px solid var(--noti-border-color);
+}
+
+.widget-title > button:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.widget-dnd > switch slider {
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.widget-dnd > switch:checked {
+  background: rgba(139, 92, 246, 0.7);
+}

@@ -6,4 +6,4 @@ set -euo pipefail
 exec rofi -show combi \
           -combi-modes "script:~/.config/rofi/menu-mode.sh,drun" \
           -show-icons \
-          -theme ~/.config/rofi/config.rasi
+          -theme ~/.config/rofi/macos.rasi

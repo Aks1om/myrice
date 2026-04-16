@@ -1,0 +1,84 @@
+configuration {
+  font: "Inter 13";
+  show-icons: false;
+}
+
+* {
+  background:       rgba(20, 20, 20, 0.96);
+  background-alt:   rgba(255, 255, 255, 0.05);
+  border-col:       rgba(255, 255, 255, 0.09);
+  accent:           rgba(255, 255, 255, 0.10);
+  accent-border:    rgba(255, 255, 255, 0.20);
+  foreground:       rgba(255, 255, 255, 1.0);
+  foreground-muted: rgba(255, 255, 255, 0.65);
+  foreground-dim:   rgba(255, 255, 255, 0.28);
+  transparent:      rgba(0, 0, 0, 0);
+}
+
+window {
+  width: 280px;
+  padding: 12px;
+  border: 1px;
+  border-radius: 18px;
+  border-color: @border-col;
+  background-color: @background;
+}
+
+mainbox {
+  children: [ inputbar, listview ];
+  spacing: 8px;
+  background-color: @transparent;
+}
+
+inputbar {
+  children: [ entry ];
+  padding: 8px 12px;
+  border-radius: 12px;
+  background-color: @background-alt;
+  border: 1px;
+  border-color: @border-col;
+}
+
+entry {
+  placeholder: "power...";
+  placeholder-color: @foreground-dim;
+  text-color: @foreground;
+  background-color: @transparent;
+}
+
+listview {
+  columns: 1;
+  lines: 4;
+  dynamic: true;
+  fixed-height: false;
+  scrollbar: false;
+  spacing: 3px;
+  background-color: @transparent;
+}
+
+element {
+  padding: 10px 14px;
+  border-radius: 10px;
+  background-color: @transparent;
+  text-color: @foreground-muted;
+}
+
+element normal.normal,
+element alternate.normal {
+  background-color: @transparent;
+  text-color: @foreground-muted;
+}
+
+element selected.normal {
+  background-color: @accent;
+  border: 1px;
+  border-color: @accent-border;
+  border-radius: 10px;
+  text-color: @foreground;
+}
+
+element-text {
+  text-color: inherit;
+  background-color: @transparent;
+  vertical-align: 0.5;
+}
