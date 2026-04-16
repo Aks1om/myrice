@@ -3,21 +3,21 @@ add_newline = true
 format = "$directory$git_branch$git_status$cmd_duration$line_break$character"
 
 [character]
-success_symbol = "[>](bold green)"
-error_symbol = "[>](bold red)"
+success_symbol = "[>](bold white)"
+error_symbol = "[>](bold bright-black)"
 
 [directory]
-style = "bold cyan"
+style = "bold white"
 truncation_length = 4
 truncate_to_repo = true
 
 [git_branch]
 symbol = "git:"
-style = "bold purple"
+style = "bold white"
 
 [git_status]
-style = "bold yellow"
+style = "bold bright-black"
 
 [cmd_duration]
 min_time = 800
-format = " took [$duration](bold blue)"
+format = " took [$duration](bold bright-black)"

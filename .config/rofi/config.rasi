@@ -1,7 +1,7 @@
 configuration {
   modi: "drun,run,window";
-  show-icons: true;
-  icon-theme: "Papirus";
+  show-icons: false;
+  icon-theme: "Adwaita";
   terminal: "ghostty";
   drun-display-format: "{name}";
   location: 0;
@@ -14,19 +14,19 @@ configuration {
 }
 
 * {
-  bg: #1a1b26ee;
-  bg-alt: #24283bcc;
-  fg: #c0caf5;
-  selected: #7aa2f7;
-  urgent: #f7768e;
-  border: #414868;
+  bg: #000000f2;
+  bg-alt: #080808f2;
+  fg: #ffffff;
+  selected: #ffffff;
+  urgent: #b0b0b0;
+  border: #5f5f5f;
 }
 
 window {
   width: 36%;
   border: 2px;
   border-color: @border;
-  border-radius: 12px;
+  border-radius: 0px;
   background-color: @bg;
 }
 
@@ -38,9 +38,11 @@ mainbox {
 
 inputbar {
   padding: 10px;
-  border-radius: 8px;
+  border-radius: 0px;
   background-color: @bg-alt;
   text-color: @fg;
+  border: 1px;
+  border-color: @border;
 }
 
 prompt {
@@ -61,14 +63,14 @@ listview {
 
 element {
   padding: 8px 10px;
-  border-radius: 8px;
+  border-radius: 0px;
   background-color: transparent;
   text-color: @fg;
 }
 
 element selected {
   background-color: @selected;
-  text-color: #11111b;
+  text-color: #000000;
 }
 
 element urgent {

@@ -15,7 +15,7 @@ HISTSIZE=10000
 SAVEHIST=10000
 HISTFILE="$HOME/.zsh_history"
 
-alias ls='ls --color=auto'
+alias ls='ls --color=never'
 alias ll='ls -lah'
 alias la='ls -A'
 alias gs='git status -sb'

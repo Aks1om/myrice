@@ -1,31 +1,71 @@
 {
   "layer": "top",
   "position": "top",
-  "height": 24,
-  "margin-top": 2,
-  "margin-left": 4,
-  "margin-right": 4,
-  "spacing": 4,
+  "height": 44,
+  "margin-top": 8,
+  "margin-left": 10,
+  "margin-right": 10,
+  "spacing": 6,
   "fixed-center": true,
   "reload_style_on_change": true,
 
-  "modules-left": ["custom/left-slider", "hyprland/workspaces"],
+  "modules-left": ["custom/left-slider", "hyprland/workspaces", "custom/special-workspace", "custom/workspace-label", "hyprland/window"],
   "modules-center": ["mpris", "clock"],
-  "modules-right": ["custom/gpu", "cpu", "temperature", "network", "pulseaudio", "hyprland/language", "battery"],
+  "modules-right": ["custom/gpu", "cpu", "temperature", "network", "bluetooth", "custom/notifications", "pulseaudio", "hyprland/language", "battery"],
 
   "custom/left-slider": {
-    "format": "◉────",
-    "tooltip": false
+    "format": "",
+    "tooltip": true,
+    "tooltip-format": "Start menu",
+    "on-click": "bash /home/aks1om/.config/hypr/scripts/startmenu.sh",
+    "on-click-right": "bash /home/aks1om/.config/hypr/scripts/powermenu.sh"
   },
 
   "hyprland/workspaces": {
-    "all-outputs": true,
+    "all-outputs": false,
     "show-special": false,
+    "sort-by": "number",
+    "persistent-workspaces": {
+      "*": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    },
     "format": "{icon}",
     "format-icons": {
-      "active": " ",
-      "default": " ",
-      "empty": " "
+      "active": "",
+      "special": "◆",
+      "default": "",
+      "empty": ""
+    }
+  },
+
+  "custom/special-workspace": {
+    "exec": "~/.config/waybar/scripts/special-workspace.sh",
+    "return-type": "json",
+    "interval": 1,
+    "format": "{text}",
+    "on-click": "hyprctl dispatch togglespecialworkspace magic",
+    "on-click-right": "~/.config/hypr/scripts/toggle-special-window.sh",
+    "tooltip": true
+  },
+
+  "custom/workspace-label": {
+    "exec": "~/.config/waybar/scripts/workspace-label.sh",
+    "return-type": "json",
+    "interval": 1,
+    "format": "{text}",
+    "tooltip": true
+  },
+
+  "hyprland/window": {
+    "format": "{}",
+    "icon": false,
+    "expand": false,
+    "separate-outputs": true,
+    "rewrite": {
+      "(.*) - Mozilla Firefox": "$1",
+      "(.*) - Brave": "$1",
+      "(.*) - Google Chrome": "$1",
+      "(.*) - Chromium": "$1",
+      "(.*) - Ghostty": "$1"
     }
   },
 
@@ -38,8 +78,8 @@
     "dynamic-order": ["title", "artist"],
     "dynamic-importance-order": ["title", "artist"],
     "dynamic-separator": " - ",
-    "dynamic-len": 38,
-    "max-length": 52,
+    "dynamic-len": 28,
+    "max-length": 38,
     "player-icons": {
       "default": "󰎆",
       "spotify": "",
@@ -53,8 +93,9 @@
 
   "clock": {
     "interval": 1,
-    "format": "{:%b %d | %I:%M %p}",
-    "tooltip-format": "{:%Y-%m-%d %H:%M:%S}"
+    "locale": "ru_RU.UTF-8",
+    "format": "{:%d %b | %H:%M}",
+    "tooltip-format": "{:%A, %d %B %Y | %H:%M:%S}"
   },
 
   "custom/gpu": {
@@ -62,26 +103,30 @@
     "return-type": "json",
     "interval": 3,
     "format": "{text}",
-    "tooltip": true
+    "tooltip": true,
+    "on-click": "bash /home/aks1om/.config/hypr/scripts/system-monitor.sh"
   },
 
   "cpu": {
     "interval": 2,
     "format": " {usage}%",
-    "tooltip-format": "CPU: {usage}%"
+    "tooltip-format": "CPU: {usage}%",
+    "on-click": "bash /home/aks1om/.config/hypr/scripts/system-monitor.sh"
   },
 
   "temperature": {
     "critical-threshold": 82,
     "format": " {temperatureC}C",
-    "format-critical": " {temperatureC}C"
+    "format-critical": " {temperatureC}C",
+    "on-click": "bash /home/aks1om/.config/hypr/scripts/system-monitor.sh"
   },
 
   "hyprland/language": {
-    "format": "⌨ {}",
+    "format": "{}",
     "format-en": "en",
     "format-us": "en",
-    "format-ru": "ru"
+    "format-ru": "ru",
+    "on-click": "bash /home/aks1om/.config/hypr/scripts/toggle-layout.sh"
   },
 
   "network": {
@@ -90,7 +135,33 @@
     "format-ethernet": "󰈀 eth",
     "format-linked": "󰈀 link",
     "format-disconnected": "󰖪 off",
-    "tooltip-format": "{ifname} {ipaddr}/{cidr}"
+    "tooltip-format": "{ifname} {ipaddr}/{cidr}",
+    "on-click": "nm-connection-editor",
+    "on-click-right": "bash /home/aks1om/.config/hypr/scripts/wifi-menu.sh"
+  },
+
+  "bluetooth": {
+    "format": " {status}",
+    "format-disabled": " off",
+    "format-off": " off",
+    "format-on": " on",
+    "format-connected": " {device_alias}",
+    "format-connected-battery": " {device_alias} {device_battery_percentage}%",
+    "tooltip-format": "{controller_alias}\n{controller_address}\n{num_connections} connected",
+    "tooltip-format-connected": "{controller_alias}\n{controller_address}\n{device_enumerate}",
+    "tooltip-format-enumerate-connected": "{device_alias} ({device_address})",
+    "on-click": "blueman-manager",
+    "on-click-right": "blueman-manager"
+  },
+
+  "custom/notifications": {
+    "exec": "~/.config/waybar/scripts/notifications.sh",
+    "return-type": "json",
+    "interval": 2,
+    "format": "{text}",
+    "on-click": "swaync-client -t -sw",
+    "on-click-right": "swaync-client -d -sw",
+    "tooltip": true
   },
 
   "pulseaudio": {
