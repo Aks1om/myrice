@@ -19,6 +19,8 @@ FILES=(
   ".config/hypr/hypridle.conf"
   ".config/hypr/scripts/screenshot.sh"
   ".config/hypr/scripts/powermenu.sh"
+  ".config/hypr/scripts/startmenu.sh"
+  ".config/rofi/menu-mode.sh"
   ".config/waybar/config.jsonc"
   ".config/waybar/style.css"
   ".config/waybar/launch.sh"

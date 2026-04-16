@@ -26,7 +26,7 @@ window {
   width: 36%;
   border: 2px;
   border-color: @border;
-  border-radius: 0px;
+  border-radius: 16px;
   background-color: @bg;
 }
 
@@ -38,7 +38,7 @@ mainbox {
 
 inputbar {
   padding: 10px;
-  border-radius: 0px;
+  border-radius: 10px;
   background-color: @bg-alt;
   text-color: @fg;
   border: 1px;
@@ -63,7 +63,7 @@ listview {
 
 element {
   padding: 8px 10px;
-  border-radius: 0px;
+  border-radius: 8px;
   background-color: transparent;
   text-color: @fg;
 }
