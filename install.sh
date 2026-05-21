@@ -141,8 +141,18 @@ link_into_home() {
   run "ln -s '$src' '$dst'"
 }
 
+ensure_phosphor_icons() {
+  local target="$REPO_DIR/.config/quickshell/icons/phosphor"
+  if [[ -d "$target/assets" ]]; then
+    return
+  fi
+  log "Cloning Phosphor icon set (upstream, kept out of the repo)"
+  run "git clone --depth=1 --filter=blob:none https://github.com/phosphor-icons/core.git '$target'"
+}
+
 stage_dotfiles() {
   log "Symlinking dotfiles (backup: $HOME_BACKUP_DIR)"
+  ensure_phosphor_icons
   # .config/* — every top-level dir/file under .config in the repo
   while IFS= read -r -d '' p; do
     rel=".config/$(basename "$p")"

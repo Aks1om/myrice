@@ -1,0 +1,6 @@
+# Upstream icon set — install.sh clones it during the dotfiles stage.
+.config/quickshell/icons/phosphor/
+
+# Local backups
+.dotfiles_backup_*/
+.myrice_backup_*/
