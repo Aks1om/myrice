@@ -14,12 +14,8 @@ Window
 Screen
 '
 
-  if [[ -n "${WAYLAND_DISPLAY:-}" ]] && command -v wofi >/dev/null 2>&1; then
-    choice="$(printf '%s' "${menu_input}" | wofi --dmenu --prompt 'screenshot' \
-      --width 360 --height 175 --location center --hide-search --hide-scroll \
-      --style "$HOME/.config/wofi/screenshot.css" || true)"
-  elif command -v rofi >/dev/null 2>&1; then
-    choice="$(printf '%s' "${menu_input}" | rofi -dmenu -i -p 'screenshot' || true)"
+  if command -v rofi >/dev/null 2>&1; then
+    choice="$(printf '%s' "${menu_input}" | ~/.config/hypr/scripts/rofi-popup.sh -dmenu -i -p 'screenshot' -theme "$HOME/.config/rofi/screenshot.rasi" || true)"
   elif command -v fuzzel >/dev/null 2>&1; then
     choice="$(printf '%s' "${menu_input}" | fuzzel --dmenu --prompt 'screenshot' || true)"
   else

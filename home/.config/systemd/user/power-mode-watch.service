@@ -1,0 +1,14 @@
+[Unit]
+Description=Watch UPower for AC state changes and apply power mode
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStartPre=%h/.local/bin/power-mode.sh --force
+ExecStart=/bin/bash -c 'exec gdbus monitor --system --dest org.freedesktop.UPower --object-path /org/freedesktop/UPower/devices/line_power_ADP1 | while read -r line; do case "$line" in *PropertiesChanged*) %h/.local/bin/power-mode.sh ;; esac; done'
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=graphical-session.target

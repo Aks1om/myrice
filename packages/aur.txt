@@ -1,4 +1,10 @@
-# AUR (optional)
+# AUR — always installed
 hyprshot
 catppuccin-gtk-theme-mocha
 bibata-cursor-theme-bin
+
+# AUR — laptop Wi-Fi fix (opt-in via install.sh --laptop-wifi-fix).
+# Replaces in-kernel rtw88_8821ce with an out-of-tree driver on Realtek
+# RTL8821CE adapters that drop the link with "failed to get tx report
+# from firmware". Harmless to install on other hardware but not needed.
+#rtl8821ce-dkms-git

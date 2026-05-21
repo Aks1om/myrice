@@ -1,0 +1,12 @@
+[Unit]
+Description=Mobile mode — inhibit lid-switch / sleep / idle (laptop in backpack)
+Documentation=man:systemd-inhibit(1)
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/systemd-inhibit --who=lid-mobile --why=laptop-in-backpack --what=handle-lid-switch:sleep:idle --mode=block sleep infinity
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target

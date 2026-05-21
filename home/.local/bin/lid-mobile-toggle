@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Toggle "laptop in backpack" mode: holds an inhibitor for
+# handle-lid-switch / sleep / idle so the laptop keeps running with
+# the lid closed and never auto-suspends from hypridle.
+#
+# Bound to SUPER+SHIFT+M in ~/.config/hypr/bindings.conf.
+set -euo pipefail
+
+UNIT=lid-mobile.service
+
+if systemctl --user is-active --quiet "$UNIT"; then
+  systemctl --user stop "$UNIT"
+  hyprctl dispatch dpms on >/dev/null 2>&1 || true
+  notify-send -a "lid-mobile" -u critical -t 2500 "📤 Mobile mode OFF" "крышка и idle снова усыпляют ноут"
+else
+  systemctl --user start "$UNIT"
+  notify-send -a "lid-mobile" -u critical -t 2500 "🎒 Mobile mode ON" "ноут работает с закрытой крышкой, экран выключен"
+  # Дать swaync пару мгновений нарисовать всплывашку, чтобы её было видно перед dpms off
+  sleep 0.4
+  hyprctl dispatch dpms off >/dev/null 2>&1 || true
+fi

@@ -2,17 +2,23 @@
 hyprland
 xdg-desktop-portal-hyprland
 xorg-xwayland
+qt6-declarative
+qt6-wayland
 
 # Hypr ecosystem
 hyprpaper
 hyprlock
 hypridle
 
-# UI tools
+# Bar / shell — Quickshell-based (replaces waybar+mako+rofi)
+quickshell
+swaync
+
+# Keep waybar around as a fallback bar option (no longer the default)
 waybar
-rofi-wayland
+
+# Terminal / editor support
 ghostty
-mako
 
 # Daily tools
 nemo
@@ -25,19 +31,34 @@ pavucontrol
 brightnessctl
 playerctl
 polkit-gnome
+power-profiles-daemon
+upower
 
 # Screenshots / clipboard
 grim
 slurp
 wl-clipboard
 cliphist
+hyprshot
 
 # Shell
 zsh
 starship
 
+# Boot splash
+plymouth
+
+# Build / DKMS support
+base-devel
+dkms
+linux-headers
+
+# Sync helper
+rsync
+
 # Optional but useful
 ttf-jetbrains-mono-nerd
+ttf-manrope
 noto-fonts
 noto-fonts-cjk
 noto-fonts-emoji
@@ -48,7 +69,7 @@ lm_sensors
 btop
 fastfetch
 
-# Optional for clean mac-like theming
+# Clean theming
 nwg-look
 adw-gtk-theme
 papirus-icon-theme

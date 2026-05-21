@@ -1,6 +1,8 @@
 font-family = "JetBrainsMono Nerd Font"
 font-size = 12
 
+confirm-close-surface = false
+
 background = #000000
 foreground = #ffffff
 cursor-color = #ffffff
@@ -22,7 +24,8 @@ palette = 12=#bdbdbd
 palette = 13=#d6d6d6
 palette = 14=#efefef
 palette = 15=#ffffff
-background-opacity = 0.95
+background-opacity = 0.75
+background-blur = true
 
 window-padding-x = 10
 window-padding-y = 10
@@ -30,5 +33,37 @@ window-padding-y = 10
 cursor-style = block
 cursor-style-blink = false
 
-# Disable auto-copy on selection.
-copy-on-select = false
+# Selection auto-copies to system clipboard.
+# Ctrl+Shift+C / Ctrl+Shift+V — стандарт терминалов; Ctrl+C оставлен под SIGINT.
+copy-on-select = clipboard
+clipboard-trim-trailing-spaces = true
+clipboard-paste-protection = true
+
+# Terminal TUIs receive bytes, not GUI key events. Use physical keys so
+# Ctrl+A-Z works in shells/TUIs on any current keyboard layout.
+keybind = ctrl+key_a=text:\x01
+keybind = ctrl+key_b=text:\x02
+keybind = ctrl+key_c=text:\x03
+keybind = ctrl+key_d=text:\x04
+keybind = ctrl+key_e=text:\x05
+keybind = ctrl+key_f=text:\x06
+keybind = ctrl+key_g=text:\x07
+keybind = ctrl+key_h=text:\x08
+keybind = ctrl+key_i=text:\x09
+keybind = ctrl+key_j=text:\x0a
+keybind = ctrl+key_k=text:\x0b
+keybind = ctrl+key_l=text:\x0c
+keybind = ctrl+key_m=text:\x0d
+keybind = ctrl+key_n=text:\x0e
+keybind = ctrl+key_o=text:\x0f
+keybind = ctrl+key_p=text:\x10
+keybind = ctrl+key_q=text:\x11
+keybind = ctrl+key_r=text:\x12
+keybind = ctrl+key_s=text:\x13
+keybind = ctrl+key_t=text:\x14
+keybind = ctrl+key_u=text:\x15
+keybind = ctrl+key_v=text:\x16
+keybind = ctrl+key_w=text:\x17
+keybind = ctrl+key_x=text:\x18
+keybind = ctrl+key_y=text:\x19
+keybind = ctrl+key_z=text:\x1a

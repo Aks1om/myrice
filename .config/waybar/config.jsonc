@@ -11,7 +11,7 @@
 
   "modules-left": ["custom/left-slider", "hyprland/workspaces", "custom/special-workspace", "custom/workspace-label", "hyprland/window"],
   "modules-center": ["mpris", "clock"],
-  "modules-right": ["custom/gpu", "cpu", "temperature", "network", "bluetooth", "custom/notifications", "pulseaudio", "hyprland/language", "battery"],
+  "modules-right": ["custom/gpu", "cpu", "temperature", "network", "custom/bluetooth", "custom/notifications", "custom/power-mode", "pulseaudio", "hyprland/language", "battery"],
 
   "custom/left-slider": {
     "format": "",
@@ -136,20 +136,16 @@
     "format-linked": "󰈀 link",
     "format-disconnected": "󰖪 off",
     "tooltip-format": "{ifname} {ipaddr}/{cidr}",
-    "on-click": "nm-connection-editor",
-    "on-click-right": "bash /home/aks1om/.config/hypr/scripts/wifi-menu.sh"
+    "on-click": "bash /home/aks1om/.config/hypr/scripts/wifi-menu.sh",
+    "on-click-right": "nm-connection-editor"
   },
 
-  "bluetooth": {
-    "format": " {status}",
-    "format-disabled": " off",
-    "format-off": " off",
-    "format-on": " on",
-    "format-connected": " {device_alias}",
-    "format-connected-battery": " {device_alias} {device_battery_percentage}%",
-    "tooltip-format": "{controller_alias}\n{controller_address}\n{num_connections} connected",
-    "tooltip-format-connected": "{controller_alias}\n{controller_address}\n{device_enumerate}",
-    "tooltip-format-enumerate-connected": "{device_alias} ({device_address})",
+  "custom/bluetooth": {
+    "exec": "~/.config/waybar/scripts/bluetooth.sh",
+    "return-type": "json",
+    "interval": 3,
+    "format": "{}",
+    "tooltip": true,
     "on-click": "blueman-manager",
     "on-click-right": "blueman-manager"
   },
@@ -162,6 +158,15 @@
     "on-click": "swaync-client -t -sw",
     "on-click-right": "swaync-client -d -sw",
     "tooltip": true
+  },
+
+  "custom/power-mode": {
+    "exec": "~/.config/hypr/scripts/power-mode.sh get",
+    "return-type": "json",
+    "interval": 30,
+    "signal": 8,
+    "format": "{text}",
+    "on-click": "~/.config/hypr/scripts/power-mode.sh toggle; pkill -SIGRTMIN+8 waybar"
   },
 
   "pulseaudio": {
