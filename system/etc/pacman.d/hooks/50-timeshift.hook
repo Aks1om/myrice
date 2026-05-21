@@ -1,0 +1,19 @@
+# Snapshot the system before every pacman transaction so a broken
+# upgrade can always be rolled back via `timeshift --restore`.
+#
+# Tags 'D' = daily-retention slot. The hook will not block the
+# transaction if the snapshot fails — that decision is intentional:
+# a snapshot is a safety net, not a release gate. Look at the
+# preceding output to know if you have one.
+[Trigger]
+Operation = Upgrade
+Operation = Install
+Operation = Remove
+Type = Package
+Target = *
+
+[Action]
+Description = Creating a pre-transaction Timeshift snapshot
+When = PreTransaction
+Exec = /usr/bin/timeshift --create --comments "pacman pre-transaction" --tags D --quiet
+Depends = timeshift

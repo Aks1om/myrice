@@ -9,12 +9,17 @@
 #   5. system          — copy system/etc/* into /etc/* (with .bak), reload modprobe
 #   6. services        — enable systemd user units shipped in home/.config/systemd/user
 #   7. locale          — generate ru_RU.UTF-8 if absent
-#   8. wifi-fix        — opt-in (--laptop-wifi-fix): install rtl8821ce-dkms-git,
+#   8. lts-kernel      — install linux-lts and add a systemd-boot entry that
+#                        mirrors the default cmdline. Survives broken upgrades.
+#   9. backup          — install timeshift, materialise /etc/timeshift/timeshift.json
+#                        from the template, deploy the pacman pre-transaction hook,
+#                        and create a first known-good snapshot.
+#  10. wifi-fix        — opt-in (--laptop-wifi-fix): install rtl8821ce-dkms-git,
 #                        blacklist rtw88, patch cmdline, rebuild initramfs
 #
 # Flags:
 #   --all                run everything end-to-end
-#   --stage NAME         run a single stage (preflight|pacman|aur|dotfiles|system|services|locale|wifi-fix)
+#   --stage NAME         run a single stage (preflight|pacman|aur|dotfiles|system|services|locale|lts-kernel|backup|wifi-fix)
 #   --skip NAME          skip a stage (can be repeated)
 #   --dry-run            print what would happen, don't change anything
 #   --yes                non-interactive (passes --noconfirm to pacman/yay)
@@ -40,7 +45,7 @@ LAPTOP_WIFI_FIX=0
 RUN_STAGES=()
 SKIP_STAGES=()
 
-ALL_STAGES=(preflight pacman aur dotfiles system services locale)
+ALL_STAGES=(preflight pacman aur dotfiles system services locale lts-kernel backup)
 
 # ----- helpers -----
 log()  { printf '\033[1;36m==>\033[0m %s\n' "$*"; }
@@ -205,10 +210,49 @@ stage_system() {
   log "Deploying system presets (backup: $SYSTEM_BACKUP_DIR)"
   while IFS= read -r -d '' f; do
     rel="${f#$REPO_DIR/system/}"
-    # skip the bootloader helper — it's a script, not a target file
+    # skip non-targets: helper scripts and templates (filled in by other stages)
     [[ "$rel" == bootloader/* ]] && continue
+    [[ "$rel" == *.template ]] && continue
     deploy_system_file "$rel"
   done < <(find "$REPO_DIR/system" -type f -print0)
+}
+
+stage_lts_kernel() {
+  log "Setting up linux-lts as fallback kernel"
+  if ! pacman -Q linux-lts >/dev/null 2>&1; then
+    sudo_run "pacman -S $PAC_FLAGS linux-lts linux-lts-headers"
+  fi
+  run "bash '$REPO_DIR/system/bootloader/add-lts-entry.sh'"
+}
+
+stage_backup() {
+  log "Configuring Timeshift + pacman pre-transaction hook"
+  if ! command -v timeshift >/dev/null 2>&1; then
+    sudo_run "pacman -S $PAC_FLAGS timeshift"
+  fi
+
+  local tpl="$REPO_DIR/system/etc/timeshift/timeshift.json.template"
+  local dst="/etc/timeshift/timeshift.json"
+  if [[ ! -e "$dst" ]]; then
+    local root_uuid
+    root_uuid="$(findmnt -no UUID /)"
+    [[ -n "$root_uuid" ]] || { err "Couldn't detect root UUID"; return 1; }
+    log "Writing $dst (root UUID: $root_uuid)"
+    sudo_run "mkdir -p /etc/timeshift"
+    sudo_run "sed 's/__ROOT_UUID__/$root_uuid/' '$tpl' > '$dst'"
+  else
+    log "$dst already exists — leaving it alone"
+  fi
+
+  # The pacman hook is deployed by stage_system already; bail if missing.
+  if [[ ! -f /etc/pacman.d/hooks/50-timeshift.hook ]]; then
+    deploy_system_file "etc/pacman.d/hooks/50-timeshift.hook"
+  fi
+
+  if [[ $DRY_RUN -eq 0 ]] && ! sudo timeshift --list 2>/dev/null | grep -q '_'; then
+    log "Creating first known-good snapshot (this can take a few minutes)"
+    sudo_run "timeshift --create --comments 'first known-good (myrice install)' --tags M"
+  fi
 }
 
 stage_services() {
@@ -261,14 +305,16 @@ log "myrice installer — repo: $REPO_DIR"
 for stage in "${ALL_STAGES[@]}" "wifi-fix"; do
   stage_enabled "$stage" || continue
   case "$stage" in
-    preflight) stage_preflight;;
-    pacman)    stage_pacman;;
-    aur)       stage_aur;;
-    dotfiles)  stage_dotfiles;;
-    system)    stage_system;;
-    services)  stage_services;;
-    locale)    stage_locale;;
-    wifi-fix)  stage_wifi_fix;;
+    preflight)  stage_preflight;;
+    pacman)     stage_pacman;;
+    aur)        stage_aur;;
+    dotfiles)   stage_dotfiles;;
+    system)     stage_system;;
+    services)   stage_services;;
+    locale)     stage_locale;;
+    lts-kernel) stage_lts_kernel;;
+    backup)     stage_backup;;
+    wifi-fix)   stage_wifi_fix;;
   esac
 done
 

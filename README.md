@@ -16,8 +16,9 @@ fresh Arch box to my exact desktop.
 - Hypr helper scripts (screenshot, scale, system-monitor, toggle-special-window, lock-input, …)
 - AC-aware power-mode switcher (`home/.local/bin/power-mode.sh` + `power-mode-watch.service`)
 - Lid-handler toggle for "mobile" mode (`home/.local/bin/lid-mobile-toggle` + `lid-mobile.service`)
-- System presets in `system/etc/` (NetworkManager Wi-Fi powersave, optional rtw88 stability options)
-- Bootloader helper to add `pcie_aspm=off` to systemd-boot entries
+- System presets in `system/etc/` (NetworkManager Wi-Fi powersave, optional rtw88 stability options, journald 500M cap, systemd-oomd slice policies, pacman→timeshift pre-transaction hook)
+- Bootloader helpers: add `pcie_aspm=off` to entries, generate a mirrored `linux-lts` fallback entry
+- Backup & rollback strategy with Timeshift (see [docs/BACKUP.md](docs/BACKUP.md))
 
 ## Repo layout
 
@@ -85,6 +86,8 @@ Stages:
 | `system`   | Copy `system/etc/*` into `/etc/*`. Overwritten files backed up to `/var/backups/myrice-<ts>/` |
 | `services` | `systemctl --user enable --now` for shipped user units |
 | `locale`   | Generate `ru_RU.UTF-8` if missing |
+| `lts-kernel` | Install `linux-lts` + add a mirrored systemd-boot entry. Your fallback when the main kernel breaks. |
+| `backup`   | Install `timeshift`, materialise `/etc/timeshift/timeshift.json` from the template (root UUID auto-detected), deploy the pre-pacman snapshot hook, and create a first known-good snapshot. See [docs/BACKUP.md](docs/BACKUP.md) for the rollback workflow. |
 | `wifi-fix` | **Opt-in.** Installs `rtl8821ce-dkms-git`, deploys rtw88 blacklist, runs `patch-pcie-aspm.sh`, rebuilds initramfs. For the Realtek RTL8821CE chipset that drops the link with `"failed to get tx report from firmware"`. |
 
 The installer is idempotent: re-running it skips already-linked files

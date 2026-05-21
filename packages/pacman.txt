@@ -53,6 +53,17 @@ base-devel
 dkms
 linux-headers
 
+# Fallback kernel — install.sh's lts-kernel stage adds a systemd-boot entry
+# pointing at vmlinuz-linux-lts so a broken upgrade of the main kernel
+# never strands you without a bootable system.
+linux-lts
+linux-lts-headers
+
+# Snapshot / rollback (configured by install.sh's backup stage:
+# /etc/timeshift/timeshift.json from template + pacman pre-transaction hook
+# that snapshots automatically before every Syu).
+timeshift
+
 # Sync helper
 rsync
 
