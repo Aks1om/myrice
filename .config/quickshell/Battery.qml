@@ -58,7 +58,11 @@ Item {
           visible: root.charging
           name: "lightning"
           variant: "fill"
-          color: "#000000"
+          // Bolt sits in the centre of the battery. When the fill has reached
+          // the middle (≥50%) it's over a light bar → dark bolt; below that
+          // it's over the dark background → light bolt. Keeps it readable at
+          // any charge level (fixes black-on-black when nearly empty).
+          color: root.pct >= 50 ? "#000000" : parent.parent.mainColor
           size: 8
         }
       }
