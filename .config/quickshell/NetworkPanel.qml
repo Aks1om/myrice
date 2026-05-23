@@ -163,8 +163,11 @@ Loader {
             readonly property var net: modelData
             readonly property bool isActive: net && net.inUse
             readonly property bool isSecured: net && net.security && net.security.length > 0
+            readonly property bool isKnown: net && net.known === true
             readonly property bool isConnecting: loader.connecting === (net ? net.ssid : "")
-            readonly property bool expanded: loader.expandedSsid === (net ? net.ssid : "") && (isActive || isSecured)
+            // password row is only for secured networks we don't have saved yet
+            readonly property bool needsPassword: isSecured && !isKnown && !isActive
+            readonly property bool expanded: loader.expandedSsid === (net ? net.ssid : "") && (isActive || needsPassword)
 
             readonly property int rowHeight: 44
             readonly property int expandedHeight: 38
@@ -245,14 +248,26 @@ Loader {
                 cursorShape: Qt.PointingHandCursor
                 onClicked: {
                   loader.lastError = ""
-                  // Open network: just connect, no expansion
-                  if (!del.isActive && !del.isSecured) {
+                  // Active network → toggle the Disconnect/Forget row
+                  if (del.isActive) {
+                    loader.expandedSsid = del.expanded ? "" : del.net.ssid
+                    return
+                  }
+                  // Known (saved) network → connect straight away; NM already has the password
+                  if (del.isKnown) {
+                    loader.expandedSsid = ""
+                    loader.connecting = del.net.ssid
+                    loader.network.connectKnown(del.net.ssid)
+                    return
+                  }
+                  // Open (unsecured) network → just connect
+                  if (!del.isSecured) {
                     loader.expandedSsid = ""
                     loader.connecting = del.net.ssid
                     loader.network.connectOpen(del.net.ssid)
                     return
                   }
-                  // Active or secured: toggle expanded row
+                  // Secured + unknown → expand password row
                   loader.expandedSsid = del.expanded ? "" : del.net.ssid
                 }
               }
@@ -287,11 +302,38 @@ Loader {
 
                     Text {
                       Layout.fillWidth: true
-                      text: "Текущее подключение"
+                      text: "Подключено"
                       color: "#909090"
                       font.family: "Manrope"
                       font.pixelSize: 11
                       elide: Text.ElideRight
+                    }
+                    // Forget — delete the saved profile (e.g. password changed)
+                    Rectangle {
+                      Layout.preferredWidth: 64
+                      Layout.preferredHeight: 24
+                      radius: 4
+                      color: forgetArea.containsMouse ? "#2e2e2e" : "transparent"
+                      border.width: 1
+                      border.color: "#555555"
+                      Text {
+                        anchors.centerIn: parent
+                        text: "Забыть"
+                        color: "#cfcfcf"
+                        font.family: "Manrope"
+                        font.pixelSize: 11
+                        font.weight: Font.DemiBold
+                      }
+                      MouseArea {
+                        id: forgetArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                          loader.expandedSsid = ""
+                          loader.network.forget(del.net.ssid)
+                        }
+                      }
                     }
                     Rectangle {
                       Layout.preferredWidth: 84
@@ -322,9 +364,9 @@ Loader {
                   }
                 }
 
-                // Secured (not active) → password input + Connect
+                // Secured + not yet saved → password input + Connect
                 Loader {
-                  active: !del.isActive && del.isSecured
+                  active: del.needsPassword
                   visible: active
                   anchors.fill: parent
                   sourceComponent: RowLayout {

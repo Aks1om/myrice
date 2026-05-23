@@ -34,6 +34,13 @@ polkit-gnome
 power-profiles-daemon
 upower
 
+# Wi-Fi / wireless regulatory
+# wireless-regdb ships regulatory.db so the kernel leaves the strict "00"
+# world domain (set country via system stage: modprobe.d/cfg80211.conf).
+# iw is the wireless-config/diagnostics CLI (iw reg get/set, scan, power_save).
+wireless-regdb
+iw
+
 # Screenshots / clipboard
 grim
 slurp
