@@ -289,6 +289,13 @@ stage_wifi_fix() {
     deploy_system_file "etc/modprobe.d/rtw88.conf"
   fi
 
+  # 2b. Disable the out-of-tree 8821ce driver's internal power-save.
+  #     rtw_power_mgnt=2 (default) caused reason=3 locally_generated
+  #     disconnects during ACTIVE use — the radio enters LPS/IPS, loses sync,
+  #     and the driver locally deauths (beacon loss = 0, so not a weak signal).
+  #     8821ce.conf sets rtw_power_mgnt=0 + rtw_ips_mode=0.
+  deploy_system_file "etc/modprobe.d/8821ce.conf"
+
   # 3. Add pcie_aspm=off to systemd-boot entries
   run "bash '$REPO_DIR/system/bootloader/patch-pcie-aspm.sh'"
 
