@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell.Hyprland
 import Quickshell.Io
+import "theme"
 
 Item {
   id: root
@@ -9,7 +10,6 @@ Item {
 
   property string layoutName: ""
 
-  // Initial fetch
   Process {
     id: probe
     running: true
@@ -19,7 +19,6 @@ Item {
     }
   }
 
-  // Real-time event stream from Hyprland socket2
   Process {
     id: events
     running: true
@@ -45,6 +44,7 @@ for line in f:
         }
       }
     }
+    onExited: Qt.callLater(() => { events.running = true })
   }
 
   Text {
@@ -53,9 +53,9 @@ for line in f:
     text: root.layoutName.startsWith("rus") ? "ru"
         : root.layoutName.startsWith("eng") ? "en"
         : root.layoutName.slice(0, 2)
-    color: "#ffffff"
-    font.family: "Inter"
-    font.pixelSize: 12
+    color: Colors.textPrim
+    font.family: Colors.fontPrimary
+    font.pixelSize: Colors.fontSizeBase
     font.weight: Font.Medium
   }
 

@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell.Hyprland
+import "theme"
 
 Text {
   id: root
@@ -12,8 +13,8 @@ Text {
 
   text: activeClient?.title ?? ""
   color: Qt.rgba(1, 1, 1, 0.88)
-  font.family: "Inter"
-  font.pixelSize: 13
+  font.family: Colors.fontPrimary
+  font.pixelSize: Colors.fontSizeMedium
   font.weight: Font.Bold
   elide: Text.ElideRight
   verticalAlignment: Text.AlignVCenter

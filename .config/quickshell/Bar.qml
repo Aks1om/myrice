@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import "theme"
 
 Rectangle {
   id: root
@@ -10,7 +11,6 @@ Rectangle {
 
   Clock { id: clock }
 
-  // Center separator — pinned to the monitor's exact horizontal center
   Rectangle {
     id: centerSep
     anchors.horizontalCenter: parent.horizontalCenter
@@ -21,38 +21,35 @@ Rectangle {
     z: 2
   }
 
-  // Date — sits to the LEFT of the separator
   Text {
     anchors.right: centerSep.left
-    anchors.rightMargin: 10
+    anchors.rightMargin: Colors.spacingLg
     anchors.verticalCenter: parent.verticalCenter
     text: clock.date
-    color: "#ffffff"
-    font.family: "Inter"
-    font.pixelSize: 13
+    color: Colors.textPrim
+    font.family: Colors.fontPrimary
+    font.pixelSize: Colors.fontSizeMedium
     font.weight: Font.Medium
     z: 2
   }
 
-  // Time — sits to the RIGHT of the separator
   Text {
     anchors.left: centerSep.right
-    anchors.leftMargin: 10
+    anchors.leftMargin: Colors.spacingLg
     anchors.verticalCenter: parent.verticalCenter
     text: clock.time
-    color: "#ffffff"
-    font.family: "Inter"
-    font.pixelSize: 13
+    color: Colors.textPrim
+    font.family: Colors.fontPrimary
+    font.pixelSize: Colors.fontSizeMedium
     font.weight: Font.Medium
     z: 2
   }
 
-  // Left section
   RowLayout {
     anchors.left: parent.left
     anchors.verticalCenter: parent.verticalCenter
-    anchors.leftMargin: 14
-    spacing: 14
+    anchors.leftMargin: Colors.spacingXl
+    spacing: Colors.spacingXl
 
     Workspaces { screen: root.screen }
     SpecialWorkspace { screen: root.screen }
@@ -77,13 +74,13 @@ Rectangle {
     MediaPlayer { id: mediaLeft }
   }
 
-  // Right section
   RowLayout {
     anchors.right: parent.right
     anchors.verticalCenter: parent.verticalCenter
-    anchors.rightMargin: 14
-    spacing: 14
+    anchors.rightMargin: Colors.spacingXl
+    spacing: Colors.spacingXl
 
+    TrayToggle {}
     Network {}
     Bluetooth {}
     Notifications {}

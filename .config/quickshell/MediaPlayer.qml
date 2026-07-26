@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell.Services.Mpris
+import "theme"
 
 Item {
   id: root
@@ -16,12 +17,12 @@ Item {
   RowLayout {
     id: layout
     anchors.fill: parent
-    spacing: 6
+    spacing: Colors.spacingSm
 
     Icon {
       Layout.alignment: Qt.AlignVCenter
       name: root.player?.playbackState === MprisPlaybackState.Playing ? "pause" : "play"
-      color: "#ffffff"
+      color: Colors.textPrim
       size: 14
     }
     Text {
@@ -34,9 +35,9 @@ Item {
         return a ? `${a} — ${t}` : t;
       }
       elide: Text.ElideRight
-      color: "#ffffff"
-      font.family: "Inter"
-      font.pixelSize: 12
+      color: Colors.textPrim
+      font.family: Colors.fontPrimary
+      font.pixelSize: Colors.fontSizeBase
       font.weight: Font.Bold
     }
   }

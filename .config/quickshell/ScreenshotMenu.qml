@@ -1,3 +1,4 @@
+import "theme"
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
@@ -68,10 +69,10 @@ Scope {
         anchors.centerIn: parent
         width: 380
         implicitHeight: col.implicitHeight + 24
-        color: "#000000"
-        radius: 14
+        color: Colors.bgBase
+        radius: Colors.radiusXl
         border.width: 1
-        border.color: "#3a3a3a"
+        border.color: Colors.border
 
         MouseArea { anchors.fill: parent; onClicked: {} }
 
@@ -83,7 +84,7 @@ Scope {
             top: parent.top
             margins: 12
           }
-          spacing: 8
+          spacing: Colors.spacingMd
 
           ColumnLayout {
             Layout.fillWidth: true
@@ -93,23 +94,23 @@ Scope {
             spacing: 1
             Text {
               text: "Screenshot"
-              color: "#ffffff"
-              font.family: "Inter"
-              font.pixelSize: 14
+              color: Colors.textPrim
+              font.family: Colors.fontPrimary
+              font.pixelSize: Colors.fontSizeLarge
               font.weight: Font.DemiBold
             }
             Text {
               text: "Что сохранить"
-              color: "#7a7a7a"
-              font.family: "Inter"
-              font.pixelSize: 10
+                    color: Colors.textHint
+              font.family: Colors.fontPrimary
+              font.pixelSize: Colors.fontSizeTiny
             }
           }
 
           Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 1
-            color: "#1f1f1f"
+            color: Colors.overlay
           }
 
           Repeater {
@@ -123,8 +124,8 @@ Scope {
 
               Rectangle {
                 anchors.fill: parent
-                color: parent.isFocused ? "#1c1c1c" : "transparent"
-                radius: 8
+                color: parent.isFocused ? Colors.surface : "transparent"
+                radius: Colors.radiusMd
               }
 
               RowLayout {
@@ -135,7 +136,7 @@ Scope {
 
                 Icon {
                   name: modelData.icon
-                  color: parent.parent.isFocused ? "#ffffff" : "#cfcfcf"
+                  color: parent.parent.isFocused ? Colors.textPrim : Colors.textSecondary
                   size: 16
                 }
                 ColumnLayout {
@@ -144,18 +145,18 @@ Scope {
                   Text {
                     Layout.fillWidth: true
                     text: modelData.label
-                    color: parent.parent.parent.isFocused ? "#ffffff" : "#cfcfcf"
-                    font.family: "Manrope"
-                    font.pixelSize: 12
+                    color: parent.parent.parent.isFocused ? Colors.textPrim : Colors.textSecondary
+                    font.family: Colors.fontSecondary
+                    font.pixelSize: Colors.fontSizeBase
                     elide: Text.ElideRight
                   }
                   Text {
                     Layout.fillWidth: true
                     visible: modelData.hint.length > 0
                     text: modelData.hint
-                    color: "#7a7a7a"
-                    font.family: "Manrope"
-                    font.pixelSize: 10
+              color: Colors.textHint
+                    font.family: Colors.fontSecondary
+                    font.pixelSize: Colors.fontSizeTiny
                     elide: Text.ElideRight
                   }
                 }

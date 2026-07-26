@@ -1,3 +1,4 @@
+import "theme"
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -43,6 +44,7 @@ Scope {
     { cat: "Меню",       keys: "SUPER + CTRL + =",  desc: "Scale +5%" },
     { cat: "Меню",       keys: "SUPER + CTRL + −",  desc: "Scale −5%" },
     { cat: "Меню",       keys: "SUPER + CTRL + 0",  desc: "Scale reset (100%)" },
+    { cat: "Меню",       keys: "SUPER + SHIFT + R", desc: "Переключение русского Ctrl-режима (латинские Ctrl-сочетания в русской раскладке)" },
     { cat: "Меню",       keys: "SUPER + F1",        desc: "Эта подсказка" },
 
     // Workspaces
@@ -120,17 +122,17 @@ Scope {
         anchors.centerIn: parent
         width: 680
         height: 540
-        color: "#000000"
-        radius: 14
+        color: Colors.bgBase
+        radius: Colors.radiusXl
         border.width: 1
-        border.color: "#3a3a3a"
+        border.color: Colors.border
 
         MouseArea { anchors.fill: parent; onClicked: {} }
 
         ColumnLayout {
           anchors.fill: parent
-          anchors.margins: 12
-          spacing: 10
+          anchors.margins: Colors.marginXl
+          spacing: Colors.spacingLg
 
           TextField {
             id: search
@@ -139,20 +141,20 @@ Scope {
             focus: true
             text: root.query
             placeholderText: "Поиск хоткеев…"
-            placeholderTextColor: "#5e5e5e"
-            color: "#ffffff"
-            font.family: "Inter"
-            font.pixelSize: 14
+            placeholderTextColor: Colors.textPlaceholder
+            color: Colors.textPrim
+            font.family: Colors.fontPrimary
+            font.pixelSize: Colors.fontSizeLarge
             selectByMouse: true
             verticalAlignment: TextInput.AlignVCenter
             leftPadding: 14
             rightPadding: 14
 
             background: Rectangle {
-              color: "#1c1c1c"
+              color: Colors.surface
               radius: 10
               border.width: 1
-              border.color: "#2a2a2a"
+              border.color: Colors.border
             }
 
             onTextChanged: root.query = text
@@ -197,8 +199,8 @@ Scope {
               Rectangle {
                 anchors.fill: parent
                 anchors.rightMargin: 4
-                color: parent.isFocused ? "#1c1c1c" : "transparent"
-                radius: 8
+                color: parent.isFocused ? Colors.surface : "transparent"
+                radius: Colors.radiusMd
               }
 
               RowLayout {
@@ -211,9 +213,9 @@ Scope {
                 Text {
                   Layout.preferredWidth: 220
                   text: modelData.keys
-                  color: parent.parent.isFocused ? "#ffffff" : "#cfcfcf"
-                  font.family: "JetBrainsMono Nerd Font"
-                  font.pixelSize: 11
+                  color: parent.parent.isFocused ? Colors.textPrim : Colors.textSecondary
+                  font.family: Colors.fontMono
+                  font.pixelSize: Colors.fontSizeSmall
                   elide: Text.ElideRight
                 }
 
@@ -221,18 +223,18 @@ Scope {
                 Text {
                   Layout.fillWidth: true
                   text: modelData.desc
-                  color: parent.parent.isFocused ? "#ffffff" : "#a5a5a5"
-                  font.family: "Manrope"
-                  font.pixelSize: 12
+                  color: parent.parent.isFocused ? Colors.textPrim : Colors.textMuted
+                  font.family: Colors.fontSecondary
+                  font.pixelSize: Colors.fontSizeBase
                   elide: Text.ElideRight
                 }
 
                 // Category badge
                 Text {
                   text: modelData.cat
-                  color: "#7a7a7a"
-                  font.family: "Inter"
-                  font.pixelSize: 10
+                  color: Colors.textHint
+                  font.family: Colors.fontPrimary
+                  font.pixelSize: Colors.fontSizeTiny
                 }
               }
 
@@ -250,9 +252,9 @@ Scope {
             horizontalAlignment: Text.AlignHCenter
             visible: root.results.length === 0
             text: "Ничего не найдено"
-            color: "#5e5e5e"
-            font.family: "Inter"
-            font.pixelSize: 11
+            color: Colors.textPlaceholder
+            font.family: Colors.fontPrimary
+            font.pixelSize: Colors.fontSizeSmall
           }
         }
       }

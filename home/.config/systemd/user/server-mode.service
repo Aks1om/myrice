@@ -1,0 +1,12 @@
+[Unit]
+Description=Server mode — inhibit lid-switch / sleep / idle
+Documentation=man:systemd-inhibit(1)
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/systemd-inhibit --who=server-mode --why=laptop-lid-closed --what=handle-lid-switch:sleep:idle --mode=block sleep infinity
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target

@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell.Io
 import Quickshell.Services.Pipewire
+import "theme"
 
 Item {
   id: root
@@ -17,7 +18,7 @@ Item {
   RowLayout {
     id: layout
     anchors.fill: parent
-    spacing: 6
+    spacing: Colors.spacingSm
 
     Icon {
       Layout.alignment: Qt.AlignVCenter
@@ -25,7 +26,7 @@ Item {
           : root.vol >= 0.7 ? "speaker-high"
           : root.vol >= 0.3 ? "speaker-low"
                             : "speaker-none"
-      color: root.muted ? Qt.rgba(1, 1, 1, 0.5) : "#ffffff"
+      color: root.muted ? Qt.rgba(1, 1, 1, 0.5) : Colors.textPrim
       size: 16
     }
   }

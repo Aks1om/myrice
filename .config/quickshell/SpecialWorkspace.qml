@@ -18,10 +18,10 @@ Item {
     id: txt
     anchors.centerIn: parent
     text: "◆"
-    font.family: "Inter"
-    font.pixelSize: 11
-    color: root.state === "active" ? "#c4b5fd"
-         : root.state === "occupied" ? "#8b5cf6"
+    font.family: Colors.fontPrimary
+    font.pixelSize: Colors.fontSizeSmall
+    color: root.state === "active" ? Colors.accent
+         : root.state === "occupied" ? Colors.accentDim
          : Qt.rgba(1, 1, 1, 0.22)
   }
 

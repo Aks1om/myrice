@@ -1,3 +1,4 @@
+import "theme"
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -95,10 +96,10 @@ Scope {
         anchors.centerIn: parent
         width: 380
         implicitHeight: col.implicitHeight + 32
-        color: "#000000"
+        color: Colors.bgBase
         radius: 18
         border.width: 1
-        border.color: "#3a3a3a"
+        border.color: Colors.border
 
         MouseArea { anchors.fill: parent; onClicked: {} }
 
@@ -110,23 +111,23 @@ Scope {
             top: parent.top
             margins: 16
           }
-          spacing: 14
+          spacing: Colors.spacingXl
 
           RowLayout {
             Layout.fillWidth: true
             Text {
               Layout.fillWidth: true
               text: "UI Scale"
-              color: "#ffffff"
-              font.family: "Inter"
-              font.pixelSize: 12
+              color: Colors.textPrim
+              font.family: Colors.fontPrimary
+              font.pixelSize: Colors.fontSizeBase
               font.weight: Font.DemiBold
             }
             Text {
               text: root.scalePct + "%"
-              color: "#ffffff"
-              font.family: "JetBrainsMono Nerd Font"
-              font.pixelSize: 12
+              color: Colors.textPrim
+              font.family: Colors.fontMono
+              font.pixelSize: Colors.fontSizeBase
               font.weight: Font.DemiBold
             }
           }
@@ -155,11 +156,11 @@ Scope {
               width: slider.availableWidth
               height: 4
               radius: 2
-              color: "#2a2a2a"
+              color: Colors.overlay
               Rectangle {
                 width: slider.visualPosition * parent.width
                 height: parent.height
-                color: "#ffffff"
+                color: Colors.textPrim
                 radius: 2
               }
             }
@@ -169,8 +170,8 @@ Scope {
               y: slider.topPadding + slider.availableHeight / 2 - height / 2
               width: 16
               height: 16
-              radius: 8
-              color: "#ffffff"
+              radius: Colors.radiusMd
+              color: Colors.textPrim
             }
           }
 
@@ -181,8 +182,8 @@ Scope {
                 : panel.snapMode === "five"    ? "Snap: 5%"
                                                : "Hold Shift = snap 5%   ·   Ctrl = snap presets"
             color: Qt.rgba(1, 1, 1, 0.5)
-            font.family: "Inter"
-            font.pixelSize: 10
+            font.family: Colors.fontPrimary
+            font.pixelSize: Colors.fontSizeTiny
           }
         }
       }

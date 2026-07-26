@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Toggle "server mode": lid inhibitor on, screen off.
+# Bound to SUPER+SHIFT+M in ~/.config/hypr/bindings.conf.
+set -euo pipefail
+
+UNIT=server-mode.service
+
+if systemctl --user is-active --quiet "$UNIT"; then
+  systemctl --user stop "$UNIT"
+  hyprctl dispatch dpms on >/dev/null 2>&1 || true
+  notify-send -a "server-mode" -t 2500 "🖥️ Server mode OFF" "ноут работает нормально"
+else
+  systemctl --user start "$UNIT"
+  notify-send -a "server-mode" -t 2500 "🖥️ Server mode ON" "ноут с закрытой крышкой, экран выключен"
+  sleep 0.4
+  hyprctl dispatch dpms off >/dev/null 2>&1 || true
+fi

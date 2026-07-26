@@ -3,31 +3,26 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
 import Quickshell.Bluetooth
+import "theme"
 
 Item {
   id: root
   implicitWidth: layout.implicitWidth
   implicitHeight: layout.implicitHeight
 
-  // Known dongle MAC — Quickshell.BluetoothAdapter has no `address` property,
-  // so we map dbusPath -> MAC via busctl and identify dongle by MAC.
   readonly property string dongleAddress: "8C:68:8B:C0:69:C1"
 
-  // dbusPath -> MAC (filled by macFetcher)
   property var pathToMac: ({})
   property int _adaptersTick: 0
   property int _macTick: 0
 
-  // Subscribe to adapter list changes; trigger MAC refresh
   Connections {
     target: Bluetooth.adapters
-    function onValuesChanged() { root._adaptersTick++; macFetcher.running = true }
-    function onObjectInsertedPost() { root._adaptersTick++; macFetcher.running = true }
+    function onValuesChanged() { root._adaptersTick++; if (!macFetcher.running) macFetcher.running = true }
+    function onObjectInsertedPost() { root._adaptersTick++; if (!macFetcher.running) macFetcher.running = true }
     function onObjectRemovedPost() { root._adaptersTick++ }
   }
 
-  // Re-fetch MACs periodically as a safety net (in case adapter appears
-  // between events).
   Timer {
     interval: 2000; running: true; repeat: false
     onTriggered: macFetcher.running = true
@@ -59,9 +54,8 @@ Item {
     return root.pathToMac[a.dbusPath] === root.dongleAddress
   }
 
-  // Prefer dongle when present, fall back to bluez default
   readonly property var adapter: {
-    root._adaptersTick; root._macTick  // deps
+    root._adaptersTick; root._macTick
     const am = Bluetooth.adapters
     if (am) {
       const list = am.values
@@ -83,25 +77,24 @@ Item {
   RowLayout {
     id: layout
     anchors.fill: parent
-    spacing: 4
+    spacing: Colors.spacingXs
 
     Icon {
       Layout.alignment: Qt.AlignVCenter
       name: !root.enabled ? "bluetooth-slash"
           : root.connectedDevice ? "bluetooth-connected"
                                  : "bluetooth"
-      color: !root.enabled ? Qt.rgba(1, 1, 1, 0.5) : "#ffffff"
+      color: !root.enabled ? Qt.rgba(1, 1, 1, 0.5) : Colors.textPrim
       size: 16
     }
 
-    // Adapter source badge: USB (dongle) or BT (built-in)
     Text {
       Layout.alignment: Qt.AlignVCenter
       visible: root.adapter !== null && root.adapter !== undefined
       text: root.isDongle ? "USB" : "BT"
       color: !root.enabled ? Qt.rgba(1, 1, 1, 0.4)
            : root.isDongle ? "#7dd3fc" : "#fbbf24"
-      font.family: "Manrope"
+      font.family: Colors.fontSecondary
       font.pixelSize: 8
       font.weight: Font.Bold
     }

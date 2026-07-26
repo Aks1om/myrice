@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell.Io
+import "theme"
 
 Item {
   id: root
@@ -24,6 +25,7 @@ Item {
   Process {
     id: toggle
     command: ["bash", "/home/aks1om/.config/hypr/scripts/power-mode.sh", "toggle"]
+    onExited: get.running = true
   }
 
   Timer {
@@ -38,7 +40,7 @@ Item {
     name: root.mode === "performance" ? "lightning"
         : root.mode === "powersave" ? "leaf"
                                     : "gauge"
-    color: root.mode === "performance" ? "#ffffff"
+    color: root.mode === "performance" ? Colors.textPrim
          : root.mode === "powersave" ? "#86efac"
                                      : Qt.rgba(1, 1, 1, 0.55)
     size: 16
@@ -47,6 +49,6 @@ Item {
   MouseArea {
     anchors.fill: parent
     cursorShape: Qt.PointingHandCursor
-    onClicked: { toggle.running = true; get.running = true; }
+    onClicked: { toggle.running = true }
   }
 }

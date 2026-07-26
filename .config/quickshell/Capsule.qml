@@ -1,12 +1,13 @@
 import QtQuick
 import QtQuick.Layouts
+import "theme"
 
 Rectangle {
   id: root
   default property alias content: layout.data
   property real hPadding: 10
 
-  color: "#0a0a0a"
+  color: Colors.bgDeep
   radius: 8
   border.color: Qt.rgba(1, 1, 1, 0.22)
   border.width: 1

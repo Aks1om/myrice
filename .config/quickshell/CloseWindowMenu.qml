@@ -1,3 +1,4 @@
+import "theme"
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
@@ -72,10 +73,10 @@ Scope {
         anchors.centerIn: parent
         width: 320
         implicitHeight: col.implicitHeight + 24
-        color: "#000000"
-        radius: 14
+        color: Colors.bgBase
+        radius: Colors.radiusXl
         border.width: 1
-        border.color: "#3a3a3a"
+        border.color: Colors.border
 
         MouseArea { anchors.fill: parent; onClicked: {} }
 
@@ -87,23 +88,23 @@ Scope {
             top: parent.top
             margins: 12
           }
-          spacing: 10
+          spacing: Colors.spacingLg
 
           Text {
             Layout.fillWidth: true
             text: "Close window?"
-            color: "#ffffff"
-            font.family: "Manrope"
-            font.pixelSize: 12
+            color: Colors.textPrim
+            font.family: Colors.fontSecondary
+            font.pixelSize: Colors.fontSizeBase
             font.weight: Font.DemiBold
           }
 
           Text {
             Layout.fillWidth: true
             text: root.activeTitle || "(untitled)"
-            color: "#cfcfcf"
-            font.family: "Manrope"
-            font.pixelSize: 11
+            color: Colors.textSecondary
+            font.family: Colors.fontSecondary
+            font.pixelSize: Colors.fontSizeSmall
             elide: Text.ElideRight
             wrapMode: Text.NoWrap
           }
@@ -111,24 +112,24 @@ Scope {
           RowLayout {
             Layout.fillWidth: true
             Layout.topMargin: 4
-            spacing: 8
+            spacing: Colors.spacingMd
 
             // Cancel
             Rectangle {
               property bool isFocused: root.selected === 0 || cancelArea.containsMouse
               Layout.fillWidth: true
               Layout.preferredHeight: 36
-              radius: 8
-              color: isFocused ? "#1c1c1c" : "transparent"
+              radius: Colors.radiusMd
+              color: isFocused ? Colors.surface : "transparent"
               border.width: 1
-              border.color: "#3a3a3a"
+              border.color: Colors.border
 
               Text {
                 anchors.centerIn: parent
                 text: "Cancel"
-                color: "#cfcfcf"
-                font.family: "Manrope"
-                font.pixelSize: 12
+                color: Colors.textSecondary
+                font.family: Colors.fontSecondary
+                font.pixelSize: Colors.fontSizeBase
               }
               MouseArea {
                 id: cancelArea
@@ -145,16 +146,16 @@ Scope {
               property bool isFocused: root.selected === 1 || closeArea.containsMouse
               Layout.fillWidth: true
               Layout.preferredHeight: 36
-              radius: 8
-              color: isFocused ? "#e6e6e6" : "#ffffff"
+              radius: Colors.radiusMd
+              color: isFocused ? Colors.textSecondary : Colors.textPrim
               border.width: 0
 
               Text {
                 anchors.centerIn: parent
                 text: "Close"
-                color: "#000000"
-                font.family: "Manrope"
-                font.pixelSize: 12
+                color: Colors.bgBase
+                font.family: Colors.fontSecondary
+                font.pixelSize: Colors.fontSizeBase
               }
               MouseArea {
                 id: closeArea

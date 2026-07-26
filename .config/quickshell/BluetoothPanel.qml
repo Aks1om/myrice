@@ -5,6 +5,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Hyprland
 import Quickshell.Bluetooth
+import "theme"
 
 Loader {
   id: loader
@@ -14,16 +15,15 @@ Loader {
   active: open
   asynchronous: true
 
-  // Prefer dongle MAC if present (only adapter that works with AirPods 4 ANC)
   readonly property string dongleAddress: "8C:68:8B:C0:69:C1"
-  // Adapter MAC to scope commands to. Updated by the popup before any btCmd/powerOn call.
+  readonly property string builtinAddress: "28:D0:43:9A:48:F8"
   property string adapterAddress: ""
+  property string adapterHci: ""
+  property bool adapterIsDongle: false
 
   Process { id: btctl }
   Process { id: btPowerOn }
 
-  // Build a bluetoothctl shell script that first selects the desired controller,
-  // then runs the requested command(s). Empty adapterAddress falls back to default.
   function _ctlScript(cmd) {
     const sel = adapterAddress ? "select " + adapterAddress + "\\n" : ""
     return "printf '" + sel + cmd + "\\n' | bluetoothctl"
@@ -32,9 +32,30 @@ Loader {
     btctl.command = ["sh", "-c", _ctlScript(args.join(" "))]
     btctl.running = true
   }
+
+  function powerOff() {
+    let script = _ctlScript("power off")
+    if (adapterIsDongle) {
+      script += " && printf 'select " + builtinAddress + "\\npower off\\n' | bluetoothctl"
+    }
+    btctl.command = ["sh", "-c", script]
+    btctl.running = true
+  }
+
   function powerOn() {
-    btPowerOn.command = ["sh", "-c",
-      "sudo -n /usr/bin/rfkill unblock bluetooth && " + _ctlScript("power on")]
+    const hciIdx = adapterHci || ""
+    let rfkill
+    if (hciIdx) {
+      rfkill = "sudo -n /usr/bin/rfkill unblock " +
+        "$(grep -rl '" + hciIdx + "' /sys/class/rfkill/*/name 2>/dev/null | grep -oP '(?<=rfkill)\\d+' | head -1)"
+    } else {
+      rfkill = "sudo -n /usr/bin/rfkill unblock bluetooth"
+    }
+    let script = rfkill + " && " + _ctlScript("power on")
+    if (adapterIsDongle) {
+      script += " && printf 'select " + builtinAddress + "\\npower off\\n' | bluetoothctl"
+    }
+    btPowerOn.command = ["sh", "-c", script]
     btPowerOn.running = true
   }
 
@@ -50,7 +71,7 @@ Loader {
       item: loader.anchorItem
       edges: Edges.Bottom
       gravity: Edges.Bottom
-      margins.top: 8
+      margins.bottom: -10
     }
 
     HyprlandFocusGrab {
@@ -93,7 +114,7 @@ Loader {
     Component.onCompleted: popMacFetcher.running = true
 
     readonly property var adapter: {
-      pop._adaptersTick; pop._macTick  // deps
+      pop._adaptersTick; pop._macTick
       const am = Bluetooth.adapters
       if (am) {
         const list = am.values
@@ -109,8 +130,15 @@ Loader {
     readonly property bool discovering: adapter ? adapter.discovering : false
     readonly property bool isDongle: adapter && pop.pathToMac[adapter.dbusPath] === loader.dongleAddress
     readonly property string adapterMac: adapter ? (pop.pathToMac[adapter.dbusPath] || "") : ""
+    readonly property string adapterHci: {
+      if (!adapter || !adapter.dbusPath) return ""
+      const m = adapter.dbusPath.match(/\/(hci\d+)$/)
+      return m ? m[1] : ""
+    }
 
     onAdapterMacChanged: loader.adapterAddress = adapterMac
+    onAdapterHciChanged: loader.adapterHci = adapterHci
+    onIsDongleChanged: loader.adapterIsDongle = isDongle
 
     readonly property var devices: {
       if (!adapter || !adapter.devices) return []
@@ -128,11 +156,11 @@ Loader {
       anchors.left: parent.left
       anchors.right: parent.right
       anchors.top: parent.top
-      anchors.margins: 10
-      color: "#000000"
-      radius: 14
+      anchors.margins: Colors.marginLg
+      color: Colors.bgBase
+      radius: Colors.radiusXl
       border.width: 1
-      border.color: "#3a3a3a"
+      border.color: Colors.border
       implicitHeight: col.implicitHeight + 20
 
       MouseArea { anchors.fill: parent; onClicked: {} }
@@ -142,20 +170,19 @@ Loader {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
-        anchors.margins: 10
-        spacing: 8
+        anchors.margins: Colors.marginLg
+        spacing: Colors.spacingMd
 
-        // Header: enable toggle + scan + open blueman
         RowLayout {
           Layout.fillWidth: true
-          spacing: 8
+          spacing: Colors.spacingMd
 
           Icon {
             name: pop.enabled
                   ? (pop.adapter?.devices?.values?.some(d => d.connected) ? "bluetooth-connected" : "bluetooth")
                   : "bluetooth-slash"
-            color: pop.enabled ? "#ffffff" : Qt.rgba(1, 1, 1, 0.5)
-            size: 14
+            color: pop.enabled ? Colors.textPrim : Qt.rgba(1, 1, 1, 0.5)
+            size: 9
           }
           ColumnLayout {
             Layout.fillWidth: true
@@ -164,9 +191,9 @@ Loader {
               Layout.fillWidth: true
               text: pop.enabled ? "Bluetooth"
                                 : "Bluetooth (off)"
-              color: "#ffffff"
-              font.family: "Manrope"
-              font.pixelSize: 12
+              color: Colors.textPrim
+              font.family: Colors.fontSecondary
+              font.pixelSize: Colors.fontSizeBase
               font.weight: Font.DemiBold
             }
             Text {
@@ -174,18 +201,17 @@ Loader {
               Layout.fillWidth: true
               text: pop.isDongle ? "USB dongle" : "Built-in"
               color: pop.isDongle ? "#7dd3fc" : "#fbbf24"
-              font.family: "Manrope"
+              font.family: Colors.fontSecondary
               font.pixelSize: 9
             }
           }
 
-          // Scan button
           Rectangle {
             Layout.preferredWidth: 26
             Layout.preferredHeight: 22
-            radius: 6
-            color: scanArea.containsMouse ? "#1c1c1c" : "transparent"
-            border.color: "#3a3a3a"
+            radius: Colors.radiusSm
+            color: scanArea.containsMouse ? Colors.surface : "transparent"
+            border.color: Colors.border
             border.width: 1
             enabled: pop.enabled
 
@@ -193,7 +219,7 @@ Loader {
               anchors.centerIn: parent
               name: "arrows-clockwise"
               variant: pop.discovering ? "fill" : "regular"
-              color: pop.enabled ? "#ffffff" : "#5a5a5a"
+              color: pop.enabled ? Colors.textPrim : Colors.textMuted
               size: 11
             }
 
@@ -206,18 +232,17 @@ Loader {
             }
           }
 
-          // Enable toggle
           Rectangle {
             Layout.preferredWidth: 36
             Layout.preferredHeight: 22
             radius: 11
-            color: pop.enabled ? "#ffffff" : "#333333"
+            color: pop.enabled ? Colors.textPrim : Colors.border
 
             Rectangle {
               width: 14; height: 14; radius: 7
               y: 4
               x: pop.enabled ? parent.width - width - 4 : 4
-              color: pop.enabled ? "#0f0f0f" : "#909090"
+              color: pop.enabled ? Colors.bgDeep : Colors.textMuted
               Behavior on x { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
             }
 
@@ -226,7 +251,7 @@ Loader {
               cursorShape: Qt.PointingHandCursor
               onClicked: {
                 if (pop.enabled) {
-                  loader.btCmd(["power", "off"])
+                  loader.powerOff()
                 } else {
                   loader.powerOn()
                 }
@@ -235,10 +260,8 @@ Loader {
           }
         }
 
-        // separator
-        Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: "#252525" }
+        Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: Colors.overlay }
 
-        // Devices list
         ListView {
           id: devList
           Layout.fillWidth: true
@@ -262,15 +285,14 @@ Loader {
 
             Rectangle {
               anchors.fill: parent
-              color: rowArea.containsMouse ? "#1c1c1c" : "transparent"
-              radius: 6
+              color: rowArea.containsMouse ? Colors.surface : "transparent"
+              radius: Colors.radiusSm
             }
 
-            // Row click area — double click toggles connect; single click does nothing
             MouseArea {
               id: rowArea
               anchors.fill: parent
-              anchors.rightMargin: 36   // leave room for the forget button
+              anchors.rightMargin: 36
               hoverEnabled: true
               cursorShape: Qt.PointingHandCursor
               onDoubleClicked: {
@@ -281,14 +303,14 @@ Loader {
 
             RowLayout {
               anchors.fill: parent
-              anchors.leftMargin: 8
+              anchors.leftMargin: Colors.spacingMd
               anchors.rightMargin: 4
-              spacing: 8
+              spacing: Colors.spacingMd
 
               Icon {
                 name: delegateRoot.isConnected ? "bluetooth-connected" : "bluetooth"
-                color: delegateRoot.isConnected ? "#ffffff" : "#cfcfcf"
-                size: 14
+                color: delegateRoot.isConnected ? Colors.textPrim : Colors.textSecondary
+                size: 9
               }
 
               ColumnLayout {
@@ -297,9 +319,9 @@ Loader {
                 Text {
                   Layout.fillWidth: true
                   text: delegateRoot.dev?.name || delegateRoot.dev?.address || ""
-                  color: "#ffffff"
-                  font.family: "Manrope"
-                  font.pixelSize: 12
+                  color: Colors.textPrim
+                  font.family: Colors.fontSecondary
+                  font.pixelSize: Colors.fontSizeBase
                   font.weight: delegateRoot.isConnected ? Font.DemiBold : Font.Normal
                   elide: Text.ElideRight
                 }
@@ -312,36 +334,34 @@ Loader {
                     if (delegateRoot.dev?.paired) return "Сопряжено · двойной клик подключить"
                     return "Двойной клик подключить"
                   }
-                  color: "#909090"
-                  font.family: "Manrope"
-                  font.pixelSize: 10
+                  color: Colors.textMuted
+                  font.family: Colors.fontSecondary
+                  font.pixelSize: Colors.fontSizeTiny
                 }
               }
 
-              // battery (if available)
               Text {
                 visible: delegateRoot.dev?.batteryAvailable ?? false
                 text: Math.round((delegateRoot.dev?.battery ?? 0) * 100) + "%"
-                color: "#909090"
-                font.family: "JetBrainsMono Nerd Font"
-                font.pixelSize: 10
+                color: Colors.textMuted
+                font.family: Colors.fontMono
+                font.pixelSize: Colors.fontSizeTiny
               }
 
-              // Forget (remove from bluez) button — visible on hover or always for paired devices
               Rectangle {
                 Layout.preferredWidth: 24
                 Layout.preferredHeight: 24
-                radius: 6
-                color: forgetArea.containsMouse ? "#3a1c1c" : "transparent"
+                radius: Colors.radiusSm
+                color: forgetArea.containsMouse ? Colors.dangerBg : "transparent"
                 border.width: forgetArea.containsMouse ? 1 : 0
-                border.color: "#5a2c2c"
+                border.color: forgetArea.containsMouse ? Colors.danger : "transparent"
                 opacity: rowArea.containsMouse || forgetArea.containsMouse ? 1 : 0.35
                 Behavior on opacity { NumberAnimation { duration: 120 } }
 
                 Text {
                   anchors.centerIn: parent
                   text: "✕"
-                  color: forgetArea.containsMouse ? "#ff8080" : "#808080"
+                  color: forgetArea.containsMouse ? Colors.danger : Colors.textMuted
                   font.pixelSize: 12
                   font.bold: true
                 }
@@ -361,36 +381,34 @@ Loader {
           }
         }
 
-        // Empty state
         Text {
           visible: pop.enabled && pop.devices.length === 0
           Layout.fillWidth: true
           horizontalAlignment: Text.AlignHCenter
           text: pop.discovering ? "Поиск устройств…" : "Устройств нет"
-          color: "#909090"
-          font.family: "Manrope"
-          font.pixelSize: 11
+          color: Colors.textMuted
+          font.family: Colors.fontSecondary
+          font.pixelSize: Colors.fontSizeSmall
         }
 
-        // Footer: LibrePods + blueman-manager
         RowLayout {
           Layout.fillWidth: true
-          spacing: 6
+          spacing: Colors.spacingSm
 
           Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 28
-            radius: 8
-            color: airpodsArea.containsMouse ? "#1c1c1c" : "transparent"
+            radius: Colors.radiusMd
+            color: airpodsArea.containsMouse ? Colors.surface : "transparent"
             border.width: 1
-            border.color: "#3a3a3a"
+            border.color: Colors.border
 
             Text {
               anchors.centerIn: parent
               text: "AirPods"
-              color: "#cfcfcf"
-              font.family: "Manrope"
-              font.pixelSize: 11
+              color: Colors.textSecondary
+              font.family: Colors.fontSecondary
+              font.pixelSize: Colors.fontSizeSmall
             }
 
             MouseArea {
@@ -400,8 +418,6 @@ Loader {
               cursorShape: Qt.PointingHandCursor
               onClicked: {
                 loader.open = false
-                // If librepods is already running, focus it; otherwise launch.
-                // hyprctl focuses any window whose class matches; pkill -0 just tests existence.
                 Quickshell.execDetached(["sh", "-c",
                   "pgrep -x librepods >/dev/null && hyprctl dispatch focuswindow class:librepods || setsid librepods >/dev/null 2>&1 < /dev/null &"])
               }
@@ -411,17 +427,17 @@ Loader {
           Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 28
-            radius: 8
-            color: managerArea.containsMouse ? "#1c1c1c" : "transparent"
+            radius: Colors.radiusMd
+            color: managerArea.containsMouse ? Colors.surface : "transparent"
             border.width: 1
-            border.color: "#3a3a3a"
+            border.color: Colors.border
 
             Text {
               anchors.centerIn: parent
               text: "Blueman"
-              color: "#cfcfcf"
-              font.family: "Manrope"
-              font.pixelSize: 11
+              color: Colors.textSecondary
+              font.family: Colors.fontSecondary
+              font.pixelSize: Colors.fontSizeSmall
             }
 
             MouseArea {

@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell.Io
 import Quickshell.Services.UPower
+import "theme"
 
 Item {
   id: root
@@ -15,21 +16,19 @@ Item {
                                 || dev?.state === UPowerDeviceState.PendingCharge
   readonly property bool low: !charging && pct < 15
 
-  // Click the battery → open the task manager (btop in ghostty),
-  // same as the SUPER+SHIFT+ESC keybind.
   Process { id: taskManager; command: ["ghostty", "-e", "btop"] }
 
   RowLayout {
     id: layout
     anchors.fill: parent
-    spacing: 6
+    spacing: Colors.spacingSm
 
     Item {
       Layout.alignment: Qt.AlignVCenter
       implicitWidth: 20
       implicitHeight: 10
 
-      readonly property color mainColor: root.low ? "#ff8aa2" : "#ffffff"
+      readonly property color mainColor: root.low ? "#ff8aa2" : Colors.textPrim
 
       Rectangle {
         id: body
@@ -58,10 +57,6 @@ Item {
           visible: root.charging
           name: "lightning"
           variant: "fill"
-          // Bolt sits in the centre of the battery. When the fill has reached
-          // the middle (≥50%) it's over a light bar → dark bolt; below that
-          // it's over the dark background → light bolt. Keeps it readable at
-          // any charge level (fixes black-on-black when nearly empty).
           color: root.pct >= 50 ? "#000000" : parent.parent.mainColor
           size: 8
         }
@@ -79,9 +74,9 @@ Item {
     Text {
       Layout.alignment: Qt.AlignVCenter
       text: Math.round(root.pct) + "%"
-      color: "#ffffff"
-      font.family: "Inter"
-      font.pixelSize: 12
+      color: Colors.textPrim
+      font.family: Colors.fontPrimary
+      font.pixelSize: Colors.fontSizeBase
       font.weight: Font.Medium
     }
   }

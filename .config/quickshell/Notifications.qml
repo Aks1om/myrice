@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell.Io
+import "theme"
 
 Item {
   id: root
@@ -42,15 +43,15 @@ Item {
   RowLayout {
     id: layout
     anchors.fill: parent
-    spacing: 6
+    spacing: Colors.spacingSm
 
     Icon {
       Layout.alignment: Qt.AlignVCenter
       name: root.dnd ? "bell-slash"
           : root.count > 0 ? "bell-ringing"
                            : "bell"
-      color: root.dnd ? "#c4b5fd"
-           : root.count > 0 ? "#ffffff"
+      color: root.dnd ? Colors.accent
+           : root.count > 0 ? Colors.textPrim
                             : Qt.rgba(1, 1, 1, 0.55)
       size: 16
     }
@@ -58,9 +59,9 @@ Item {
       Layout.alignment: Qt.AlignVCenter
       visible: root.count > 0 && !root.dnd
       text: root.count
-      color: "#ffffff"
-      font.family: "Inter"
-      font.pixelSize: 11
+      color: Colors.textPrim
+      font.family: Colors.fontPrimary
+      font.pixelSize: Colors.fontSizeSmall
       font.weight: Font.Medium
     }
   }

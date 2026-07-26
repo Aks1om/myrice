@@ -5,6 +5,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Hyprland
 import Quickshell.Wayland
+import "theme"
 
 Scope {
   id: root
@@ -19,11 +20,10 @@ Scope {
     function toggle(): void { if (!root.isOpen) { root.query = ""; root.selected = 0 } root.isOpen = !root.isOpen }
   }
 
-  // Cached filtered list (recomputed on query change)
   property var results: []
 
   function recompute() {
-    const all = DesktopEntries.applications.values
+    const all = DesktopEntries.applications?.values ?? []
     const q = root.query.toLowerCase().trim()
     let arr
 
@@ -95,17 +95,17 @@ Scope {
         anchors.centerIn: parent
         width: 620
         height: 480
-        color: "#000000"
-        radius: 14
+        color: Colors.bgBase
+        radius: Colors.radiusXl
         border.width: 1
-        border.color: "#3a3a3a"
+        border.color: Colors.border
 
         MouseArea { anchors.fill: parent; onClicked: {} }
 
         ColumnLayout {
           anchors.fill: parent
-          anchors.margins: 12
-          spacing: 10
+          anchors.margins: Colors.marginXl
+          spacing: Colors.spacingLg
 
           TextField {
             id: search
@@ -114,20 +114,20 @@ Scope {
             focus: true
             text: root.query
             placeholderText: "Search apps..."
-            placeholderTextColor: "#5e5e5e"
-            color: "#ffffff"
-            font.family: "Inter"
-            font.pixelSize: 14
+            placeholderTextColor: Colors.textPlaceholder
+            color: Colors.textPrim
+            font.family: Colors.fontPrimary
+            font.pixelSize: Colors.fontSizeLarge
             selectByMouse: true
             verticalAlignment: TextInput.AlignVCenter
-            leftPadding: 14
-            rightPadding: 14
+            leftPadding: Colors.marginXl
+            rightPadding: Colors.marginXl
 
             background: Rectangle {
-              color: "#1c1c1c"
-              radius: 10
+              color: Colors.surface
+              radius: Colors.radiusLg
               border.width: 1
-              border.color: "#2a2a2a"
+              border.color: Colors.border
             }
 
             onTextChanged: root.query = text
@@ -175,15 +175,15 @@ Scope {
               Rectangle {
                 anchors.fill: parent
                 anchors.rightMargin: 4
-                color: parent.isFocused ? "#1c1c1c" : "transparent"
-                radius: 8
+                color: parent.isFocused ? Colors.surface : "transparent"
+                radius: Colors.radiusMd
               }
 
               RowLayout {
                 anchors.fill: parent
-                anchors.leftMargin: 10
-                anchors.rightMargin: 14
-                spacing: 10
+                anchors.leftMargin: Colors.spacingLg
+                anchors.rightMargin: Colors.spacingXl
+                spacing: Colors.spacingLg
 
                 Image {
                   Layout.preferredWidth: 24
@@ -203,18 +203,18 @@ Scope {
                   Text {
                     Layout.fillWidth: true
                     text: modelData.name || modelData.id
-                    color: parent.parent.parent.isFocused ? "#ffffff" : "#cfcfcf"
-                    font.family: "Manrope"
-                    font.pixelSize: 12
+                    color: parent.parent.parent.isFocused ? Colors.textPrim : Colors.textSecondary
+                    font.family: Colors.fontSecondary
+                    font.pixelSize: Colors.fontSizeBase
                     elide: Text.ElideRight
                   }
                   Text {
                     Layout.fillWidth: true
                     visible: text.length > 0
                     text: modelData.comment || ""
-                    color: "#7a7a7a"
-                    font.family: "Manrope"
-                    font.pixelSize: 10
+                    color: Colors.textHint
+                    font.family: Colors.fontSecondary
+                    font.pixelSize: Colors.fontSizeTiny
                     elide: Text.ElideRight
                   }
                 }
@@ -236,9 +236,9 @@ Scope {
             horizontalAlignment: Text.AlignHCenter
             visible: root.results.length === 0
             text: root.query ? "No matches" : "No applications found"
-            color: "#5e5e5e"
-            font.family: "Inter"
-            font.pixelSize: 11
+            color: Colors.textPlaceholder
+            font.family: Colors.fontPrimary
+            font.pixelSize: Colors.fontSizeSmall
           }
         }
       }

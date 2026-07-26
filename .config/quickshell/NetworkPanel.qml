@@ -4,11 +4,12 @@ import QtQuick.Controls
 import Quickshell
 import Quickshell.Io
 import Quickshell.Hyprland
+import "theme"
 
 Loader {
   id: loader
   property var anchorItem
-  property var network          // ref to Network root
+  property var network
   property bool open: false
   property string connecting: ""
   property string lastError: ""
@@ -33,7 +34,7 @@ Loader {
       item: loader.anchorItem
       edges: Edges.Bottom
       gravity: Edges.Bottom
-      margins.top: 8
+      margins.bottom: -10
     }
 
     HyprlandFocusGrab {
@@ -52,11 +53,11 @@ Loader {
       anchors.left: parent.left
       anchors.right: parent.right
       anchors.top: parent.top
-      anchors.margins: 10
-      color: "#000000"
-      radius: 14
+      anchors.margins: Colors.marginLg
+      color: Colors.bgBase
+      radius: Colors.radiusXl
       border.width: 1
-      border.color: "#3a3a3a"
+      border.color: Colors.border
       implicitHeight: col.implicitHeight + 20
 
       MouseArea { anchors.fill: parent; onClicked: {} }
@@ -66,38 +67,37 @@ Loader {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
-        anchors.margins: 10
-        spacing: 8
+        anchors.margins: Colors.marginLg
+        spacing: Colors.spacingMd
 
-        // Header: Wi-Fi toggle + Refresh
         RowLayout {
           Layout.fillWidth: true
-          spacing: 8
+          spacing: Colors.spacingMd
 
           Icon {
             name: loader.network.wifiEnabled ? "wifi-high" : "wifi-slash"
-            color: "#ffffff"
-            size: 14
+            color: Colors.textPrim
+            size: 9
           }
           Text {
             Layout.fillWidth: true
             text: "Wi-Fi"
-            color: "#ffffff"
-            font.family: "Manrope"
-            font.pixelSize: 13
+            color: Colors.textPrim
+            font.family: Colors.fontSecondary
+            font.pixelSize: Colors.fontSizeMedium
             font.weight: Font.DemiBold
           }
 
           Rectangle {
             Layout.preferredWidth: 26
             Layout.preferredHeight: 22
-            radius: 6
-            color: refreshArea.containsMouse ? "#2e2e2e" : "transparent"
+            radius: Colors.radiusSm
+            color: refreshArea.containsMouse ? Colors.hover : "transparent"
             visible: loader.network.wifiEnabled
             Icon {
               anchors.centerIn: parent
               name: "arrows-clockwise"
-              color: loader.network.scanning ? "#909090" : "#ffffff"
+              color: loader.network.scanning ? Colors.textMuted : Colors.textPrim
               size: 13
               RotationAnimator on rotation {
                 from: 0; to: 360; duration: 800; loops: Animation.Infinite
@@ -117,10 +117,10 @@ Loader {
             Layout.preferredWidth: 36
             Layout.preferredHeight: 20
             radius: 10
-            color: loader.network.wifiEnabled ? "#ffffff" : "#333333"
+            color: loader.network.wifiEnabled ? Colors.textPrim : Colors.border
             Rectangle {
               width: 16; height: 16; radius: 8
-              color: loader.network.wifiEnabled ? "#0f0f0f" : "#909090"
+              color: loader.network.wifiEnabled ? Colors.bgDeep : Colors.textMuted
               x: loader.network.wifiEnabled ? parent.width - width - 2 : 2
               anchors.verticalCenter: parent.verticalCenter
               Behavior on x { NumberAnimation { duration: 120 } }
@@ -139,10 +139,9 @@ Loader {
         Rectangle {
           Layout.fillWidth: true
           Layout.preferredHeight: 1
-          color: "#252525"
+          color: Colors.overlay
         }
 
-        // Networks list
         ListView {
           id: list
           Layout.fillWidth: true
@@ -153,7 +152,6 @@ Loader {
           model: loader.network.networks
           interactive: true
 
-          // Smoothly animate y-position of rows shifting when neighbour expands.
           displaced: Transition { NumberAnimation { properties: "y"; duration: 140; easing.type: Easing.OutCubic } }
 
           delegate: Item {
@@ -165,7 +163,6 @@ Loader {
             readonly property bool isSecured: net && net.security && net.security.length > 0
             readonly property bool isKnown: net && net.known === true
             readonly property bool isConnecting: loader.connecting === (net ? net.ssid : "")
-            // password row is only for secured networks we don't have saved yet
             readonly property bool needsPassword: isSecured && !isKnown && !isActive
             readonly property bool expanded: loader.expandedSsid === (net ? net.ssid : "") && (isActive || needsPassword)
 
@@ -176,8 +173,6 @@ Loader {
             height: expanded ? rowHeight + gap + expandedHeight : rowHeight
             Behavior on height { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
 
-            // Top row (constant 44px). Hover/click confined here, so click on
-            // password row below does not retrigger row logic.
             Item {
               id: rowPart
               anchors.left: parent.left
@@ -187,23 +182,23 @@ Loader {
 
               Rectangle {
                 anchors.fill: parent
-                color: rowArea.containsMouse || del.expanded ? "#1c1c1c" : "transparent"
-                radius: 6
+                color: rowArea.containsMouse || del.expanded ? Colors.surface : "transparent"
+                radius: Colors.radiusSm
               }
 
               RowLayout {
                 anchors.fill: parent
-                anchors.leftMargin: 8
+                anchors.leftMargin: Colors.spacingMd
                 anchors.rightMargin: 18
-                spacing: 8
+                spacing: Colors.spacingMd
 
                 Icon {
                   name: del.net.strength >= 75 ? "wifi-high"
                       : del.net.strength >= 50 ? "wifi-medium"
                       : del.net.strength >= 25 ? "wifi-low"
                                                : "wifi-none"
-                  color: del.isActive ? "#ffffff" : "#cfcfcf"
-                  size: 14
+                  color: del.isActive ? Colors.textPrim : Colors.textSecondary
+                  size: 9
                 }
 
                 ColumnLayout {
@@ -212,32 +207,32 @@ Loader {
                   Text {
                     Layout.fillWidth: true
                     text: del.net.ssid
-                    color: "#ffffff"
-                    font.family: "Manrope"
-                    font.pixelSize: 12
+                    color: Colors.textPrim
+                    font.family: Colors.fontSecondary
+                    font.pixelSize: Colors.fontSizeBase
                     font.weight: del.isActive ? Font.DemiBold : Font.Normal
                     elide: Text.ElideRight
                   }
                   Text {
                     visible: del.isActive || del.isConnecting
                     text: del.isConnecting ? "Подключение…" : "Подключено"
-                    color: "#909090"
-                    font.family: "Manrope"
-                    font.pixelSize: 10
+                    color: Colors.textMuted
+                    font.family: Colors.fontSecondary
+                    font.pixelSize: Colors.fontSizeTiny
                   }
                 }
 
                 Icon {
                   visible: del.isSecured
                   name: "lock-simple"
-                  color: "#909090"
+                  color: Colors.textMuted
                   size: 11
                 }
                 Text {
                   text: del.net.strength + "%"
-                  color: "#909090"
-                  font.family: "JetBrainsMono Nerd Font"
-                  font.pixelSize: 10
+                  color: Colors.textMuted
+                  font.family: Colors.fontMono
+                  font.pixelSize: Colors.fontSizeTiny
                 }
               }
 
@@ -248,33 +243,27 @@ Loader {
                 cursorShape: Qt.PointingHandCursor
                 onClicked: {
                   loader.lastError = ""
-                  // Active network → toggle the Disconnect/Forget row
                   if (del.isActive) {
                     loader.expandedSsid = del.expanded ? "" : del.net.ssid
                     return
                   }
-                  // Known (saved) network → connect straight away; NM already has the password
                   if (del.isKnown) {
                     loader.expandedSsid = ""
                     loader.connecting = del.net.ssid
                     loader.network.connectKnown(del.net.ssid)
                     return
                   }
-                  // Open (unsecured) network → just connect
                   if (!del.isSecured) {
                     loader.expandedSsid = ""
                     loader.connecting = del.net.ssid
                     loader.network.connectOpen(del.net.ssid)
                     return
                   }
-                  // Secured + unknown → expand password row
                   loader.expandedSsid = del.expanded ? "" : del.net.ssid
                 }
               }
             }
 
-            // Expanded row — sits BELOW rowPart inside the delegate so the
-            // delegate's height grows and pushes neighbours down via ListView.displaced.
             Loader {
               id: expansion
               anchors.left: parent.left
@@ -286,42 +275,40 @@ Loader {
               visible: active
 
               sourceComponent: Rectangle {
-                color: "#1c1c1c"
-                radius: 6
+                color: Colors.surface
+                radius: Colors.radiusSm
 
-                // Active network → Disconnect button
                 Loader {
                   active: del.isActive
                   visible: active
                   anchors.fill: parent
                   sourceComponent: RowLayout {
                     anchors.fill: parent
-                    anchors.leftMargin: 10
-                    anchors.rightMargin: 8
-                    spacing: 8
+                    anchors.leftMargin: Colors.marginLg
+                    anchors.rightMargin: Colors.spacingMd
+                    spacing: Colors.spacingMd
 
                     Text {
                       Layout.fillWidth: true
                       text: "Подключено"
-                      color: "#909090"
-                      font.family: "Manrope"
-                      font.pixelSize: 11
+                      color: Colors.textMuted
+                      font.family: Colors.fontSecondary
+                      font.pixelSize: Colors.fontSizeSmall
                       elide: Text.ElideRight
                     }
-                    // Forget — delete the saved profile (e.g. password changed)
                     Rectangle {
                       Layout.preferredWidth: 64
                       Layout.preferredHeight: 24
                       radius: 4
-                      color: forgetArea.containsMouse ? "#2e2e2e" : "transparent"
+                      color: forgetArea.containsMouse ? Colors.hover : "transparent"
                       border.width: 1
-                      border.color: "#555555"
+                      border.color: Colors.border
                       Text {
                         anchors.centerIn: parent
                         text: "Забыть"
-                        color: "#cfcfcf"
-                        font.family: "Manrope"
-                        font.pixelSize: 11
+                        color: Colors.textSecondary
+                        font.family: Colors.fontSecondary
+                        font.pixelSize: Colors.fontSizeSmall
                         font.weight: Font.DemiBold
                       }
                       MouseArea {
@@ -339,15 +326,15 @@ Loader {
                       Layout.preferredWidth: 84
                       Layout.preferredHeight: 24
                       radius: 4
-                      color: discArea.containsMouse ? "#e57373" : "#3a1f1f"
+                      color: discArea.containsMouse ? Colors.danger : Colors.dangerBg
                       border.width: 1
-                      border.color: "#e57373"
+                      border.color: Colors.danger
                       Text {
                         anchors.centerIn: parent
                         text: "Отключить"
-                        color: discArea.containsMouse ? "#0f0f0f" : "#e57373"
-                        font.family: "Manrope"
-                        font.pixelSize: 11
+                        color: discArea.containsMouse ? Colors.bgDeep : Colors.danger
+                        font.family: Colors.fontSecondary
+                        font.pixelSize: Colors.fontSizeSmall
                         font.weight: Font.DemiBold
                       }
                       MouseArea {
@@ -364,16 +351,15 @@ Loader {
                   }
                 }
 
-                // Secured + not yet saved → password input + Connect
                 Loader {
                   active: del.needsPassword
                   visible: active
                   anchors.fill: parent
                   sourceComponent: RowLayout {
                     anchors.fill: parent
-                    anchors.leftMargin: 8
-                    anchors.rightMargin: 8
-                    spacing: 6
+                    anchors.leftMargin: Colors.spacingMd
+                    anchors.rightMargin: Colors.spacingMd
+                    spacing: Colors.spacingSm
 
                     TextField {
                       id: pwField
@@ -381,12 +367,12 @@ Loader {
                       Layout.preferredHeight: 26
                       echoMode: TextInput.Password
                       placeholderText: "Пароль"
-                      color: "#ffffff"
-                      font.family: "Manrope"
-                      font.pixelSize: 12
+                      color: Colors.textPrim
+                      font.family: Colors.fontSecondary
+                      font.pixelSize: Colors.fontSizeBase
                       background: Rectangle {
-                        color: "#0f0f0f"; radius: 4
-                        border.width: 1; border.color: "#333333"
+                        color: Colors.bgDeep; radius: 4
+                        border.width: 1; border.color: Colors.border
                       }
                       onAccepted: doConnect()
                       Component.onCompleted: forceActiveFocus()
@@ -404,13 +390,13 @@ Loader {
                       Layout.preferredWidth: 64
                       Layout.preferredHeight: 24
                       radius: 4
-                      color: connectArea.containsMouse ? "#ffffff" : "#cfcfcf"
+                      color: connectArea.containsMouse ? Colors.textPrim : Colors.textSecondary
                       Text {
                         anchors.centerIn: parent
                         text: "Connect"
-                        color: "#0f0f0f"
-                        font.family: "Manrope"
-                        font.pixelSize: 11
+                        color: Colors.bgDeep
+                        font.family: Colors.fontSecondary
+                        font.pixelSize: Colors.fontSizeSmall
                         font.weight: Font.DemiBold
                       }
                       MouseArea {
@@ -434,38 +420,38 @@ Loader {
           Layout.fillWidth: true
           horizontalAlignment: Text.AlignHCenter
           text: loader.network.scanning ? "Сканирование…" : "Сети не найдены"
-          color: "#909090"
-          font.family: "Manrope"
-          font.pixelSize: 11
+          color: Colors.textMuted
+          font.family: Colors.fontSecondary
+          font.pixelSize: Colors.fontSizeSmall
         }
 
         Text {
           visible: loader.lastError.length > 0
           Layout.fillWidth: true
           text: loader.lastError
-          color: "#e57373"
-          font.family: "Manrope"
-          font.pixelSize: 10
+          color: Colors.danger
+          font.family: Colors.fontSecondary
+          font.pixelSize: Colors.fontSizeTiny
           wrapMode: Text.Wrap
         }
 
         Rectangle {
           Layout.fillWidth: true
           Layout.preferredHeight: 1
-          color: "#252525"
+          color: Colors.overlay
         }
 
         Rectangle {
           Layout.fillWidth: true
           Layout.preferredHeight: 26
-          radius: 6
-          color: editorArea.containsMouse ? "#1c1c1c" : "transparent"
+          radius: Colors.radiusSm
+          color: editorArea.containsMouse ? Colors.surface : "transparent"
           Text {
             anchors.centerIn: parent
             text: "Открыть настройки сети"
-            color: "#909090"
-            font.family: "Manrope"
-            font.pixelSize: 11
+            color: Colors.textMuted
+            font.family: Colors.fontSecondary
+            font.pixelSize: Colors.fontSizeSmall
           }
           MouseArea {
             id: editorArea
