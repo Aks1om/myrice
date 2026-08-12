@@ -1,0 +1,70 @@
+$mainMod = SUPER
+$menu = ~/.config/hypr/scripts/startmenu.sh
+
+source = ~/.config/hypr/env.hl
+source = ~/.config/hypr/monitors.hl
+source = ~/.config/hypr/input.hl
+source = ~/.config/hypr/rules.hl
+source = ~/.config/hypr/bindings.hl
+source = ~/.config/hypr/autostart.hl
+
+general {
+  gaps_in = 6
+  gaps_out = 12
+  border_size = 2
+  col.active_border = rgba(ffffffff)
+  col.inactive_border = rgba(7f7f7faa)
+  resize_on_border = true
+  allow_tearing = false
+  layout = dwindle
+}
+
+decoration {
+  rounding = 8
+
+  blur {
+    enabled = true
+    size = 8
+    passes = 2
+    new_optimizations = true
+    xray = false
+  }
+
+  shadow {
+    enabled = true
+    range = 16
+    render_power = 3
+    color = rgba(00000055)
+  }
+}
+
+animations {
+  enabled = true
+
+  bezier = easeOut, 0.16, 1, 0.3, 1
+  animation = windows, 1, 6, easeOut
+  animation = windowsOut, 1, 5, default, popin 80%
+  animation = border, 1, 8, default
+  animation = fade, 1, 6, default
+  animation = workspaces, 1, 6, easeOut
+}
+
+dwindle {
+  preserve_split = true
+}
+
+master {
+  new_status = master
+}
+
+misc {
+  force_default_wallpaper = -1
+  disable_hyprland_logo = true
+  disable_splash_rendering = true
+  mouse_move_enables_dpms = true
+  key_press_enables_dpms = true
+}
+
+xwayland {
+  force_zero_scaling = true
+}
