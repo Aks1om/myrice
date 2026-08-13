@@ -4,7 +4,6 @@ general {
   hide_cursor = true
   ignore_empty_input = true
   text_trim = true
-  fail_timeout = 1200
 }
 
 background {
@@ -18,7 +17,6 @@ background {
   vibrancy_darkness = 0.05
 }
 
-# TIME — upper third
 label {
   monitor =
   text = <span weight="500">$TIME</span>
@@ -31,33 +29,30 @@ label {
   valign = top
 }
 
-# DATE — under time
 label {
   monitor =
   text = cmd[update:60000] date +"%A, %d %B"
   color = rgba(220, 220, 220, 0.85)
   font_size = 22
-  font_family = Inter Display
+  font_family = Inter
 
   position = 0, -32%
   halign = center
   valign = top
 }
 
-# USERNAME — above input field, around screen mid-line
 label {
   monitor =
   text = <span weight="500">$USER</span>
   color = rgba(255, 255, 255, 1.0)
   font_size = 20
-  font_family = Inter Display
+  font_family = Inter
 
   position = 0, 48%
   halign = center
   valign = bottom
 }
 
-# PASSWORD input — slightly above center
 input-field {
   monitor =
   size = 10%, 3%
@@ -69,17 +64,15 @@ input-field {
   outer_color = rgba(255, 255, 255, 0.18)
   inner_color = rgba(20, 20, 25, 0.55)
   font_color = rgba(255, 255, 255, 1.0)
-  font_family = Inter Display
+  font_family = Inter
 
   fade_on_empty = false
   rounding = 22
-  placeholder_text = Enter password
+  placeholder_text = <span weight="400">Введите пароль</span>
   hide_input = false
-  check_text = Checking...
 
-  check_color = rgba(255, 255, 255, 0.85)
+  check_color = rgba(180, 180, 255, 0.85)
   fail_color = rgba(255, 138, 162, 0.85)
-  fail_text = Incorrect password
 
   position = 0, 42%
   halign = center

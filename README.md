@@ -14,7 +14,7 @@ fresh Arch box to my exact desktop.
 - **zsh + starship** prompt
 - **Waybar** kept as an optional fallback bar
 - Hypr helper scripts (screenshot, scale, system-monitor, toggle-special-window, lock-input, …)
-- AC-aware power-mode switcher (`home/.local/bin/power-mode.sh` + `power-mode-watch.service`)
+- Manual two-state power mode: normal or battery backlight (`.config/hypr/scripts/power-mode.sh`)
 - Lid-handler toggle for "mobile" mode (`home/.local/bin/lid-mobile-toggle` + `lid-mobile.service`)
 - System presets in `system/etc/` (NetworkManager Wi-Fi powersave, optional rtw88 stability options, journald 500M cap, systemd-oomd slice policies, pacman→timeshift pre-transaction hook)
 - Bootloader helpers: add `pcie_aspm=off` to entries, generate a mirrored `linux-lts` fallback entry
@@ -33,10 +33,8 @@ fresh Arch box to my exact desktop.
 │   └── starship.toml
 ├── home/
 │   ├── .config/systemd/user/      # symlinked into ~/.config/systemd/user/
-│   │   ├── power-mode-watch.service
 │   │   └── lid-mobile.service
 │   └── .local/bin/                # symlinked into ~/.local/bin/
-│       ├── power-mode.sh
 │       └── lid-mobile-toggle
 ├── system/                        # deployed into /etc and /boot by install.sh
 │   ├── etc/
@@ -47,6 +45,8 @@ fresh Arch box to my exact desktop.
 ├── packages/
 │   ├── pacman.txt
 │   └── aur.txt
+├── scripts/
+│   └── generate-theme.py            # regenerate theme outputs from tokens.json
 ├── .zshrc
 ├── install.sh                     # staged installer (see below)
 ├── SETUP.md                       # longer manual setup notes
@@ -82,7 +82,7 @@ Stages:
 | `preflight`| Arch check, non-root, sudo refresh, AUR helper present |
 | `pacman`   | `pacman -Syu` + everything in `packages/pacman.txt` |
 | `aur`      | `yay -S` everything (uncommented) in `packages/aur.txt` |
-| `dotfiles` | Symlink every `.config/*` and `home/*` into `$HOME`. Existing files moved to `~/.myrice_backup_<ts>/` |
+| `dotfiles` | Symlink every `.config/*` and `home/*` into `$HOME`, then generate the theme outputs. Existing files moved to `~/.myrice_backup_<ts>/` |
 | `system`   | Copy `system/etc/*` into `/etc/*`. Overwritten files backed up to `/var/backups/myrice-<ts>/` |
 | `services` | `systemctl --user enable --now` for shipped user units |
 | `locale`   | Generate `ru_RU.UTF-8` if missing |
@@ -99,10 +99,31 @@ and already-deployed configs.
 2. Log into Hyprland.
 3. If `--laptop-wifi-fix` was used, **reboot** so the out-of-tree `8821ce` module takes over from `rtw88_8821ce`.
 
+## Theme tokens
+
+`.config/quickshell/theme/tokens.json` is the single source of truth for the
+Quickshell theme, static UI metrics, and SwayNC palette/radii. `Colors.qml`,
+`Metrics.qml`, and `.config/swaync/theme.css` are generated files; do not edit
+them manually. `metrics.density` is static design density for the shell
+toolkit, not monitor scale; reusable components live in `.config/quickshell/ui/`
+and import as `import "ui" as Ui`.
+
+The `dotfiles` installer stage runs the generator after symlinking the configs,
+so a fresh install and future `./install.sh --stage dotfiles` updates need no
+manual theme step. After changing tokens during development, regenerate and
+verify the committed outputs with:
+
+```bash
+python3 scripts/generate-theme.py
+python3 scripts/generate-theme.py --check
+```
+
+`--check` exits non-zero when any generated file is stale.
+
 ## Notes
 
 - Russian layout is enabled in `~/.config/hypr/input.conf` (`us,ru`, toggle `Alt+Shift`).
-- Power switcher: on AC → 120 Hz + 80 % brightness, on battery → 60 Hz + 40 %. PPD stays in `performance` in both modes (see `home/.local/bin/power-mode.sh`).
+- Power mode is manual only: click its bar icon to switch between normal and battery. Battery sets only the single built-in backlight to 40%; normal restores the exact prior brightness. It does not change refresh rate, PPD, GPU, compositor, terminal, Wi-Fi, or idle settings.
 - Monitor names in `.config/hypr/monitors.conf` are mine — tune for your hardware.
 - `SETUP.md` has the long-form manual walkthrough; `install.sh` automates most of it.
 

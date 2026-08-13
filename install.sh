@@ -6,6 +6,7 @@
 #   2. pacman          — install official packages from packages/pacman.txt
 #   3. aur             — install AUR packages from packages/aur.txt (skips commented-out)
 #   4. dotfiles        — symlink .config/* and home/* into $HOME, with timestamped backup
+#                       then generate theme outputs from the linked token source
 #   5. system          — copy system/etc/* into /etc/* (with .bak), reload modprobe
 #   6. services        — enable systemd user units shipped in home/.config/systemd/user
 #   7. locale          — generate ru_RU.UTF-8 if absent
@@ -186,6 +187,17 @@ stage_dotfiles() {
   for top in .zshrc; do
     [[ -e "$REPO_DIR/$top" ]] && link_into_home "$top"
   done
+
+  local theme_generator="$REPO_DIR/scripts/generate-theme.py"
+  [[ -f "$theme_generator" ]] || {
+    err "Theme generator is missing: $theme_generator"
+    return 1
+  }
+  log "Generating theme outputs from linked theme tokens"
+  if ! run "python3 '$theme_generator'"; then
+    err "Theme generation failed; fix the token file and rerun ./install.sh --stage dotfiles."
+    return 1
+  fi
 }
 
 # Copy system/etc/<path> → /etc/<path>, backup overwritten target.

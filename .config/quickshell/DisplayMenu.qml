@@ -5,6 +5,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Hyprland
 import Quickshell.Wayland
+import "ui" as Ui
 
 Scope {
   id: root
@@ -85,18 +86,9 @@ Scope {
     active: root.isOpen
     asynchronous: true
 
-    sourceComponent: PanelWindow {
-      screen: Hyprland.focusedMonitor?.screen ?? Quickshell.screens[0]
-      visible: true
-      color: "transparent"
-      WlrLayershell.layer: WlrLayer.Overlay
-      WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
-      anchors {
-        top: true
-        left: true
-        right: true
-        bottom: true
-      }
+    sourceComponent: Ui.ModalOverlay {
+      open: root.isOpen
+      onDismissed: root.isOpen = false
 
       Item {
         anchors.fill: parent
@@ -108,122 +100,49 @@ Scope {
         Keys.onTabPressed:   root.selected = (root.selected + 1) % root.items.length
       }
 
-      MouseArea {
-        anchors.fill: parent
-        onClicked: root.isOpen = false
-      }
-
-      Rectangle {
+      Ui.PanelSurface {
         anchors.centerIn: parent
-        width: 380
-        implicitHeight: col.implicitHeight + 24
-        color: Colors.bgBase
-        radius: Colors.radiusXl
-        border.width: 1
-        border.color: Colors.border
+        width: Metrics.menuWidth
+        implicitHeight: col.implicitHeight + Metrics.menuPadding * 2
 
         MouseArea { anchors.fill: parent; onClicked: {} }
 
-        ColumnLayout {
+        Ui.PanelColumn {
           id: col
           anchors {
             left: parent.left
             right: parent.right
             top: parent.top
-            margins: 12
+            margins: Metrics.menuPadding
           }
-          spacing: Colors.spacingMd
 
-          ColumnLayout {
-            Layout.fillWidth: true
+          Ui.SectionTitle {
+            title: "Display"
+            subtitle: root.monitors.length <= 1
+                      ? "Один монитор подключён"
+                      : "Куда выводить изображение"
             Layout.leftMargin: 4
             Layout.topMargin: 2
             Layout.bottomMargin: 2
-            spacing: 1
-            Text {
-              text: "Display"
-              color: Colors.textPrim
-              font.family: Colors.fontPrimary
-              font.pixelSize: Colors.fontSizeLarge
-              font.weight: Font.DemiBold
-            }
-            Text {
-              text: root.monitors.length <= 1
-                    ? "Один монитор подключён"
-                    : "Куда выводить изображение"
-                    color: Colors.textHint
-              font.family: Colors.fontPrimary
-              font.pixelSize: Colors.fontSizeTiny
-            }
           }
 
-          Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 1
-            color: Colors.overlay
-          }
+          Ui.Divider {}
 
           Repeater {
             model: root.items
-            delegate: Item {
+            delegate: Ui.MenuRow {
               required property var modelData
               required property int index
-              property bool isFocused: hoverArea.containsMouse || index === root.selected
               property bool isDisabled: root.monitors.length <= 1
                                         && modelData.mode !== "internal-only"
-              Layout.fillWidth: true
-              height: 44
               opacity: isDisabled ? 0.35 : 1.0
-
-              Rectangle {
-                anchors.fill: parent
-                color: parent.isFocused && !parent.isDisabled ? Colors.surface : "transparent"
-                radius: Colors.radiusMd
-              }
-
-              RowLayout {
-                anchors.fill: parent
-                anchors.leftMargin: 12
-                anchors.rightMargin: 14
-                spacing: 12
-
-                Icon {
-                  name: modelData.icon
-                  color: parent.parent.isFocused ? Colors.textPrim : Colors.textSecondary
-                  size: 16
-                }
-                ColumnLayout {
-                  Layout.fillWidth: true
-                  spacing: 0
-                  Text {
-                    Layout.fillWidth: true
-                    text: modelData.label
-                    color: parent.parent.parent.isFocused ? Colors.textPrim : Colors.textSecondary
-                    font.family: Colors.fontSecondary
-                    font.pixelSize: Colors.fontSizeBase
-                    elide: Text.ElideRight
-                  }
-                  Text {
-                    Layout.fillWidth: true
-                    visible: modelData.hint.length > 0
-                    text: modelData.hint
-              color: Colors.textHint
-                    font.family: Colors.fontSecondary
-                    font.pixelSize: Colors.fontSizeTiny
-                    elide: Text.ElideRight
-                  }
-                }
-              }
-
-              MouseArea {
-                id: hoverArea
-                anchors.fill: parent
-                hoverEnabled: true
-                enabled: !parent.isDisabled
-                cursorShape: Qt.PointingHandCursor
-                onEntered: root.selected = parent.index
-                onClicked: root.apply(modelData.mode)
-              }
+              enabled: !isDisabled
+              label: modelData.label
+              hint: modelData.hint
+              iconName: modelData.icon
+              selected: index === root.selected
+              onHovered: root.selected = index
+              onActivated: root.apply(modelData.mode)
             }
           }
         }

@@ -7,7 +7,7 @@ Item {
   implicitWidth: 16
   implicitHeight: 16
 
-  property string mode: "balanced"
+  property string mode: "normal"
 
   Process {
     id: get
@@ -17,7 +17,7 @@ Item {
       onStreamFinished: {
         try {
           const j = JSON.parse(text);
-          root.mode = j.class || "balanced";
+          root.mode = j.class === "battery" ? "battery" : "normal";
         } catch (_) {}
       }
     }
@@ -37,12 +37,8 @@ Item {
 
   Icon {
     anchors.fill: parent
-    name: root.mode === "performance" ? "lightning"
-        : root.mode === "powersave" ? "leaf"
-                                    : "gauge"
-    color: root.mode === "performance" ? Colors.textPrim
-         : root.mode === "powersave" ? "#86efac"
-                                     : Qt.rgba(1, 1, 1, 0.55)
+    name: root.mode === "battery" ? "leaf" : "gauge"
+    color: root.mode === "battery" ? "#86efac" : Qt.rgba(1, 1, 1, 0.55)
     size: 16
   }
 

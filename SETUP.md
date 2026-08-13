@@ -26,6 +26,7 @@ Kernel (DRM/KMS)
 
 **Shell prompt:** Starship (minimal — dir, git, duration only)  
 **GTK theme:** adw-gtk3-dark  
+**Quickshell/AppLauncher icon theme:** Papirus-Dark (with hicolor fallback)
 **Cursor:** Bibata-Modern-Classic, 24px  
 **Font (UI/bar):** Manrope 700 + JetBrainsMono Nerd Font fallback  
 **Font (terminal/lock):** JetBrainsMono Nerd Font  
@@ -266,6 +267,7 @@ brightnessctl        ← brightness keys
 wireplumber pipewire ← audio (wpctl)
 nemo                 ← file manager
 adw-gtk3             ← GTK dark theme
+papirus-icon-theme    ← fixed Quickshell/AppLauncher icon theme
 bibata-cursor-theme  ← cursor
 ttf-jetbrains-mono-nerd  ← monospace font
 ```
@@ -274,11 +276,32 @@ ttf-jetbrains-mono-nerd  ← monospace font
 
 ## Common tasks
 
+**Change shared Quickshell/SwayNC theme tokens:**
+```bash
+# Edit ~/.config/quickshell/theme/tokens.json, then regenerate all outputs:
+python3 ~/GitHub/myrice/scripts/generate-theme.py
+python3 ~/GitHub/myrice/scripts/generate-theme.py --check
+```
+
+`tokens.json` is the source of truth. Do not manually edit the generated
+`~/.config/quickshell/theme/Colors.qml`, `Metrics.qml`, or
+`~/.config/swaync/theme.css`. `metrics.density` is static design density for
+the reusable `~/.config/quickshell/ui/` toolkit, not monitor scale.
+`install.sh --stage dotfiles` runs this generation automatically after linking
+the configs.
+
 **Change wallpaper:**
 ```bash
 # Edit path in ~/.config/hypr/hyprpaper.conf, then:
 hyprctl hyprpaper wallpaper ",~/Pictures/wallpapers/newfile.jpg"
 ```
+
+**Switch power mode:**
+Click the power-mode icon in the Quickshell bar. The two modes are manual only:
+normal and battery. Battery sets only the built-in backlight to 40%; normal
+restores the exact brightness saved when battery mode was enabled. No AC watcher
+is installed, and neither mode changes refresh rate, PPD, GPU, compositor,
+Ghostty, Wi-Fi, or idle settings.
 
 **Add a new monitor:**
 ```bash

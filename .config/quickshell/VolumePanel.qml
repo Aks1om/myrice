@@ -6,6 +6,7 @@ import Quickshell.Io
 import Quickshell.Hyprland
 import Quickshell.Services.Pipewire
 import "theme"
+import "ui" as Ui
 
 Loader {
   id: loader
@@ -21,53 +22,33 @@ Loader {
     setDefault.running = true
   }
 
-  sourceComponent: PopupWindow {
+  sourceComponent: Ui.AnchoredPopup {
     id: pop
     visible: true
-    color: "transparent"
-    implicitWidth: 320
-    implicitHeight: container.implicitHeight + 20
-
-    anchor {
-      window: loader.anchorItem.QsWindow.window
-      item: loader.anchorItem
-      edges: Edges.Bottom
-      gravity: Edges.Bottom
-      margins.bottom: -10
-    }
-
-    HyprlandFocusGrab {
-      active: loader.open
-      windows: [pop]
-      onCleared: loader.open = false
-    }
+    anchorItem: loader.anchorItem
+    open: loader.open
 
     readonly property var sink: Pipewire.defaultAudioSink
     readonly property var source: Pipewire.defaultAudioSource
 
     PwObjectTracker { objects: [pop.sink, pop.source].filter(o => o) }
 
-    Rectangle {
+    Ui.PanelSurface {
       id: container
       anchors.left: parent.left
       anchors.right: parent.right
       anchors.top: parent.top
-      anchors.margins: Colors.marginLg
-      color: Colors.bgBase
-      radius: Colors.radiusXl
-      border.width: 1
-      border.color: Colors.border
-      implicitHeight: col.implicitHeight + 20
+      anchors.margins: Metrics.popupInset
+      implicitHeight: col.implicitHeight + Metrics.panelPadding * 2
 
       MouseArea { anchors.fill: parent; onClicked: {} }
 
-      ColumnLayout {
+      Ui.PanelColumn {
         id: col
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
-        anchors.margins: Colors.marginLg
-        spacing: Colors.spacingMd
+        anchors.margins: Metrics.panelPadding
 
         RowLayout {
           Layout.fillWidth: true
@@ -162,11 +143,7 @@ Loader {
           }
         }
 
-        Rectangle {
-          Layout.fillWidth: true
-          Layout.preferredHeight: 1
-          color: Colors.overlay
-        }
+        Ui.Divider {}
 
         Text {
           text: "Output device"
@@ -224,10 +201,7 @@ Loader {
           }
         }
 
-        Rectangle {
-          Layout.fillWidth: true
-          Layout.preferredHeight: 1
-          color: Colors.overlay
+        Ui.Divider {
           visible: pop.source !== null && pop.source !== undefined
         }
 

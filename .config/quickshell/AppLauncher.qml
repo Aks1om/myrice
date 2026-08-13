@@ -5,7 +5,9 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Hyprland
 import Quickshell.Wayland
+import Quickshell.Widgets
 import "theme"
+import "ui" as Ui
 
 Scope {
   id: root
@@ -55,11 +57,16 @@ Scope {
     }
 
     root.results = arr.slice(0, 100)
-    if (root.selected >= root.results.length) root.selected = 0
+    root.selected = Math.max(0, Math.min(root.selected, root.results.length - 1))
   }
 
   onQueryChanged: recompute()
   Component.onCompleted: recompute()
+
+  Connections {
+    target: DesktopEntries
+    function onApplicationsChanged() { root.recompute() }
+  }
 
   function launch(idx) {
     if (idx < 0 || idx >= root.results.length) return
@@ -73,28 +80,14 @@ Scope {
     active: root.isOpen
     asynchronous: true
 
-    sourceComponent: PanelWindow {
-      screen: Hyprland.focusedMonitor?.screen ?? Quickshell.screens[0]
-      visible: true
-      color: "transparent"
-      WlrLayershell.layer: WlrLayer.Overlay
-      WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
-      anchors {
-        top: true
-        left: true
-        right: true
-        bottom: true
-      }
+    sourceComponent: Ui.ModalOverlay {
+      open: root.isOpen
+      onDismissed: root.isOpen = false
 
-      MouseArea {
-        anchors.fill: parent
-        onClicked: root.isOpen = false
-      }
-
-      Rectangle {
+      Ui.PanelSurface {
         anchors.centerIn: parent
-        width: 620
-        height: 480
+        width: Metrics.launcherWidth
+        height: Metrics.launcherHeight
         color: Colors.bgBase
         radius: Colors.radiusXl
         border.width: 1
@@ -102,9 +95,9 @@ Scope {
 
         MouseArea { anchors.fill: parent; onClicked: {} }
 
-        ColumnLayout {
+        Ui.PanelColumn {
           anchors.fill: parent
-          anchors.margins: Colors.marginXl
+          anchors.margins: Metrics.menuPadding
           spacing: Colors.spacingLg
 
           TextField {
@@ -168,7 +161,7 @@ Scope {
               required property var modelData
               required property int index
               width: list.width
-              height: 44
+              height: Metrics.rowHeight
 
               property bool isFocused: hoverArea.containsMouse || index === root.selected
 
@@ -185,16 +178,45 @@ Scope {
                 anchors.rightMargin: Colors.spacingXl
                 spacing: Colors.spacingLg
 
-                Image {
+                Item {
                   Layout.preferredWidth: 24
                   Layout.preferredHeight: 24
-                  source: modelData.icon
-                         ? "image://icon/" + modelData.icon
-                         : "image://icon/application-x-executable"
-                  sourceSize.width: 48
-                  sourceSize.height: 48
-                  fillMode: Image.PreserveAspectFit
-                  smooth: true
+                  property url iconSource: Quickshell.iconPath(modelData.icon, "")
+
+                  IconImage {
+                    anchors.fill: parent
+                    visible: parent.iconSource.toString().length > 0
+                    source: parent.iconSource
+                    smooth: true
+                  }
+
+                  Rectangle {
+                    anchors.fill: parent
+                    visible: !parent.iconSource.toString().length
+                    color: Colors.overlay
+                    radius: Colors.radiusSm
+                    border.width: 1
+                    border.color: Colors.border
+
+                    Rectangle {
+                      anchors.centerIn: parent
+                      width: 12
+                      height: 10
+                      color: "transparent"
+                      radius: Colors.marginXs
+                      border.width: 1
+                      border.color: Colors.textMuted
+
+                      Rectangle {
+                        anchors.top: parent.top
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        height: 2
+                        color: Colors.textMuted
+                        radius: parent.radius
+                      }
+                    }
+                  }
                 }
 
                 ColumnLayout {

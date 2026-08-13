@@ -6,6 +6,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Hyprland
 import Quickshell.Wayland
+import "ui" as Ui
 
 Scope {
   id: root
@@ -100,28 +101,14 @@ Scope {
     active: root.isOpen
     asynchronous: true
 
-    sourceComponent: PanelWindow {
-      screen: Hyprland.focusedMonitor?.screen ?? Quickshell.screens[0]
-      visible: true
-      color: "transparent"
-      WlrLayershell.layer: WlrLayer.Overlay
-      WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
-      anchors {
-        top: true
-        left: true
-        right: true
-        bottom: true
-      }
+    sourceComponent: Ui.ModalOverlay {
+      open: root.isOpen
+      onDismissed: root.isOpen = false
 
-      MouseArea {
-        anchors.fill: parent
-        onClicked: root.isOpen = false
-      }
-
-      Rectangle {
+      Ui.PanelSurface {
         anchors.centerIn: parent
-        width: 680
-        height: 540
+        width: Metrics.keybindsWidth
+        height: Metrics.keybindsHeight
         color: Colors.bgBase
         radius: Colors.radiusXl
         border.width: 1
@@ -129,9 +116,9 @@ Scope {
 
         MouseArea { anchors.fill: parent; onClicked: {} }
 
-        ColumnLayout {
+        Ui.PanelColumn {
           anchors.fill: parent
-          anchors.margins: Colors.marginXl
+          anchors.margins: Metrics.menuPadding
           spacing: Colors.spacingLg
 
           TextField {
@@ -192,7 +179,7 @@ Scope {
               required property var modelData
               required property int index
               width: list.width
-              height: 38
+              height: Metrics.keybindRowHeight
 
               property bool isFocused: hoverArea.containsMouse || index === root.selected
 

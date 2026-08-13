@@ -1,3 +1,5 @@
+//@ pragma UseQApplication
+//@ pragma IconTheme Papirus-Dark
 import QtQuick
 import Quickshell
 

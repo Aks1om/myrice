@@ -5,6 +5,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Hyprland
 import Quickshell.Wayland
+import "ui" as Ui
 
 Scope {
   id: root
@@ -38,18 +39,9 @@ Scope {
     active: root.isOpen
     asynchronous: true
 
-    sourceComponent: PanelWindow {
-      screen: Hyprland.focusedMonitor?.screen ?? Quickshell.screens[0]
-      visible: true
-      color: "transparent"
-      WlrLayershell.layer: WlrLayer.Overlay
-      WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
-      anchors {
-        top: true
-        left: true
-        right: true
-        bottom: true
-      }
+    sourceComponent: Ui.ModalOverlay {
+      open: root.isOpen
+      onDismissed: root.isOpen = false
 
       Item {
         anchors.fill: parent
@@ -64,19 +56,10 @@ Scope {
         Keys.onTabPressed: root.selected = (root.selected + 1) % 2
       }
 
-      MouseArea {
-        anchors.fill: parent
-        onClicked: root.isOpen = false
-      }
-
-      Rectangle {
+      Ui.PanelSurface {
         anchors.centerIn: parent
-        width: 320
-        implicitHeight: col.implicitHeight + 24
-        color: Colors.bgBase
-        radius: Colors.radiusXl
-        border.width: 1
-        border.color: Colors.border
+        width: Metrics.panelWidth
+        implicitHeight: col.implicitHeight + Metrics.menuPadding * 2
 
         MouseArea { anchors.fill: parent; onClicked: {} }
 
@@ -86,7 +69,7 @@ Scope {
             left: parent.left
             right: parent.right
             top: parent.top
-            margins: 12
+            margins: Metrics.menuPadding
           }
           spacing: Colors.spacingLg
 

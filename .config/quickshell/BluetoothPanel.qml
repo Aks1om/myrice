@@ -6,6 +6,7 @@ import Quickshell.Io
 import Quickshell.Hyprland
 import Quickshell.Bluetooth
 import "theme"
+import "ui" as Ui
 
 Loader {
   id: loader
@@ -59,26 +60,11 @@ Loader {
     btPowerOn.running = true
   }
 
-  sourceComponent: PopupWindow {
+  sourceComponent: Ui.AnchoredPopup {
     id: pop
     visible: true
-    color: "transparent"
-    implicitWidth: 320
-    implicitHeight: container.implicitHeight + 20
-
-    anchor {
-      window: loader.anchorItem.QsWindow.window
-      item: loader.anchorItem
-      edges: Edges.Bottom
-      gravity: Edges.Bottom
-      margins.bottom: -10
-    }
-
-    HyprlandFocusGrab {
-      active: loader.open
-      windows: [pop]
-      onCleared: loader.open = false
-    }
+    anchorItem: loader.anchorItem
+    open: loader.open
 
     property int _adaptersTick: 0
     property int _macTick: 0
@@ -151,27 +137,22 @@ Loader {
       return arr
     }
 
-    Rectangle {
+    Ui.PanelSurface {
       id: container
       anchors.left: parent.left
       anchors.right: parent.right
       anchors.top: parent.top
-      anchors.margins: Colors.marginLg
-      color: Colors.bgBase
-      radius: Colors.radiusXl
-      border.width: 1
-      border.color: Colors.border
-      implicitHeight: col.implicitHeight + 20
+      anchors.margins: Metrics.popupInset
+      implicitHeight: col.implicitHeight + Metrics.panelPadding * 2
 
       MouseArea { anchors.fill: parent; onClicked: {} }
 
-      ColumnLayout {
+      Ui.PanelColumn {
         id: col
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
-        anchors.margins: Colors.marginLg
-        spacing: Colors.spacingMd
+        anchors.margins: Metrics.panelPadding
 
         RowLayout {
           Layout.fillWidth: true
@@ -260,7 +241,7 @@ Loader {
           }
         }
 
-        Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: Colors.overlay }
+        Ui.Divider {}
 
         ListView {
           id: devList
@@ -276,7 +257,7 @@ Loader {
             id: delegateRoot
             required property var modelData
             width: devList.width - 18
-            height: 44
+            height: Metrics.rowHeight
 
             readonly property var dev: modelData
             readonly property bool isConnected: dev?.connected ?? false

@@ -1,0 +1,36 @@
+/* GENERATED FILE — DO NOT EDIT. */
+/* Source: .config/quickshell/theme/tokens.json */
+:root {
+  --swaync-bg-deep: #050505;
+  --swaync-bg-base: #000000;
+  --swaync-surface: #0f0f0f;
+  --swaync-overlay: #1a1a1a;
+  --swaync-hover: #1e1e1e;
+  --swaync-border: #2a2a2a;
+  --swaync-text: #ffffff;
+  --swaync-text-muted: #707070;
+  --swaync-accent: #c4b5fd;
+  --swaync-accent-dim: #8b5cf6;
+  --swaync-radius-sm: 6px;
+  --swaync-radius-md: 8px;
+  --swaync-radius-lg: 10px;
+  --swaync-radius-xl: 14px;
+
+  --cc-bg: var(--swaync-bg-base);
+  --noti-border-color: var(--swaync-border);
+  --noti-bg: 15, 15, 15;
+  --noti-bg-alpha: 1;
+  --noti-bg-darker: var(--swaync-surface);
+  --noti-bg-hover: var(--swaync-hover);
+  --noti-bg-focus: var(--swaync-overlay);
+  --noti-close-bg: var(--swaync-overlay);
+  --noti-close-bg-hover: var(--swaync-border);
+  --text-color: var(--swaync-text);
+  --text-color-disabled: var(--swaync-text-muted);
+  --bg-selected: var(--swaync-accent);
+  --notification-icon-size: 48px;
+  --notification-app-icon-size: 20px;
+  --border-radius: var(--swaync-radius-lg);
+  --font-size-body: 14px;
+  --font-size-summary: 15px;
+}

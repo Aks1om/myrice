@@ -90,10 +90,9 @@ Item {
 
     Text {
       Layout.alignment: Qt.AlignVCenter
-      visible: root.adapter !== null && root.adapter !== undefined
-      text: root.isDongle ? "USB" : "BT"
-      color: !root.enabled ? Qt.rgba(1, 1, 1, 0.4)
-           : root.isDongle ? "#7dd3fc" : "#fbbf24"
+      visible: root.isDongle
+      text: "USB"
+      color: !root.enabled ? Qt.rgba(1, 1, 1, 0.4) : "#7dd3fc"
       font.family: Colors.fontSecondary
       font.pixelSize: 8
       font.weight: Font.Bold

@@ -1,16 +1,96 @@
 #!/usr/bin/env bash
 # Toggle "server mode": lid inhibitor on, screen off.
-# Bound to SUPER+SHIFT+M in ~/.config/hypr/bindings.conf.
+# Bound to SUPER+SHIFT+M in ~/.config/hypr/bindings.hl.
 set -euo pipefail
 
 UNIT=server-mode.service
+RUNTIME_DIR=${XDG_RUNTIME_DIR:?XDG_RUNTIME_DIR must be set}
+STATE_DIR="$RUNTIME_DIR/server-mode"
+STATE_FILE="$STATE_DIR/dpms-wake-options"
+
+get_dpms_wake_option() {
+  local option=$1 value
+
+  if ! value=$(hyprctl getoption "$option" | while IFS=: read -r key raw_value; do
+    [ "$key" = "set" ] || continue
+    value=${raw_value# }
+    case "$value" in
+      true|false)
+        printf '%s\n' "$value"
+        exit 0
+        ;;
+    esac
+  done
+  ); then
+    printf 'Could not read Hyprland option: %s\n' "$option" >&2
+    return 1
+  fi
+
+  case "$value" in
+    true|false)
+      printf '%s\n' "$value"
+      ;;
+    *)
+      printf 'Unexpected value for Hyprland option %s: %s\n' "$option" "$value" >&2
+      return 1
+      ;;
+  esac
+}
+
+save_dpms_wake_options() {
+  local mouse_value=$1 key_value=$2 temporary_file
+
+  umask 077
+  install -d -m 700 "$STATE_DIR"
+  temporary_file=$(mktemp "$STATE_DIR/dpms-wake-options.XXXXXX")
+  printf '%s\n%s\n' "$mouse_value" "$key_value" >"$temporary_file"
+  mv "$temporary_file" "$STATE_FILE"
+}
+
+restore_dpms_wake_options() {
+  local mouse_value key_value current_value
+
+  [ -f "$STATE_FILE" ] || return 0
+  {
+    IFS= read -r mouse_value
+    IFS= read -r key_value
+  } <"$STATE_FILE"
+
+  case "$mouse_value:$key_value" in
+    true:true|true:false|false:true|false:false) ;;
+    *)
+      printf 'Invalid server-mode DPMS state: %s\n' "$STATE_FILE" >&2
+      return 1
+      ;;
+  esac
+
+  current_value=$(get_dpms_wake_option misc:mouse_move_enables_dpms)
+  if [ "$current_value" = false ]; then
+    hyprctl keyword misc:mouse_move_enables_dpms "$mouse_value" >/dev/null
+  fi
+
+  current_value=$(get_dpms_wake_option misc:key_press_enables_dpms)
+  if [ "$current_value" = false ]; then
+    hyprctl keyword misc:key_press_enables_dpms "$key_value" >/dev/null
+  fi
+
+  rm -f "$STATE_FILE"
+}
 
 if systemctl --user is-active --quiet "$UNIT"; then
   systemctl --user stop "$UNIT"
+  restore_dpms_wake_options
   hyprctl dispatch dpms on >/dev/null 2>&1 || true
   notify-send -a "server-mode" -t 2500 "🖥️ Server mode OFF" "ноут работает нормально"
 else
+  # A previous interrupted invocation can leave runtime overrides behind.
+  restore_dpms_wake_options
   systemctl --user start "$UNIT"
+  mouse_value=$(get_dpms_wake_option misc:mouse_move_enables_dpms)
+  key_value=$(get_dpms_wake_option misc:key_press_enables_dpms)
+  save_dpms_wake_options "$mouse_value" "$key_value"
+  hyprctl keyword misc:mouse_move_enables_dpms false >/dev/null
+  hyprctl keyword misc:key_press_enables_dpms false >/dev/null
   notify-send -a "server-mode" -t 2500 "🖥️ Server mode ON" "ноут с закрытой крышкой, экран выключен"
   sleep 0.4
   hyprctl dispatch dpms off >/dev/null 2>&1 || true

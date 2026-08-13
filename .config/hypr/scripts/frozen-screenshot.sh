@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+RUNTIME_DIR="${HOME}/.cache/frozen-screenshot"
+FRAME="${RUNTIME_DIR}/frame.png"
+WINDOW="${RUNTIME_DIR}/window.json"
+SCREENSHOT_DIR="${HOME}/Pictures/Screenshots"
+
+mkdir -p "${RUNTIME_DIR}" "${SCREENSHOT_DIR}"
+
+save_result() {
+  local file="$1"
+  wl-copy --type image/png < "${file}"
+  notify-send "Screenshot saved" "${file}" -i "${file}" -a "Screenshot"
+}
+
+capture_frame() {
+  local output
+  output="$(hyprctl -j monitors | jq -r '.[] | select(.focused).name')"
+  grim -o "${output}" "${FRAME}"
+  hyprctl -j activewindow > "${WINDOW}"
+}
+
+new_file() {
+  printf '%s/%s.png\n' "${SCREENSHOT_DIR}" "$(date +%Y-%m-%d_%H-%M-%S)"
+}
+
+crop_frame() {
+  local x="$1" y="$2" width="$3" height="$4" file
+  [[ "${x}" =~ ^[0-9]+$ && "${y}" =~ ^[0-9]+$ && "${width}" =~ ^[1-9][0-9]*$ && "${height}" =~ ^[1-9][0-9]*$ ]] || exit 2
+  file="$(new_file)"
+  magick "${FRAME}" -crop "${width}x${height}+${x}+${y}" +repage "${file}"
+  save_result "${file}"
+}
+
+case "${1:-}" in
+  open)
+    capture_frame
+    qs ipc call frozenScreenshot open
+    ;;
+  output)
+    file="$(new_file)"
+    cp "${FRAME}" "${file}"
+    save_result "${file}"
+    ;;
+  window)
+    [[ -s "${WINDOW}" ]] || exit 1
+    read -r x y width height < <(jq -r '[.at[0], .at[1], .size[0], .size[1]] | @tsv' "${WINDOW}")
+    crop_frame "${x}" "${y}" "${width}" "${height}"
+    ;;
+  area)
+    crop_frame "${2:-}" "${3:-}" "${4:-}" "${5:-}"
+    ;;
+  *)
+    exit 2
+    ;;
+esac
