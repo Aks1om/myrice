@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "name": "laptop-rtl8821ce",
+  "stages": ["services", "wifi-fix"],
+  "capabilities": {
+    "laptop_services": true,
+    "rtl8821ce_wifi": true
+  }
+}

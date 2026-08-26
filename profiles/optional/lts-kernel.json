@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "lts-kernel",
+  "stages": ["lts-kernel"],
+  "capabilities": {
+    "lts-kernel": true
+  }
+}

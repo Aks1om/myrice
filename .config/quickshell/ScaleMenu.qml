@@ -1,4 +1,5 @@
 import QtQuick
+import QtCore
 import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
@@ -13,6 +14,7 @@ Scope {
 
     property bool isOpen: false
     property int scalePct: 100
+    readonly property string configHome: StandardPaths.writableLocation(StandardPaths.ConfigLocation)
     readonly property var presetSnaps: [80, 100, 125, 150, 175, 200, 225, 250]
 
     function snapToPreset(v) {
@@ -30,7 +32,7 @@ Scope {
 
     function apply(pct) {
         const v = (pct / 100).toFixed(4);
-        applyScale.command = ["bash", "/home/aks1om/.config/hypr/scripts/scale.sh", "set", v];
+        applyScale.command = ["bash", root.configHome + "/hypr/scripts/scale.sh", "set", v];
         applyScale.running = true;
     }
 

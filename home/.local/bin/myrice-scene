@@ -1,0 +1,100 @@
+#!/usr/bin/env bash
+# Apply named monitor scenes declared in ~/.config/myrice/scenes/*.json.
+set -euo pipefail
+
+readonly SCENE_NAME="${0##*/}"
+readonly SCENES_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/myrice/scenes"
+readonly ACTION_BIN="${MYRICE_ACTION_BIN:-${0%/*}/myrice-action}"
+
+usage() {
+  cat <<EOF
+Usage: $SCENE_NAME [--dry-run] <home|office|presentation>
+       $SCENE_NAME --list
+EOF
+}
+
+need_command() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    printf '%s: required command not found: %s\n' "$SCENE_NAME" "$1" >&2
+    exit 127
+  fi
+}
+
+validate_scene() {
+  jq -e '
+    (.version == 1) and
+    (.outputs | type == "array" and length > 0) and
+    all(.outputs[];
+      (.name | type == "string" and test("^[A-Za-z0-9._-]+$")) and
+      (.mode | type == "string" and test("^(preferred|[0-9]+x[0-9]+(@[0-9.]+)?)$")) and
+      (.position | type == "string" and test("^(auto|[0-9]+x[0-9]+)$")) and
+      (.scale | type == "number" and . > 0 and . <= 4) and
+      (.enabled | type == "boolean")
+    ) and
+    ((.powerProfile? == null) or (.powerProfile | test("^(battery|balanced|performance|gaming|presentation)$")))
+  ' "$1" >/dev/null
+}
+
+list_scenes() {
+  local scene
+  shopt -s nullglob
+  for scene in "$SCENES_DIR"/*.json; do
+    basename "${scene%.json}"
+  done
+}
+
+dry_run=false
+case "${1:-}" in
+  --dry-run) dry_run=true; shift ;;
+  --list) [ "$#" -eq 1 ] || { usage >&2; exit 2; }; list_scenes; exit 0 ;;
+esac
+
+[ "$#" -eq 1 ] || { usage >&2; exit 2; }
+scene=$1
+case "$scene" in
+  home|office|presentation) ;;
+  *) printf '%s: unknown scene: %s\n' "$SCENE_NAME" "$scene" >&2; exit 2 ;;
+esac
+
+scene_file="$SCENES_DIR/$scene.json"
+[ -r "$scene_file" ] || { printf '%s: scene file is not readable: %s\n' "$SCENE_NAME" "$scene_file" >&2; exit 1; }
+need_command jq
+validate_scene "$scene_file" || { printf '%s: invalid scene schema: %s\n' "$SCENE_NAME" "$scene_file" >&2; exit 1; }
+
+if ! $dry_run; then
+  need_command hyprctl
+  need_command grep
+  current_outputs=$(hyprctl -j monitors | jq -r '.[].name')
+  while IFS= read -r output; do
+    if ! printf '%s\n' "$current_outputs" | grep -Fqx -- "$output"; then
+      printf '%s: declared output is not connected: %s\n' "$SCENE_NAME" "$output" >&2
+      exit 1
+    fi
+  done < <(jq -r '.outputs[] | select(.enabled) | .name' "$scene_file")
+fi
+
+while IFS=$'\t' read -r name mode position scale enabled; do
+  if [ "$enabled" = true ]; then
+    command=(hyprctl keyword monitor "$name,$mode,$position,$scale")
+  else
+    command=(hyprctl keyword monitor "$name,disable")
+  fi
+  if $dry_run; then
+    printf 'Would run:'
+    printf ' %q' "${command[@]}"
+    printf '\n'
+  else
+    "${command[@]}"
+  fi
+done < <(jq -r '.outputs[] | [.name, .mode, .position, (.scale | tostring), (.enabled | tostring)] | @tsv' "$scene_file")
+
+power_profile=$(jq -r '.powerProfile // empty' "$scene_file")
+if [ -n "$power_profile" ]; then
+  if $dry_run; then
+    printf 'Would run: %q power profile %q\n' "$ACTION_BIN" "$power_profile"
+  elif [ -x "$ACTION_BIN" ]; then
+    "$ACTION_BIN" power profile "$power_profile"
+  else
+    printf '%s: myrice-action is unavailable; scene monitor settings were applied without a power profile\n' "$SCENE_NAME" >&2
+  fi
+fi

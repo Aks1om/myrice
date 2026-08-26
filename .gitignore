@@ -4,3 +4,10 @@
 # Local backups
 .dotfiles_backup_*/
 .myrice_backup_*/
+
+# Machine-local bootstrap profiles. Keep the documented template tracked.
+profiles/local/*.json
+!profiles/local/*.example.json
+
+__pycache__/
+*.pyc

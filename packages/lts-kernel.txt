@@ -1,0 +1,4 @@
+# Boot-related fallback packages. Installed only by the explicit lts-kernel stage.
+linux-lts
+linux-lts-headers
+plymouth

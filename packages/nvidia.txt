@@ -1,0 +1,6 @@
+# Explicit NVIDIA opt-in baseline for current supported GPUs on Arch.
+# Do not add legacy packages or select a driver automatically.
+nvidia-open-dkms
+nvidia-utils
+egl-wayland
+nvidia-prime

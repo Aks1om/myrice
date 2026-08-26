@@ -42,7 +42,7 @@ Kernel (DRM/KMS)
 │   ├── monitors.conf       ← monitor layout (currently: auto/preferred/1x)
 │   ├── env.conf            ← Wayland env vars, cursor, locale
 │   ├── input.conf          ← keyboard (us,ru / alt+shift), touchpad
-│   ├── bindings.conf       ← ALL keybinds
+│   ├── bindings.hl         ← ALL keybinds
 │   ├── rules.conf          ← window rules + workspace assignments
 │   ├── autostart.conf      ← exec-once entries
 │   ├── hyprpaper.conf      ← wallpaper path (~/Pictures/wallpapers/default.jpg)
@@ -53,7 +53,7 @@ Kernel (DRM/KMS)
 │       ├── powermenu.sh         ← rofi: lock / logout / reboot / shutdown
 │       ├── clipboard.sh         ← cliphist list via rofi (Enter=copy, Del=remove)
 │       ├── screenshot.sh        ← grim+slurp area or full-output screenshot
-│       ├── show-keybinds.sh     ← rofi: parsed bindings.conf as cheat sheet
+│       ├── show-keybinds.sh     ← rofi: parsed bindings.hl as cheat sheet
 │       ├── wifi-menu.sh         ← rofi: nmcli wifi list/connect/disconnect
 │       ├── window-switcher.sh   ← rofi: switch between open windows (hyprctl)
 │       ├── toggle-special-window.sh ← send/recall window from special workspace
@@ -103,7 +103,7 @@ Kernel (DRM/KMS)
 | `monitors.conf` | `monitor =` lines. Currently `,preferred,auto,1` (auto-detect) |
 | `input.conf` | `input {}` + `gestures {}` blocks |
 | `rules.conf` | `windowrule =` + `workspace =` assignments |
-| `bindings.conf` | `bind =`, `bindel =`, `bindm =` |
+| `bindings.hl` | `bind =`, `bindel =`, `bindm =` |
 | `autostart.conf` | `exec-once =` (waybar, hyprpaper, hypridle, swaync, etc.) |
 
 **Core visual settings** (in hyprland.conf directly):
@@ -278,9 +278,9 @@ ttf-jetbrains-mono-nerd  ← monospace font
 
 **Change shared Quickshell/SwayNC theme tokens:**
 ```bash
-# Edit ~/.config/quickshell/theme/tokens.json, then regenerate all outputs:
-python3 ~/GitHub/myrice/scripts/generate-theme.py
-python3 ~/GitHub/myrice/scripts/generate-theme.py --check
+# From the repository root, edit ~/.config/quickshell/theme/tokens.json, then regenerate:
+python3 scripts/generate-theme.py
+python3 scripts/generate-theme.py --check
 ```
 
 `tokens.json` is the source of truth. Do not manually edit the generated
@@ -311,7 +311,7 @@ hyprctl monitors   # get name
 ```
 
 **Add a keybind:**  
-Edit `~/.config/hypr/bindings.conf`. The `show-keybinds.sh` script auto-parses it.
+Edit `~/.config/hypr/bindings.hl`. The `show-keybinds.sh` script auto-parses it.
 
 **Change bar modules:**  
 Edit `~/.config/waybar/config.jsonc` → `modules-left/center/right`.  

@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "description": "Docked workspace. Replace output names, modes, and positions for this computer.",
+  "powerProfile": "performance",
+  "outputs": [
+    {
+      "name": "DP-1",
+      "mode": "preferred",
+      "position": "0x0",
+      "scale": 1,
+      "enabled": true
+    },
+    {
+      "name": "HDMI-A-1",
+      "mode": "preferred",
+      "position": "1920x0",
+      "scale": 1,
+      "enabled": true
+    }
+  ]
+}

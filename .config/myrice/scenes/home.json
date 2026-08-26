@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "description": "Laptop-only home workspace. Replace output names for this computer.",
+  "powerProfile": "balanced",
+  "outputs": [
+    {
+      "name": "LVDS-1",
+      "mode": "preferred",
+      "position": "auto",
+      "scale": 1,
+      "enabled": true
+    }
+  ]
+}

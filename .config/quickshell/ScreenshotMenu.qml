@@ -1,3 +1,4 @@
+import QtCore
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
@@ -14,6 +15,9 @@ Scope {
     property bool frozen: false
     property string stage: "menu"
     property int selected: 0
+    readonly property string configHome: Quickshell.env("XDG_CONFIG_HOME") || Quickshell.env("HOME") + "/.config"
+    readonly property string cacheHome: Quickshell.env("XDG_CACHE_HOME") || Quickshell.env("HOME") + "/.cache"
+    readonly property string frozenFramePath: cacheHome + "/frozen-screenshot/frame.png"
     readonly property var items: [{
         "label": "Area",
         "hint": "Выделить область",
@@ -38,26 +42,40 @@ Scope {
                 return ;
             }
             root.isOpen = false;
-            shotProc.command = ["bash", "/home/aks1om/.config/hypr/scripts/frozen-screenshot.sh", mode];
+            shotProc.command = ["bash", root.configHome + "/hypr/scripts/frozen-screenshot.sh", mode];
             shotProc.running = true;
             return ;
         }
         root.isOpen = false;
-        shotProc.command = ["bash", "/home/aks1om/.config/hypr/scripts/screenshot.sh", mode];
+        shotProc.command = ["bash", root.configHome + "/hypr/scripts/screenshot.sh", mode];
         shotProc.running = true;
     }
 
     function cropArea(x, y, width, height, imageWidth, imageHeight, displayWidth, displayHeight) {
-        if (width < 4 || height < 4 || imageWidth <= 0 || imageHeight <= 0)
+        if (width < 4 || height < 4) {
+            root.closeWithError("Select an area at least 4 pixels wide and high.");
             return ;
-
+        }
+        if (imageWidth <= 0 || imageHeight <= 0 || displayWidth <= 0 || displayHeight <= 0) {
+            root.closeWithError("The frozen frame could not be loaded. Try again.");
+            return ;
+        }
         const cropX = Math.max(0, Math.round(x / displayWidth * imageWidth));
         const cropY = Math.max(0, Math.round(y / displayHeight * imageHeight));
         const cropWidth = Math.min(imageWidth - cropX, Math.round(width / displayWidth * imageWidth));
         const cropHeight = Math.min(imageHeight - cropY, Math.round(height / displayHeight * imageHeight));
+        if (cropWidth <= 0 || cropHeight <= 0) {
+            root.closeWithError("The selected area is outside the frozen frame. Try again.");
+            return ;
+        }
         root.isOpen = false;
-        shotProc.command = ["bash", "/home/aks1om/.config/hypr/scripts/frozen-screenshot.sh", "area", String(cropX), String(cropY), String(cropWidth), String(cropHeight)];
-        shotProc.running = true;
+        shotProc.exec(["bash", root.configHome + "/hypr/scripts/frozen-screenshot.sh", "area", String(cropX), String(cropY), String(cropWidth), String(cropHeight)]);
+    }
+
+    function closeWithError(message) {
+        root.isOpen = false;
+        errorProc.command = ["notify-send", "-u", "critical", "-a", "Screenshot", "Screenshot failed", message];
+        errorProc.running = true;
     }
 
     IpcHandler {
@@ -95,6 +113,30 @@ Scope {
 
     Process {
         id: shotProc
+
+        property string errorOutput: ""
+
+        onStarted: errorOutput = ""
+        stderr: StdioCollector {
+            onStreamFinished: shotProc.errorOutput = text.trim()
+        }
+        onExited: (exitCode, exitStatus) => {
+            if (exitCode === 0)
+                return ;
+
+            const detail = shotProc.errorOutput || "The screenshot command exited with code " + exitCode + ".";
+            console.warn("Screenshot command failed:", exitCode, exitStatus, detail);
+            root.closeWithError(detail);
+        }
+    }
+
+    Process {
+        id: errorProc
+
+        onExited: (exitCode, exitStatus) => {
+            if (exitCode !== 0)
+                console.warn("Failed to send screenshot error notification:", exitCode, exitStatus);
+        }
     }
 
     Loader {
@@ -114,7 +156,7 @@ Scope {
 
                 anchors.fill: parent
                 visible: root.frozen
-                source: "file:///home/aks1om/.cache/frozen-screenshot/frame.png"
+                source: Qt.resolvedUrl(root.frozenFramePath)
                 fillMode: Image.Stretch
                 cache: false
             }

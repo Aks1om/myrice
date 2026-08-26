@@ -2,7 +2,8 @@
 
 set -euo pipefail
 
-RUNTIME_DIR="${HOME}/.cache/frozen-screenshot"
+CACHE_HOME="${XDG_CACHE_HOME:-${HOME}/.cache}"
+RUNTIME_DIR="${CACHE_HOME}/frozen-screenshot"
 FRAME="${RUNTIME_DIR}/frame.png"
 WINDOW="${RUNTIME_DIR}/window.json"
 SCREENSHOT_DIR="${HOME}/Pictures/Screenshots"
@@ -11,8 +12,16 @@ mkdir -p "${RUNTIME_DIR}" "${SCREENSHOT_DIR}"
 
 save_result() {
   local file="$1"
-  wl-copy --type image/png < "${file}"
-  notify-send "Screenshot saved" "${file}" -i "${file}" -a "Screenshot"
+  if [[ ! -s "${file}" ]] || [[ "$(od -An -tx1 -N8 "${file}" | tr -d '[:space:]')" != "89504e470d0a1a0a" ]]; then
+    notify-send -u critical -a "Screenshot" "Screenshot failed" "No valid PNG image was saved." || true
+    return 1
+  fi
+
+  if ! wl-copy --type image/png < "${file}"; then
+    notify-send -u normal -a "Screenshot" "Clipboard copy failed" "Screenshot was saved to ${file}." || true
+  fi
+
+  notify-send "Screenshot saved" "${file}" -i "${file}" -a "Screenshot" || true
 }
 
 capture_frame() {

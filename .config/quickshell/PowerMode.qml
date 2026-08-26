@@ -1,4 +1,5 @@
 import QtQuick
+import QtCore
 import Quickshell.Io
 import "theme"
 
@@ -8,10 +9,11 @@ Item {
   implicitHeight: 16
 
   property string mode: "normal"
+  readonly property string configHome: StandardPaths.writableLocation(StandardPaths.ConfigLocation)
 
   Process {
     id: get
-    command: ["bash", "/home/aks1om/.config/hypr/scripts/power-mode.sh", "get"]
+    command: ["bash", root.configHome + "/hypr/scripts/power-mode.sh", "get"]
     running: true
     stdout: StdioCollector {
       onStreamFinished: {
@@ -24,7 +26,7 @@ Item {
   }
   Process {
     id: toggle
-    command: ["bash", "/home/aks1om/.config/hypr/scripts/power-mode.sh", "toggle"]
+    command: ["bash", root.configHome + "/hypr/scripts/power-mode.sh", "toggle"]
     onExited: get.running = true
   }
 

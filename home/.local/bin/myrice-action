@@ -1,0 +1,157 @@
+#!/usr/bin/env bash
+# Explicit, user-scoped desktop actions for Hyprland sessions.
+set -uo pipefail
+
+readonly ACTION_NAME="${0##*/}"
+readonly HYPR_SCRIPTS_DIR="${HOME:?HOME must be set}/.config/hypr/scripts"
+
+usage() {
+  cat <<EOF
+Usage:
+  $ACTION_NAME lock
+  $ACTION_NAME screenshot {area|window|output|menu}
+  $ACTION_NAME audio {up|down|mute}
+  $ACTION_NAME brightness {up|down}
+  $ACTION_NAME power profile {battery|balanced|performance|gaming|presentation}
+  $ACTION_NAME {doctor|status}
+EOF
+}
+
+need_command() {
+  if ! command -v "$1" >/dev/null 2>&1; then
+    printf '%s: required command not found: %s\n' "$ACTION_NAME" "$1" >&2
+    return 127
+  fi
+}
+
+run_lock() {
+  need_command hyprlock || return
+  hyprlock
+}
+
+run_screenshot() {
+  local mode=${1:-area}
+  case "$mode" in
+    area|window|output|menu) ;;
+    *) printf '%s: invalid screenshot mode: %s\n' "$ACTION_NAME" "$mode" >&2; return 2 ;;
+  esac
+
+  if [ ! -x "$HYPR_SCRIPTS_DIR/screenshot.sh" ]; then
+    printf '%s: screenshot helper is not executable: %s\n' "$ACTION_NAME" "$HYPR_SCRIPTS_DIR/screenshot.sh" >&2
+    return 1
+  fi
+  if ! command -v hyprshot >/dev/null 2>&1; then
+    need_command grim || return
+    if [ "$mode" != output ]; then
+      need_command slurp || return
+    fi
+  fi
+  "$HYPR_SCRIPTS_DIR/screenshot.sh" "$mode"
+}
+
+run_audio() {
+  local action=${1:-}
+  need_command wpctl || return
+  case "$action" in
+    up) wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ ;;
+    down) wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- ;;
+    mute) wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle ;;
+    *) printf '%s: audio action must be up, down, or mute\n' "$ACTION_NAME" >&2; return 2 ;;
+  esac
+}
+
+run_brightness() {
+  local action=${1:-}
+  need_command brightnessctl || return
+  case "$action" in
+    up) brightnessctl set +5% ;;
+    down) brightnessctl set 5%- ;;
+    *) printf '%s: brightness action must be up or down\n' "$ACTION_NAME" >&2; return 2 ;;
+  esac
+}
+
+run_power_profile() {
+  local profile=${1:-} powerprofiles_profile
+  case "$profile" in
+    battery) powerprofiles_profile=power-saver ;;
+    balanced|presentation) powerprofiles_profile=balanced ;;
+    performance|gaming) powerprofiles_profile=performance ;;
+    *) printf '%s: unknown power profile: %s\n' "$ACTION_NAME" "$profile" >&2; return 2 ;;
+  esac
+
+  if ! command -v powerprofilesctl >/dev/null 2>&1; then
+    printf '%s: powerprofilesctl is unavailable; profile was not changed\n' "$ACTION_NAME" >&2
+    return 0
+  fi
+
+  if ! powerprofilesctl set "$powerprofiles_profile"; then
+    printf '%s: could not set requested profile %s\n' "$ACTION_NAME" "$profile" >&2
+    return 1
+  fi
+  printf 'Power profile: %s (%s)\n' "$profile" "$powerprofiles_profile"
+}
+
+run_doctor() {
+  local command_name
+  for command_name in hyprctl hyprlock hyprshot grim slurp wpctl brightnessctl powerprofilesctl jq; do
+    if command -v "$command_name" >/dev/null 2>&1; then
+      printf 'ok      %s\n' "$command_name"
+    else
+      printf 'missing %s\n' "$command_name"
+    fi
+  done
+}
+
+run_status() {
+  if command -v powerprofilesctl >/dev/null 2>&1; then
+    printf 'power profile: '
+    powerprofilesctl get || true
+  else
+    printf 'power profile: unavailable (powerprofilesctl not found)\n'
+  fi
+
+  if command -v hyprctl >/dev/null 2>&1; then
+    printf 'monitors:\n'
+    hyprctl monitors
+  else
+    printf 'monitors: unavailable (hyprctl not found)\n'
+  fi
+}
+
+case "${1:-}" in
+  lock)
+    [ "$#" -eq 1 ] || { usage >&2; exit 2; }
+    run_lock
+    ;;
+  screenshot)
+    [ "$#" -eq 2 ] || { usage >&2; exit 2; }
+    run_screenshot "$2"
+    ;;
+  audio)
+    [ "$#" -eq 2 ] || { usage >&2; exit 2; }
+    run_audio "$2"
+    ;;
+  brightness)
+    [ "$#" -eq 2 ] || { usage >&2; exit 2; }
+    run_brightness "$2"
+    ;;
+  power)
+    [ "$#" -eq 3 ] && [ "$2" = profile ] || { usage >&2; exit 2; }
+    run_power_profile "$3"
+    ;;
+  doctor)
+    [ "$#" -eq 1 ] || { usage >&2; exit 2; }
+    run_doctor
+    ;;
+  status)
+    [ "$#" -eq 1 ] || { usage >&2; exit 2; }
+    run_status
+    ;;
+  -h|--help|help)
+    usage
+    ;;
+  *)
+    usage >&2
+    exit 2
+    ;;
+esac

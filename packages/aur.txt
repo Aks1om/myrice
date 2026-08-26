@@ -1,5 +1,4 @@
 # AUR — always installed
-hyprshot
 catppuccin-gtk-theme-mocha
 bibata-cursor-theme-bin
 

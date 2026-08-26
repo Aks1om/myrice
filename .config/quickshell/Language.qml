@@ -1,4 +1,5 @@
 import QtQuick
+import QtCore
 import Quickshell.Hyprland
 import Quickshell.Io
 import "theme"
@@ -9,6 +10,7 @@ Item {
   implicitHeight: txt.implicitHeight
 
   property string layoutName: ""
+  readonly property string configHome: StandardPaths.writableLocation(StandardPaths.ConfigLocation)
 
   Process {
     id: probe
@@ -47,6 +49,11 @@ for line in f:
     onExited: Qt.callLater(() => { events.running = true })
   }
 
+  Process {
+    id: toggleLayout
+    command: ["bash", root.configHome + "/hypr/scripts/toggle-layout.sh"]
+  }
+
   Text {
     id: txt
     anchors.centerIn: parent
@@ -62,6 +69,6 @@ for line in f:
   MouseArea {
     anchors.fill: parent
     cursorShape: Qt.PointingHandCursor
-    onClicked: Hyprland.dispatch("exec bash /home/aks1om/.config/hypr/scripts/toggle-layout.sh")
+    onClicked: toggleLayout.running = true
   }
 }

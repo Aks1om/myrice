@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "description": "External presentation display. Replace output names for this computer.",
+  "powerProfile": "presentation",
+  "outputs": [
+    {
+      "name": "HDMI-A-1",
+      "mode": "preferred",
+      "position": "auto",
+      "scale": 1,
+      "enabled": true
+    }
+  ]
+}

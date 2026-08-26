@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "name": "nvidia",
+  "stages": ["nvidia", "nvidia-prime"],
+  "capabilities": {
+    "nvidia_graphics": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "name": "base",
+  "stages": ["preflight", "pacman", "aur", "dotfiles"],
+  "capabilities": {
+    "system": false,
+    "backup": false,
+    "lts-kernel": false,
+    "laptop_services": false,
+    "rtl8821ce_wifi": false,
+    "sddm_session": false,
+    "nvidia_graphics": false
+  },
+  "optional_commands": ["ollama", "opencode", "solitaire-tui"]
+}

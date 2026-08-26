@@ -13,6 +13,7 @@ hypridle
 # Bar / shell — Quickshell-based (replaces waybar+mako+rofi)
 quickshell
 swaync
+jq
 
 # Keep waybar around as a fallback bar option (no longer the default)
 waybar
@@ -21,11 +22,13 @@ waybar
 ghostty
 
 # Daily tools
+nautilus
 nemo
 nemo-fileroller
 file-roller
 gvfs
 network-manager-applet
+networkmanager
 blueman
 pavucontrol
 brightnessctl
@@ -46,25 +49,20 @@ grim
 slurp
 wl-clipboard
 cliphist
+clipse
 hyprshot
+libnotify
+pipewire
+wireplumber
 
 # Shell
 zsh
 starship
 
-# Boot splash
-plymouth
-
 # Build / DKMS support
 base-devel
 dkms
 linux-headers
-
-# Fallback kernel — install.sh's lts-kernel stage adds a systemd-boot entry
-# pointing at vmlinuz-linux-lts so a broken upgrade of the main kernel
-# never strands you without a bootable system.
-linux-lts
-linux-lts-headers
 
 # Snapshot / rollback (configured by install.sh's backup stage:
 # /etc/timeshift/timeshift.json from template + pacman pre-transaction hook
