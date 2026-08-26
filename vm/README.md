@@ -109,3 +109,56 @@ The guest-only script runs `bootstrap.sh plan`, `bootstrap.sh doctor`, and
 `bootstrap.sh bootstrap --dry-run`; it saves separate logs plus metadata. It
 does not install packages or download anything. Review the dry-run output
 before choosing any real bootstrap action.
+
+## Cloud-image disposable provisioning
+
+`cloud-provision.sh` is a separate, fully headless NoCloud path for a local
+Arch cloud qcow2 image. It does not replace or modify the ISO/QMP harness
+above. It copies OVMF variables, creates a qcow2 overlay (never changing the
+supplied image), generates a new state-local SSH identity, and transfers a
+sanitized archive of the current worktree through localhost-only user-mode NAT.
+
+```bash
+./vm/cloud-provision.sh --image vm/.state/Arch-Linux-x86_64-cloudimg.qcow2
+./vm/cloud-provision.sh --image vm/.state/Arch-Linux-x86_64-cloudimg.qcow2 --acceptance-only
+./vm/cloud-provision.sh --image vm/.state/Arch-Linux-x86_64-cloudimg.qcow2 --resume-install
+./vm/cloud-provision.sh --image /any/path --dry-run
+./vm/cloud-provision.sh --image vm/.state/Arch-Linux-x86_64-cloudimg.qcow2 --reset --yes
+```
+
+Cloud state is owned only below `vm/.state/cloud` (or a descendant selected by
+`MYRICE_CLOUD_VM_DIR`) and is marked before it can be reset. The guest SSH port
+is `127.0.0.1:2223`; the script uses only its generated key with
+`IdentitiesOnly=yes`. It waits for both cloud-init completion and the archived
+acceptance script, then saves `plan.log`, `doctor.log`, and
+`bootstrap-dry-run.log` under the cloud state evidence directory. Set
+`MYRICE_VM_TIMEOUT` (default `900`) or `MYRICE_CLOUD_VM_HTTP_PORT` if needed.
+On initial state creation, the disposable overlay is resized to
+`MYRICE_CLOUD_VM_DISK_SIZE` (default `12G`) before its first boot, so cloud-init
+can grow the root filesystem. Its value must be a positive integer with a `G`
+or `M` suffix, such as `12G` or `4096M`. The supplied image and backing source
+are never resized. Changing the size of an existing cloud state requires
+`--reset --yes` and a new initial boot; `--resume-install` never resizes its
+existing overlay.
+
+`--resume-install` requires an existing marked cloud state and the original
+overlay, OVMF variables, and generated SSH key. It neither reads nor modifies
+the supplied image, creates NoCloud data, or starts HTTP. It boots that overlay
+on port `2223`. Before every real bootstrap, it creates a validated sanitized
+archive from the current host worktree using the normal cloud archive exclusions
+and transfers it only over the transient-key SCP connection. The guest validates
+the uploaded `/tmp` archive, extracts it into `/home/arch/myrice.next`, then
+replaces `/home/arch/myrice` (keeping only the brief rename window); guest logs
+and evidence outside that checkout are unaffected. The temporary host archive
+remains only under marked cloud state and is cleaned up on exit; no host
+directory is mounted or exposed to the guest. It then runs
+`/home/arch/myrice/bootstrap.sh bootstrap --non-interactive` as the normal
+`arch` user from `/home/arch/myrice`; this explicitly accepts pacman's package
+choices only inside the disposable VM. It always stops the QEMU process it
+started. Its install SSH command has a separate
+`MYRICE_VM_INSTALL_TIMEOUT` (default `7200` seconds; no timeout is imposed if
+the host lacks `timeout`). Before that bootstrap, resume waits up to
+`MYRICE_VM_TIMEOUT` for the pacman lock and any `pacman` process to clear and,
+when cloud-init is present, for its final boot marker. On success,
+`real-install.log` and package/symlink verification are copied to
+`vm/.state/cloud/evidence-real-install/`.

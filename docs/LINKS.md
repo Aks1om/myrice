@@ -382,7 +382,6 @@ Some packages in `packages/pacman.txt` and `packages/aur.txt` no longer reflect 
 
 - **`rofi-wayland`** — listed in `packages/pacman.txt` but not installed on the machine. Replaced by `quickshell` (launcher lives in `~/.config/quickshell/AppLauncher.qml`).
 - **`swaync`** — active on machine, NOT in `packages/pacman.txt`. Should be added.
-- **`clipse`** — active on machine (AUR), NOT in `packages/aur.txt`. Should be added.
 - **`quickshell-git`** — active on machine (AUR), NOT in `packages/aur.txt`. Should be added.
 - **`mako`** — installed but not running; `swaync` covers everything. Decide whether to keep or drop.
 - **`hyprpolkitagent`** — installed but not running; `polkit-gnome` is the active one. Pick one and drop the other from packages.

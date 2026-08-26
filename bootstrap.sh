@@ -8,6 +8,7 @@ base_profile="$repo_dir/profiles/base.json"
 command=plan
 dry_run=0
 assume_yes=0
+non_interactive=0
 json_output=0
 rollback_plan=0
 profiles=()
@@ -27,6 +28,7 @@ Options:
   --profile PATH       Add an explicit profile fragment (repeatable).
   --dry-run            Print install commands; do not apply changes.
    --yes, -y            Pass --yes to install.sh for bootstrap.
+   --non-interactive    Pass --non-interactive to install.sh for bootstrap.
    --json               Emit JSON for doctor.
    --plan               Required for rollback; it only prints the rollback plan.
   -h, --help           Show this help.
@@ -76,6 +78,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --dry-run) dry_run=1;;
     --yes|-y) assume_yes=1;;
+    --non-interactive)
+      [[ "$command" == bootstrap ]] || { printf '%s\n' '--non-interactive is valid only with bootstrap' >&2; exit 2; }
+      non_interactive=1
+      ;;
     --json) json_output=1;;
     --plan) rollback_plan=1;;
     -h|--help) usage; exit 0;;
@@ -140,6 +146,7 @@ case "$command" in
     for stage in "${stage_list[@]}"; do install_args+=(--stage "$stage"); done
     [[ $dry_run -eq 1 ]] && install_args+=(--dry-run)
     [[ $assume_yes -eq 1 ]] && install_args+=(--yes)
+    [[ $non_interactive -eq 1 ]] && install_args+=(--non-interactive)
     for name in "${profile_names[@]}"; do install_args+=(--state-profile "$name"); done
     if [[ $dry_run -eq 0 ]]; then
       state_args=(state --status planned)

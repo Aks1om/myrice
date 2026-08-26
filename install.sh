@@ -26,6 +26,7 @@
 #   --skip NAME          skip a stage (can be repeated)
 #   --dry-run            print quoted commands, don't change anything
 #   --yes                non-interactive (passes --noconfirm to pacman/yay)
+#   --non-interactive    pass --noconfirm only to the pacman package install
 #   --laptop-wifi-fix    include the RTL8821CE-specific stage
 #   -h, --help           this help
 #
@@ -44,6 +45,7 @@ SYSTEM_BACKUP_DIR="/var/backups/myrice-${STAMP}"
 
 DRY_RUN=0
 ASSUME_YES=0
+NON_INTERACTIVE=0
 LAPTOP_WIFI_FIX=0
 RUN_STAGES=()
 SKIP_STAGES=()
@@ -100,6 +102,7 @@ while [[ $# -gt 0 ]]; do
     --skip)             shift; [[ $# -gt 0 ]] || { err "--skip requires a name"; exit 2; }; SKIP_STAGES+=("$1");;
     --dry-run)          DRY_RUN=1;;
     --yes|-y)           ASSUME_YES=1;;
+    --non-interactive)  NON_INTERACTIVE=1;;
     --laptop-wifi-fix)  LAPTOP_WIFI_FIX=1;;
     --state-profile)    shift; [[ $# -gt 0 ]] || { err "--state-profile requires a name"; exit 2; }; STATE_PROFILES+=("$1");;
     -h|--help)          sed -n '2,30p' "$0"; exit 0;;
@@ -159,7 +162,9 @@ stage_pacman() {
   log "Installing pacman packages"
   mapfile -t pkgs < <(grep -vE '^\s*#|^\s*$' "$REPO_DIR/packages/pacman.txt")
   [[ ${#pkgs[@]} -gt 0 ]] || { warn "pacman.txt is empty"; return; }
-  sudo_run pacman -Syu "${PAC_FLAGS[@]}" "${pkgs[@]}"
+  local pacman_flags=("${PAC_FLAGS[@]}")
+  [[ $NON_INTERACTIVE -eq 1 ]] && pacman_flags+=(--noconfirm)
+  sudo_run pacman -Syu "${pacman_flags[@]}" "${pkgs[@]}"
 }
 
 stage_sddm() {

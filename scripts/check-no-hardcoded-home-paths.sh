@@ -8,7 +8,7 @@ guest_fixture="/home/$guest_user/myrice"
 found=0
 while IFS= read -r match; do
   case "$match" in
-    "$repo_dir"/vm/install-guest.sh:"$guest_fixture"|"$repo_dir"/vm/install-guest.sh:"$guest_fixture"/*|"$repo_dir"/vm/provision.sh:"$guest_fixture"|"$repo_dir"/vm/provision.sh:"$guest_fixture"/*) continue;;
+    "$repo_dir"/vm/install-guest.sh:"$guest_fixture"|"$repo_dir"/vm/install-guest.sh:"$guest_fixture"/*|"$repo_dir"/vm/provision.sh:"$guest_fixture"|"$repo_dir"/vm/provision.sh:"$guest_fixture"/*|"$repo_dir"/vm/cloud-provision.sh:"/home/$guest_user"|"$repo_dir"/vm/cloud-provision.sh:"/home/$guest_user"/*) continue;;
   esac
   printf '%s\n' "$match" >&2
   found=1

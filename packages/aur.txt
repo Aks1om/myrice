@@ -1,6 +1,8 @@
 # AUR — always installed
 catppuccin-gtk-theme-mocha
 bibata-cursor-theme-bin
+clipse
+ttf-manrope
 
 # AUR — laptop Wi-Fi fix (opt-in via install.sh --laptop-wifi-fix).
 # Replaces in-kernel rtw88_8821ce with an out-of-tree driver on Realtek

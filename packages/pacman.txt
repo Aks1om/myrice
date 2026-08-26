@@ -49,7 +49,6 @@ grim
 slurp
 wl-clipboard
 cliphist
-clipse
 hyprshot
 libnotify
 pipewire
@@ -74,7 +73,6 @@ rsync
 
 # Optional but useful
 ttf-jetbrains-mono-nerd
-ttf-manrope
 noto-fonts
 noto-fonts-cjk
 noto-fonts-emoji
