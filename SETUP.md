@@ -1,7 +1,7 @@
 # Rice Setup — Full Reference
 
 > Arch Linux + Wayland. Minimal monochrome aesthetic (black/white, no colour accents).
-> Last synced: 2026-04-16.
+> Last synced: 2026-09-04.
 
 ---
 
@@ -10,17 +10,15 @@
 ```
 Kernel (DRM/KMS)
   └── Hyprland          ← compositor, owns the screen
-        ├── Waybar      ← status bar (top, floating pill)
+        ├── Quickshell   ← status bar, launcher, and control panels
         ├── Hyprpaper   ← wallpaper daemon (IPC-controlled)
         ├── Hyprlock    ← lock screen
         ├── Hypridle    ← idle/DPMS/suspend daemon
         ├── SwayNC      ← notification center (slide-in panel)
-        ├── Mako        ← notification popups (top-right)
-        ├── Rofi        ← launcher, menus, switcher
         ├── Ghostty     ← terminal emulator
         ├── nm-applet   ← network tray (systray)
         ├── blueman     ← bluetooth tray (systray)
-        ├── cliphist    ← clipboard history (wl-clipboard backend)
+        ├── clipse       ← clipboard history daemon
         └── polkit-gnome← authentication agent (GUI sudo prompts)
 ```
 
@@ -49,39 +47,22 @@ Kernel (DRM/KMS)
 │   ├── hyprlock.conf       ← lock screen (black bg, white clock, password field)
 │   ├── hypridle.conf       ← lock@5min, DPMS@6min, suspend@30min
 │   └── scripts/
-│       ├── startmenu.sh         ← rofi combi (quick actions + drun)
-│       ├── powermenu.sh         ← rofi: lock / logout / reboot / shutdown
-│       ├── clipboard.sh         ← cliphist list via rofi (Enter=copy, Del=remove)
+│       ├── clipboard.sh         ← cliphist list and restore
 │       ├── screenshot.sh        ← grim+slurp area or full-output screenshot
-│       ├── show-keybinds.sh     ← rofi: parsed bindings.hl as cheat sheet
-│       ├── wifi-menu.sh         ← rofi: nmcli wifi list/connect/disconnect
-│       ├── window-switcher.sh   ← rofi: switch between open windows (hyprctl)
 │       ├── toggle-special-window.sh ← send/recall window from special workspace
 │       ├── toggle-layout.sh     ← toggle dwindle ↔ master
 │       └── system-monitor.sh    ← launch btop in terminal
 │
-├── waybar/
-│   ├── config.jsonc        ← bar layout and module config
-│   ├── style.css           ← full GTK CSS for the bar
-│   ├── launch.sh           ← kills old instance, starts fresh (handles HiDPI scale)
-│   └── scripts/
-│       ├── gpu.sh               ← GPU usage % (NVIDIA/AMD/Intel fallback)
-│       ├── notifications.sh     ← swaync unread count for the bell icon
-│       ├── special-workspace.sh ← shows indicator if special ws has windows
-│       └── workspace-label.sh   ← shows named label of active workspace
+├── quickshell/                  ← bar, launcher, and control panels
+│   ├── shell.qml                ← Quickshell entry point
+│   ├── *Menu.qml / *Panel.qml   ← desktop control panels
+│   └── theme/                   ← generated theme and shared UI
 │
-├── rofi/
-│   ├── config.rasi         ← global rofi settings (modi, terminal, icon theme)
-│   ├── macos.rasi          ← main theme: dark float, rounded, no icons
-│   ├── power.rasi          ← compact theme for power menu
-│   └── power.rasi / menu-mode.sh  ← quick-action items for startmenu combi
 │
 ├── swaync/
 │   ├── config.json         ← panel position, timeouts, widgets (title+dnd+list)
 │   └── style.css           ← notification center CSS
 │
-├── mako/
-│   └── config              ← popup notifications (top-right, black, no icons, 5s)
 │
 ├── ghostty/
 │   └── config              ← black/white palette, JetBrainsMono 12, opacity 0.95
@@ -175,8 +156,8 @@ Kernel (DRM/KMS)
 | Super + T | Terminal (ghostty) |
 | Super + Q | Close window |
 | Super + Shift + Q | Exit Hyprland |
-| Super + E | Files (nemo) |
-| Super + Space | Launcher (startmenu) |
+| Super + E | Files (Nautilus) |
+| Super + Space | Launcher (Quickshell) |
 | Super + Tab | Window switcher |
 | Super + G | Toggle floating |
 | Super + Shift + V | Float all on workspace |
@@ -253,23 +234,23 @@ Everything is black/white/grey. No colour accents.
 
 ```
 hyprland hyprpaper hyprlock hypridle
-waybar
-rofi-wayland
+quickshell
 ghostty
-mako
 swaync
 starship
-cliphist wl-clipboard
+clipse wl-clipboard
 network-manager-applet blueman
 polkit-gnome
 grim slurp          ← screenshot tools
 brightnessctl        ← brightness keys
 wireplumber pipewire ← audio (wpctl)
-nemo                 ← file manager
-adw-gtk3             ← GTK dark theme
+nautilus             ← file manager
+waypaper             ← wallpaper picker/manager
+adw-gtk-theme        ← GTK dark theme
 papirus-icon-theme    ← fixed Quickshell/AppLauncher icon theme
 bibata-cursor-theme  ← cursor
 ttf-jetbrains-mono-nerd  ← monospace font
+tesseract tesseract-data-eng tesseract-data-rus ← OCR keybinds
 ```
 
 ---

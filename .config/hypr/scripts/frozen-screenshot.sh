@@ -25,9 +25,11 @@ save_result() {
 }
 
 capture_frame() {
-  local output
+  local output temp_frame
   output="$(hyprctl -j monitors | jq -r '.[] | select(.focused).name')"
-  grim -o "${output}" "${FRAME}"
+  temp_frame="${FRAME}.tmp.$$"
+  grim -l 0 -o "${output}" "${temp_frame}"
+  mv -f "${temp_frame}" "${FRAME}"
   hyprctl -j activewindow > "${WINDOW}"
 }
 

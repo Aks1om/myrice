@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Hyprland
 import Quickshell.DBusMenu
 import Quickshell.Services.SystemTray
 import Quickshell.Widgets
@@ -138,6 +139,8 @@ Item {
         active: root.open
 
         sourceComponent: PopupWindow {
+            id: popup
+
             visible: true
             color: "transparent"
             grabFocus: true
@@ -156,6 +159,12 @@ Item {
                 gravity: Edges.Bottom
                 margins.bottom: -Colors.marginSm
                 adjustment: PopupAdjustment.SlideX | PopupAdjustment.FlipY
+            }
+
+            HyprlandFocusGrab {
+                active: true
+                windows: [popup]
+                onCleared: root.closeSubmenu()
             }
 
             Item {

@@ -13,6 +13,7 @@ Scope {
 
     property bool isOpen: false
     property bool frozen: false
+    property bool frozenFrameReady: false
     property string stage: "menu"
     property int selected: 0
     readonly property string configHome: Quickshell.env("XDG_CONFIG_HOME") || Quickshell.env("HOME") + "/.config"
@@ -38,17 +39,19 @@ Scope {
     function shoot(mode) {
         if (root.frozen) {
             if (mode === "area") {
+                if (!root.frozenFrameReady) {
+                    root.closeWithError("Замороженный кадр еще загружается. Повторите через мгновение.");
+                    return ;
+                }
                 root.stage = "area";
                 return ;
             }
             root.isOpen = false;
-            shotProc.command = ["bash", root.configHome + "/hypr/scripts/frozen-screenshot.sh", mode];
-            shotProc.running = true;
+            shotProc.exec(["bash", root.configHome + "/hypr/scripts/frozen-screenshot.sh", mode]);
             return ;
         }
         root.isOpen = false;
-        shotProc.command = ["bash", root.configHome + "/hypr/scripts/screenshot.sh", mode];
-        shotProc.running = true;
+        shotProc.exec(["bash", root.configHome + "/hypr/scripts/screenshot.sh", mode]);
     }
 
     function cropArea(x, y, width, height, imageWidth, imageHeight, displayWidth, displayHeight) {
@@ -57,7 +60,7 @@ Scope {
             return ;
         }
         if (imageWidth <= 0 || imageHeight <= 0 || displayWidth <= 0 || displayHeight <= 0) {
-            root.closeWithError("The frozen frame could not be loaded. Try again.");
+            root.closeWithError("Замороженный кадр еще не готов. Повторите через мгновение.");
             return ;
         }
         const cropX = Math.max(0, Math.round(x / displayWidth * imageWidth));
@@ -81,9 +84,8 @@ Scope {
     IpcHandler {
         function open() {
             root.frozen = false;
-            root.stage = "menu";
-            root.selected = 0;
-            root.isOpen = true;
+            root.isOpen = false;
+            shotProc.exec(["bash", root.configHome + "/hypr/scripts/screenshot.sh", "area"]);
         }
 
         function close() {
@@ -103,6 +105,7 @@ Scope {
     IpcHandler {
         function open() {
             root.frozen = true;
+            root.frozenFrameReady = false;
             root.stage = "menu";
             root.selected = 0;
             root.isOpen = true;
@@ -156,9 +159,10 @@ Scope {
 
                 anchors.fill: parent
                 visible: root.frozen
-                source: Qt.resolvedUrl(root.frozenFramePath)
+                source: root.frozen ? Qt.resolvedUrl(root.frozenFramePath) : ""
                 fillMode: Image.Stretch
                 cache: false
+                onStatusChanged: root.frozenFrameReady = status === Image.Ready
             }
 
             Item {

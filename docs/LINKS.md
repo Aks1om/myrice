@@ -122,18 +122,9 @@ Minimal Wayland kiosk compositor. Useful as a container for greetd greeters.
 
 ## File manager
 
-### nemo
-Cinnamon's file manager.
-- ArchWiki: https://wiki.archlinux.org/title/File_manager#Nemo
-- Repo: https://github.com/linuxmint/nemo
-
-### nemo-fileroller
-Archive manager integration for Nemo.
-- Repo: https://github.com/linuxmint/nemo-extensions/tree/master/nemo-fileroller
-
-### nemo-terminal
-"Open terminal here" extension for Nemo.
-- Repo: https://github.com/linuxmint/nemo-extensions/tree/master/nemo-terminal
+### nautilus
+GTK file manager used by the `Super + E` binding.
+- Site: https://apps.gnome.org/Nautilus/
 
 ---
 
@@ -207,8 +198,9 @@ Cross-shell prompt written in Rust.
 
 ## Input remapping
 
-### xremap (config present, binary NOT installed) ⚠️
-Keymap remapper. `~/.config/xremap/config.yml` exists (translates Cyrillic shortcuts → Latin), and `~/.config/hypr/autostart.conf` has `exec-once = xremap …`, but the binary is not on PATH — that exec-once line currently fails silently.
+### xremap-hypr-bin (AUR)
+Keymap remapper package kept available for the existing local config. It is not
+started automatically because the XKB layout toggle is the default path.
 - Repo: https://github.com/k0kubun/xremap
 - AUR (one option): `xremap-wlroots-bin`
 
@@ -376,16 +368,12 @@ AirPods control on Linux — battery, ANC, transparency, ear detection.
 
 ---
 
-## Notes on drift between repo and live machine
+## Package manifest sync
 
-Some packages in `packages/pacman.txt` and `packages/aur.txt` no longer reflect the live setup. Worth syncing when you have a moment:
-
-- **`rofi-wayland`** — listed in `packages/pacman.txt` but not installed on the machine. Replaced by `quickshell` (launcher lives in `~/.config/quickshell/AppLauncher.qml`).
-- **`swaync`** — active on machine, NOT in `packages/pacman.txt`. Should be added.
-- **`quickshell-git`** — active on machine (AUR), NOT in `packages/aur.txt`. Should be added.
-- **`mako`** — installed but not running; `swaync` covers everything. Decide whether to keep or drop.
-- **`hyprpolkitagent`** — installed but not running; `polkit-gnome` is the active one. Pick one and drop the other from packages.
-- **`xremap`** — exec-once line exists, config exists, binary missing. Either install (`xremap-wlroots-bin` AUR or similar) or remove the exec-once line.
+The manifests track the current MyRice desktop path: Quickshell instead of the
+old rofi/mako launcher stack, Nautilus as the single file manager, Waypaper for
+wallpaper management, and the OCR, portal, Bluetooth, and AirPods integrations
+used by the current bindings and panels.
 
 ---
 

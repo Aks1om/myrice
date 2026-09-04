@@ -75,7 +75,7 @@ if [[ "${MODE}" == "area" ]]; then
     exit 0
   fi
 
-  if ! grim -g "${geometry}" "${FILE}"; then
+  if ! grim -l 0 -g "${geometry}" "${FILE}"; then
     notify_error "Could not capture the selected area."
     exit 1
   fi
@@ -84,26 +84,10 @@ if [[ "${MODE}" == "area" ]]; then
   exit $?
 fi
 
-if command -v hyprshot >/dev/null 2>&1; then
-  case "${MODE}" in
-    window)
-      hyprshot -m window -z -o "${DIR}" -f "$(basename "${FILE}")"
-      ;;
-    output)
-      hyprshot -m output -z -o "${DIR}" -f "$(basename "${FILE}")"
-      ;;
-    *)
-      exit 1
-      ;;
-  esac
-
-  exit 0
-fi
-
 if [[ "${MODE}" == "output" ]]; then
-  grim "${FILE}"
+  grim -l 0 "${FILE}"
 elif [[ "${MODE}" == "window" ]]; then
-  grim -g "$(slurp)" "${FILE}"
+  grim -l 0 -g "$(slurp)" "${FILE}"
 fi
 
 if command -v notify-send >/dev/null 2>&1; then

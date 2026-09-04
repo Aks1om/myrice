@@ -1,12 +1,13 @@
 $mainMod = SUPER
-$menu = ~/.config/hypr/scripts/startmenu.sh
-
 source = ~/.config/hypr/env.hl
 source = ~/.config/hypr/monitors.hl
 source = ~/.config/hypr/input.hl
 source = ~/.config/hypr/rules.hl
 source = ~/.config/hypr/bindings.hl
 source = ~/.config/hypr/autostart.hl
+
+# write full logs (incl. config errors) to hyprland.log for debugging
+debug:disable_logs = false
 
 general {
   gaps_in = 6

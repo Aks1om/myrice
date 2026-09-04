@@ -23,12 +23,11 @@ ghostty
 
 # Daily tools
 nautilus
-nemo
-nemo-fileroller
 file-roller
 gvfs
 network-manager-applet
 networkmanager
+bluez-utils
 blueman
 pavucontrol
 brightnessctl
@@ -48,11 +47,20 @@ iw
 grim
 slurp
 wl-clipboard
-cliphist
 hyprshot
 libnotify
 pipewire
+pipewire-audio
+pipewire-pulse
 wireplumber
+
+# Wallpaper / portals / OCR
+waypaper
+xdg-desktop-portal-gtk
+xdg-user-dirs
+tesseract
+tesseract-data-eng
+tesseract-data-rus
 
 # Shell
 zsh

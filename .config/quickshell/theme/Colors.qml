@@ -11,6 +11,7 @@ QtObject {
   readonly property color overlay: "#1a1a1a"
   readonly property color hover: "#1e1e1e"
   readonly property color border: "#2a2a2a"
+  readonly property color activeBorder: "#ffffff"
   readonly property color textPrim: "#ffffff"
   readonly property color textMuted: "#707070"
   readonly property color textSecondary: "#b0b0b0"

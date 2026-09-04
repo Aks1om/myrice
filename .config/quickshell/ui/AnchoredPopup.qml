@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Hyprland
 
 PopupWindow {
+    id: root
     property var anchorItem
     property bool open: false
     default property alias content: contentRoot.data
@@ -22,14 +23,14 @@ PopupWindow {
     }
 
     HyprlandFocusGrab {
-        active: parent.open
-        windows: [parent]
-        onCleared: parent.open = false
+        active: root.open
+        windows: [root]
+        onCleared: root.open = false
     }
 
     MouseArea {
         anchors.fill: parent
-        onClicked: parent.open = false
+        onClicked: root.open = false
     }
 
     Item {

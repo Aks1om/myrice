@@ -14,6 +14,7 @@ QtObject {
   readonly property int popupInset: px(10)
   readonly property int popupAnchorOffset: px(-10)
   readonly property int menuWidth: px(380)
+  readonly property int powerMenuWidth: px(320)
   readonly property int menuPadding: px(12)
   readonly property int rowHeight: px(44)
   readonly property int compactRowHeight: px(32)

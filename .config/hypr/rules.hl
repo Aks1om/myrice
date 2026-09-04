@@ -19,6 +19,9 @@ windowrule = size 380 120, match:class ^(hypr-scale)$
 windowrule = rounding 12, match:class ^(hypr-scale)$
 windowrule = pin on, match:class ^(hypr-scale)$
 
+# QuickShell dropdown popups: border is drawn in QML (white "active" frame)
+windowrule = border_size 0, match:class ^(org\.quickshell)$
+
 workspace = 1, persistent:true
 workspace = 2, persistent:true
 workspace = 3, persistent:true

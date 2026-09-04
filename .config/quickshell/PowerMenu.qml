@@ -14,22 +14,18 @@ Scope {
     property int selected: 0
     readonly property var items: [{
         "label": "Lock",
-        "hint": "Заблокировать экран",
         "action": "lock",
         "icon": "lock"
     }, {
         "label": "Logout",
-        "hint": "Выйти из сессии",
         "action": "logout",
         "icon": "sign-out"
     }, {
         "label": "Reboot",
-        "hint": "Перезагрузить компьютер",
         "action": "reboot",
         "icon": "arrow-clockwise"
     }, {
         "label": "Shutdown",
-        "hint": "Выключить компьютер",
         "action": "shutdown",
         "icon": "power"
     }]
@@ -104,7 +100,7 @@ Scope {
 
             Ui.PanelSurface {
                 anchors.centerIn: parent
-                width: Metrics.menuWidth
+                width: Metrics.powerMenuWidth
                 implicitHeight: col.implicitHeight + Metrics.menuPadding * 2
 
                 MouseArea {
@@ -125,7 +121,6 @@ Scope {
 
                     Ui.SectionTitle {
                         title: "Power"
-                        subtitle: "Выбери действие"
                         Layout.fillWidth: true
                         Layout.leftMargin: 4
                         Layout.topMargin: 2
@@ -143,7 +138,6 @@ Scope {
                             required property int index
 
                             label: modelData.label
-                            hint: modelData.hint
                             iconName: modelData.icon
                             selected: index === root.selected
                             onHovered: root.selected = index

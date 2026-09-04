@@ -1,6 +1,5 @@
 $terminal = ghostty
 $fileManager = nautilus --new-window
-$menu = bash ~/.config/hypr/scripts/startmenu.sh
 
 bind = $mainMod, T, exec, $terminal
 bind = $mainMod, TAB, cyclenext
@@ -56,7 +55,7 @@ bindm = $mainMod, mouse:273, resizewindow
 
 bind = $mainMod, F12, exec, ~/.config/hypr/scripts/frozen-screenshot.sh open
 bind = $mainMod SHIFT, F12, exec, ~/.config/hypr/scripts/screenshot.sh output
-bind = , PRINT, exec, qs ipc call screenshot open
+bind = , PRINT, exec, ~/.config/hypr/scripts/screenshot.sh area
 bind = SHIFT, PRINT, exec, ~/.config/hypr/scripts/screenshot.sh output
 bind = $mainMod SHIFT, W, exec, nm-connection-editor
 bind = $mainMod, ESCAPE, exec, qs ipc call power open

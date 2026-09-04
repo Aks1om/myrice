@@ -4,6 +4,7 @@ import Quickshell.Hyprland
 import Quickshell.Wayland
 
 PanelWindow {
+  id: root
   property bool open: false
   property bool dismissOnClick: true
   signal dismissed()
@@ -15,7 +16,7 @@ PanelWindow {
   anchors { top: true; left: true; right: true; bottom: true }
   MouseArea {
     anchors.fill: parent
-    enabled: parent.dismissOnClick
-    onClicked: parent.dismissed()
+    enabled: root.dismissOnClick
+    onClicked: root.dismissed()
   }
 }

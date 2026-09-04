@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Hyprland
 import Quickshell.Services.SystemTray
 import Quickshell.Widgets
 import "theme"
@@ -77,6 +78,12 @@ Item {
                 edges: Edges.Bottom
                 gravity: Edges.Bottom
                 margins.bottom: -10
+            }
+
+            HyprlandFocusGrab {
+                active: true
+                windows: [popup]
+                onCleared: root.open = false
             }
 
             Ui.PanelSurface {
