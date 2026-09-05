@@ -236,7 +236,7 @@ Item {
             : "wifi-slash"
       color: (root.kind === "off" || root.kind === "wifi-off")
              ? Qt.rgba(1, 1, 1, 0.5) : Colors.textPrim
-      size: 14
+      size: 15
     }
     Text {
       visible: root.label.length > 0

@@ -70,7 +70,7 @@ Loader {
                         variant: "bold"
                         name: loader.network.ethernetConnected ? "monitor" : loader.network.wifiEnabled ? "wifi-high" : "wifi-slash"
                         color: Colors.textPrim
-                        size: 12
+                        size: 13
                     }
 
                     Text {
