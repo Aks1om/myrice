@@ -225,7 +225,7 @@ Item {
 
     Icon {
       Layout.alignment: Qt.AlignVCenter
-      variant: "regular"
+      variant: "bold"
        name: root.kind === "eth" ? "monitor"
           : root.kind === "wifi"
             ? (root.activeStrength >= 75 ? "wifi-high"
@@ -236,7 +236,7 @@ Item {
             : "wifi-slash"
       color: (root.kind === "off" || root.kind === "wifi-off")
              ? Qt.rgba(1, 1, 1, 0.5) : Colors.textPrim
-      size: 16
+      size: 14
     }
     Text {
       visible: root.label.length > 0
