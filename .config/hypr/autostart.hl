@@ -4,6 +4,7 @@ exec-once = systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESK
 exec-once = qs
 exec-once = swaybg -o DP-1 -i /home/aks1om/wallpaper/84f20f35e4d914498fe74daca6e2eaa1.jpg -m fill
 exec-once = hypridle
+exec-once = hyprctl plugin load /home/aks1om/.local/src/hypr-autoscroll/build/hypr-autoscroll.so
 # exec-once = swaync
 exec-once = blueman-applet
 exec-once = clipse -listen

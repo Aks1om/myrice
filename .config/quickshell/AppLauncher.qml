@@ -14,12 +14,14 @@ Scope {
   property bool isOpen: false
   property string query: ""
   property int selected: 0
+  property bool keyboardSelecting: false
+  property int keyboardGeneration: 0
 
   IpcHandler {
     target: "launcher"
-    function open(): void   { root.query = ""; root.selected = 0; root.isOpen = true }
+    function open(): void   { root.query = ""; root.selected = 0; root.keyboardGeneration++; root.keyboardSelecting = true; root.isOpen = true }
     function close(): void  { root.isOpen = false }
-    function toggle(): void { if (!root.isOpen) { root.query = ""; root.selected = 0 } root.isOpen = !root.isOpen }
+    function toggle(): void { if (!root.isOpen) { root.query = ""; root.selected = 0; root.keyboardGeneration++; root.keyboardSelecting = true } root.isOpen = !root.isOpen }
   }
 
   property var results: []
@@ -91,7 +93,7 @@ Scope {
         color: Colors.bgBase
         radius: Colors.radiusXl
         border.width: 1
-        border.color: Colors.border
+        border.color: Colors.activeBorder
 
         MouseArea { anchors.fill: parent; onClicked: {} }
 
@@ -123,22 +125,28 @@ Scope {
               border.color: Colors.border
             }
 
-            onTextChanged: root.query = text
+            onTextChanged: { root.query = text; root.selected = 0; root.keyboardGeneration++; root.keyboardSelecting = true }
 
             Keys.onPressed: (e) => {
               if (e.key === Qt.Key_Down) {
+                root.keyboardGeneration++
+                root.keyboardSelecting = true
                 root.selected = Math.min(root.results.length - 1, root.selected + 1)
                 e.accepted = true
               } else if (e.key === Qt.Key_Up) {
+                root.keyboardGeneration++
+                root.keyboardSelecting = true
                 root.selected = Math.max(0, root.selected - 1)
                 e.accepted = true
               } else if (e.key === Qt.Key_Return || e.key === Qt.Key_Enter) {
-                root.launch(root.selected)
+                root.launch(0)
                 e.accepted = true
               } else if (e.key === Qt.Key_Escape) {
                 root.isOpen = false
                 e.accepted = true
               } else if (e.key === Qt.Key_Tab) {
+                root.keyboardGeneration++
+                root.keyboardSelecting = true
                 root.selected = (root.selected + 1) % Math.max(1, root.results.length)
                 e.accepted = true
               }
@@ -155,6 +163,14 @@ Scope {
             spacing: 2
             boundsBehavior: Flickable.StopAtBounds
 
+            WheelHandler {
+              onWheel: (event) => {
+                const maxY = Math.max(0, list.contentHeight - list.height)
+                list.contentY = Math.max(0, Math.min(maxY, list.contentY - event.angleDelta.y / 2))
+                event.accepted = true
+              }
+            }
+
             onCurrentIndexChanged: positionViewAtIndex(currentIndex, ListView.Contain)
 
             delegate: Item {
@@ -163,7 +179,10 @@ Scope {
               width: list.width
               height: Metrics.rowHeight
 
-              property bool isFocused: hoverArea.containsMouse || index === root.selected
+              property bool isFocused: root.keyboardSelecting ? index === root.selected : hoverArea.containsMouse || index === root.selected
+              property int seenKeyboardGeneration: -1
+              property real lastMouseX: 0
+              property real lastMouseY: 0
 
               Rectangle {
                 anchors.fill: parent
@@ -230,15 +249,6 @@ Scope {
                     font.pixelSize: Colors.fontSizeBase
                     elide: Text.ElideRight
                   }
-                  Text {
-                    Layout.fillWidth: true
-                    visible: text.length > 0
-                    text: modelData.comment || ""
-                    color: Colors.textHint
-                    font.family: Colors.fontSecondary
-                    font.pixelSize: Colors.fontSizeTiny
-                    elide: Text.ElideRight
-                  }
                 }
               }
 
@@ -247,8 +257,34 @@ Scope {
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
-                onEntered: root.selected = parent.index
-                onClicked: root.launch(parent.index)
+                onEntered: {
+                  if (root.keyboardSelecting) {
+                    if (seenKeyboardGeneration !== root.keyboardGeneration) {
+                      seenKeyboardGeneration = root.keyboardGeneration
+                      lastMouseX = mouseX
+                      lastMouseY = mouseY
+                      return
+                    }
+                  }
+                  root.keyboardSelecting = false
+                  root.selected = parent.index
+                }
+                onPositionChanged: {
+                  if (!root.keyboardSelecting) return
+                  if (seenKeyboardGeneration !== root.keyboardGeneration) {
+                    seenKeyboardGeneration = root.keyboardGeneration
+                    lastMouseX = mouseX
+                    lastMouseY = mouseY
+                    return
+                  }
+                  if (Math.abs(mouseX - lastMouseX) > 1 || Math.abs(mouseY - lastMouseY) > 1) {
+                    root.keyboardSelecting = false
+                    root.selected = parent.index
+                  }
+                  lastMouseX = mouseX
+                  lastMouseY = mouseY
+                }
+                onClicked: { root.keyboardSelecting = false; root.launch(parent.index) }
               }
             }
           }

@@ -69,3 +69,11 @@ misc {
 xwayland {
   force_zero_scaling = true
 }
+
+plugin {
+  hypr_autoscroll {
+    enabled = true
+    direct_activation = true
+    sensitivity = 2
+  }
+}

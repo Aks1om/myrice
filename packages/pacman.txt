@@ -68,6 +68,7 @@ starship
 
 # Build / DKMS support
 base-devel
+cmake
 dkms
 linux-headers
 

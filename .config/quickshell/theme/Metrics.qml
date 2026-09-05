@@ -22,7 +22,7 @@ QtObject {
   readonly property int dividerHeight: px(1)
   readonly property int listMaxHeight: px(320)
   readonly property int iconSize: px(16)
-  readonly property int launcherWidth: px(620)
+  readonly property int launcherWidth: px(560)
   readonly property int launcherHeight: px(480)
   readonly property int keybindsWidth: px(680)
   readonly property int keybindsHeight: px(540)
