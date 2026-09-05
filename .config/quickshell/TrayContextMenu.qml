@@ -24,6 +24,7 @@ Item {
     property var activeOpener: firstOpener
     property var stagingOpener: secondOpener
     property var activeMenu: null
+    readonly property var popupWindow: popupLoader.item
 
     function toggle(item, panelAnchor) {
         if (open && trayItem === item) {
@@ -136,15 +137,16 @@ Item {
     }
 
     Loader {
+        id: popupLoader
+
         active: root.open
 
         sourceComponent: PopupWindow {
             id: popup
 
-            visible: true
-            color: "transparent"
-            grabFocus: true
-            implicitWidth: Metrics.trayMenuWidth
+             visible: true
+             color: "transparent"
+             implicitWidth: Metrics.trayMenuWidth
             implicitHeight: menu.implicitHeight + Colors.marginLg * 2
             onVisibleChanged: {
                 if (!visible)
@@ -159,12 +161,6 @@ Item {
                 gravity: Edges.Bottom
                 margins.bottom: -Colors.marginSm
                 adjustment: PopupAdjustment.SlideX | PopupAdjustment.FlipY
-            }
-
-            HyprlandFocusGrab {
-                active: true
-                windows: [popup]
-                onCleared: root.closeSubmenu()
             }
 
             Item {

@@ -5,11 +5,20 @@ import "theme"
 
 Item {
   id: root
+  visible: hasBattery
   implicitWidth: 16
   implicitHeight: 16
 
   property string mode: "normal"
+  property bool hasBattery: false
   readonly property string configHome: StandardPaths.writableLocation(StandardPaths.ConfigLocation)
+
+  Process {
+    id: detectBattery
+    command: ["bash", "-c", "compgen -G '/sys/class/power_supply/BAT*' >/dev/null"]
+    running: true
+    onExited: (exitCode, exitStatus) => root.hasBattery = exitCode === 0
+  }
 
   Process {
     id: get
@@ -39,6 +48,7 @@ Item {
 
   Icon {
     anchors.fill: parent
+    visible: root.hasBattery
     name: root.mode === "battery" ? "leaf" : "gauge"
     color: root.mode === "battery" ? "#86efac" : Qt.rgba(1, 1, 1, 0.55)
     size: 16
@@ -46,6 +56,8 @@ Item {
 
   MouseArea {
     anchors.fill: parent
+    enabled: root.hasBattery
+    visible: root.hasBattery
     cursorShape: Qt.PointingHandCursor
     onClicked: { toggle.running = true }
   }

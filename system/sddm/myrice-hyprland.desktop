@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=MyRice Hyprland
-Comment=Hyprland with the MyRice .hl configuration
+Comment=Hyprland with the MyRice .conf configuration
 Exec=/usr/local/bin/myrice-hyprland
 Type=Application
 Keywords=tiling;wayland;compositor;

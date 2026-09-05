@@ -22,7 +22,7 @@ Item {
                                : !wifiEnabled       ? "off"
                                : wifiConnected      ? "wifi"
                                                     : "wifi-off"
-  readonly property string label: kind === "eth"     ? "eth"
+   readonly property string label: kind === "eth"     ? ""
                                 : kind === "wifi"    ? activeStrength + "%"
                                 : kind === "wifi-off"? "—"
                                                      : "off"
@@ -225,7 +225,7 @@ Item {
 
     Icon {
       Layout.alignment: Qt.AlignVCenter
-      name: root.kind === "eth" ? "network"
+       name: root.kind === "eth" ? "monitor"
           : root.kind === "wifi"
             ? (root.activeStrength >= 75 ? "wifi-high"
               : root.activeStrength >= 50 ? "wifi-medium"
@@ -238,6 +238,7 @@ Item {
       size: 16
     }
     Text {
+      visible: root.label.length > 0
       Layout.alignment: Qt.AlignVCenter
       text: root.label
       color: Colors.textPrim

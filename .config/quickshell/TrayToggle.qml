@@ -61,10 +61,9 @@ Item {
 
             readonly property int pad: Metrics.trayPopupPadding
 
-            visible: true
-            color: "transparent"
-            grabFocus: true
-            implicitWidth: trayRow.visible ? trayRow.implicitWidth + pad * 2 : Metrics.trayEmptyWidth
+             visible: true
+             color: "transparent"
+             implicitWidth: trayRow.visible ? trayRow.implicitWidth + pad * 2 : Metrics.trayEmptyWidth
             implicitHeight: trayRow.visible ? Metrics.trayItemSize + pad * 2 : Metrics.trayEmptyHeight
             onVisibleChanged: {
                 if (!visible)
@@ -72,21 +71,24 @@ Item {
 
             }
 
-            anchor {
+             anchor {
                 window: clickArea.QsWindow.window
                 item: clickArea
                 edges: Edges.Bottom
                 gravity: Edges.Bottom
-                margins.bottom: -10
-            }
+                 margins.bottom: -10
+             }
 
-            HyprlandFocusGrab {
-                active: true
-                windows: [popup]
-                onCleared: root.open = false
-            }
+             HyprlandFocusGrab {
+                 active: root.open
+                 windows: contextMenu.popupWindow ? [popup, contextMenu.popupWindow] : [popup]
+                 onCleared: {
+                     contextMenu.close();
+                     root.open = false;
+                 }
+             }
 
-            Ui.PanelSurface {
+             Ui.PanelSurface {
                 anchors.fill: parent
                 anchors.margins: Colors.marginSm
                 MouseArea {

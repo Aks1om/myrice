@@ -149,7 +149,11 @@ def doctor_report() -> dict:
         if not path.exists():
             add(f"nvidia_drm_{parameter}", "WARN", "nvidia_drm parameter is unavailable")
             continue
-        value = path.read_text(encoding="utf-8").strip()
+        try:
+            value = path.read_text(encoding="utf-8").strip()
+        except OSError as exc:
+            add(f"nvidia_drm_{parameter}", "WARN", f"nvidia_drm parameter could not be read: {exc.strerror or exc}")
+            continue
         add(f"nvidia_drm_{parameter}", "PASS" if value in {"Y", "1"} else "WARN", f"nvidia_drm.{parameter}={value}")
 
     add("prime_run", "PASS" if shutil.which("prime-run") else "WARN", "prime-run is available" if shutil.which("prime-run") else "prime-run is unavailable")

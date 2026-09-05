@@ -67,14 +67,14 @@ Loader {
                     spacing: Colors.spacingMd
 
                     Icon {
-                        name: loader.network.wifiEnabled ? "wifi-high" : "wifi-slash"
+                        name: loader.network.ethernetConnected ? "monitor" : loader.network.wifiEnabled ? "wifi-high" : "wifi-slash"
                         color: Colors.textPrim
                         size: 9
                     }
 
                     Text {
                         Layout.fillWidth: true
-                        text: "Wi-Fi"
+                        text: loader.network.ethernetConnected ? "Ethernet" : "Wi-Fi"
                         color: Colors.textPrim
                         font.family: Colors.fontSecondary
                         font.pixelSize: Colors.fontSizeMedium
@@ -86,7 +86,7 @@ Loader {
                         Layout.preferredHeight: 22
                         radius: Colors.radiusSm
                         color: refreshArea.containsMouse ? Colors.hover : "transparent"
-                        visible: loader.network.wifiEnabled
+                        visible: !loader.network.ethernetConnected && loader.network.wifiEnabled
 
                         Icon {
                             anchors.centerIn: parent
@@ -118,6 +118,7 @@ Loader {
                     Rectangle {
                         Layout.preferredWidth: 36
                         Layout.preferredHeight: 20
+                        visible: !loader.network.ethernetConnected
                         radius: 10
                         color: loader.network.wifiEnabled ? Colors.textPrim : Colors.border
 
@@ -154,12 +155,22 @@ Loader {
                 Ui.Divider {
                 }
 
+                Text {
+                    visible: loader.network.ethernetConnected
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignHCenter
+                    text: "Подключено по Ethernet"
+                    color: Colors.textMuted
+                    font.family: Colors.fontSecondary
+                    font.pixelSize: Colors.fontSizeSmall
+                }
+
                 ListView {
                     id: list
 
                     Layout.fillWidth: true
                     Layout.preferredHeight: Math.min(contentHeight, 320)
-                    visible: loader.network.wifiEnabled
+                     visible: !loader.network.ethernetConnected && loader.network.wifiEnabled
                     clip: true
                     spacing: 2
                     model: loader.network.networks
@@ -482,7 +493,7 @@ Loader {
                 }
 
                 Text {
-                    visible: loader.network.wifiEnabled && loader.network.networks.length === 0
+                    visible: !loader.network.ethernetConnected && loader.network.wifiEnabled && loader.network.networks.length === 0
                     Layout.fillWidth: true
                     horizontalAlignment: Text.AlignHCenter
                     text: loader.network.scanning ? "Сканирование…" : "Сети не найдены"

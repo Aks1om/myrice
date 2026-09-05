@@ -41,17 +41,18 @@ apply() {
   local req="$1"
   local pct
   # Apply live to every connected monitor with its own snapped scale.
-  while IFS=$'\t' read -r name w h; do
+  while IFS=$'\t' read -r name w h refresh; do
     local s
     s="$(snap_for "$req" "$w" "$h")"
-    hyprctl keyword monitor "${name},preferred,auto,${s}" >/dev/null
+    # Keep the active mode; using `preferred` would reset this monitor to 50 Hz.
+    hyprctl keyword monitor "${name},${w}x${h}@${refresh},auto,${s}" >/dev/null
     # Persist: rewrite scale (last comma field) in matching monitor = line.
     # Matches lines targeting this monitor name OR the empty/default "," form.
     sed -i -E \
       -e "s|^(monitor\\s*=\\s*${name},[^,]+,[^,]+,)[0-9.]+\\s*$|\\1${s}|" \
       -e "s|^(monitor\\s*=\\s*${name},)[0-9.]+\\s*$|\\1${s}|" \
       "$CONF"
-  done < <(hyprctl -j monitors | jq -r '.[] | "\(.name)\t\(.width)\t\(.height)"')
+  done < <(hyprctl -j monitors | jq -r '.[] | "\(.name)\t\(.width)\t\(.height)\t\(.refreshRate)"')
 
   # Fallback: update the generic "monitor = ,preferred,auto,SCALE" default line
   # (for setups using the wildcard monitor rule). Uses focused monitor's snap.

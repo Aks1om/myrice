@@ -17,12 +17,13 @@
 #                        and create a first known-good snapshot.
 #  10. wifi-fix        — opt-in (--laptop-wifi-fix): install rtl8821ce-dkms-git,
 #                        blacklist rtw88, patch cmdline, rebuild initramfs
-#  11. myrice-hyprland-session — opt-in: install the SDDM session that starts
-#                        ~/.config/hypr/hyprland.hl without changing stock Hyprland
+#  11. sddm-theme       — opt-in: install the MyRice SDDM login theme
+#  12. myrice-hyprland-session — opt-in: install the SDDM session that starts
+#                        ~/.config/hypr/hyprland.conf without changing stock Hyprland
 #
 # Flags:
 #   --all                run everything end-to-end
-#   --stage NAME         run a single stage (preflight|pacman|aur|dotfiles|system|services|locale|lts-kernel|backup|wifi-fix|sddm|myrice-hyprland-session|nvidia|nvidia-prime)
+#   --stage NAME         run a single stage (preflight|pacman|aur|dotfiles|system|services|locale|lts-kernel|backup|wifi-fix|sddm|sddm-theme|myrice-hyprland-session|nvidia|nvidia-prime)
 #   --skip NAME          skip a stage (can be repeated)
 #   --dry-run            print quoted commands, don't change anything
 #   --yes                non-interactive (passes --noconfirm to pacman/yay)
@@ -52,7 +53,7 @@ SKIP_STAGES=()
 STATE_PROFILES=()
 
 ALL_STAGES=(preflight pacman aur dotfiles system services locale lts-kernel backup)
-OPTIONAL_STAGES=(wifi-fix sddm myrice-hyprland-session nvidia nvidia-prime)
+OPTIONAL_STAGES=(wifi-fix sddm sddm-theme myrice-hyprland-session nvidia nvidia-prime)
 
 # ----- helpers -----
 log()  { printf '\033[1;36m==>\033[0m %s\n' "$*"; }
@@ -170,6 +171,22 @@ stage_pacman() {
 stage_sddm() {
   log "Installing SDDM"
   sudo_run pacman -S "${PAC_FLAGS[@]}" sddm
+}
+
+stage_sddm_theme() {
+  local theme_dir="$REPO_DIR/system/sddm/myrice"
+  local sddm_conf="$REPO_DIR/system/sddm/10-myrice-theme.conf"
+
+  log "Deploying MyRice SDDM login theme (backup: $SYSTEM_BACKUP_DIR)"
+  [[ -f "$sddm_conf" && -f "$theme_dir/metadata.desktop" && -f "$theme_dir/Main.qml" && -f "$theme_dir/theme.conf" ]] || {
+    err "MyRice SDDM theme artifacts are missing from system/sddm"
+    return 1
+  }
+
+  deploy_myrice_session_file "$sddm_conf" "/etc/sddm.conf.d/10-myrice-theme.conf" 0644
+  deploy_myrice_session_file "$theme_dir/metadata.desktop" "/usr/share/sddm/themes/myrice/metadata.desktop" 0644
+  deploy_myrice_session_file "$theme_dir/Main.qml" "/usr/share/sddm/themes/myrice/Main.qml" 0644
+  deploy_myrice_session_file "$theme_dir/theme.conf" "/usr/share/sddm/themes/myrice/theme.conf" 0644
 }
 
 stage_nvidia() {
@@ -467,6 +484,7 @@ for stage in "${ALL_STAGES[@]}" "${OPTIONAL_STAGES[@]}"; do
     backup)     stage_backup;;
     wifi-fix)   stage_wifi_fix;;
     sddm)       stage_sddm;;
+    sddm-theme) stage_sddm_theme;;
     myrice-hyprland-session) stage_myrice_hyprland_session;;
     nvidia)     stage_nvidia;;
     nvidia-prime) stage_nvidia_prime;;

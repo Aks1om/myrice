@@ -1,0 +1,8 @@
+[SddmGreeterTheme]
+Name=MyRice
+Description=Minimal monochrome SDDM theme matching the MyRice lockscreen
+Author=Aks1om
+Type=sddm-theme
+MainScript=Main.qml
+Theme-Id=myrice
+Theme-API=2.0

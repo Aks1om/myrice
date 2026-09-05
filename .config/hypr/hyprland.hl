@@ -1,10 +1,10 @@
 $mainMod = SUPER
-source = ~/.config/hypr/env.hl
-source = ~/.config/hypr/monitors.hl
-source = ~/.config/hypr/input.hl
-source = ~/.config/hypr/rules.hl
-source = ~/.config/hypr/bindings.hl
-source = ~/.config/hypr/autostart.hl
+source = ~/.config/hypr/env.conf
+source = ~/.config/hypr/monitors.conf
+source = ~/.config/hypr/input.conf
+source = ~/.config/hypr/rules.conf
+source = ~/.config/hypr/bindings.conf
+source = ~/.config/hypr/autostart.conf
 
 # write full logs (incl. config errors) to hyprland.log for debugging
 debug:disable_logs = false

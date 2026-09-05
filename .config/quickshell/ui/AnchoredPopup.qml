@@ -10,6 +10,7 @@ PopupWindow {
     default property alias content: contentRoot.data
 
     color: "transparent"
+    grabFocus: true
     visible: true
     implicitWidth: Theme.Metrics.panelWidth
     implicitHeight: contentRoot.childrenRect.height + Theme.Metrics.popupInset * 2
@@ -20,6 +21,15 @@ PopupWindow {
         edges: Edges.Bottom
         gravity: Edges.Bottom
         margins.bottom: Theme.Metrics.popupAnchorOffset
+    }
+
+    Item {
+        anchors.fill: parent
+        focus: true
+        Keys.onEscapePressed: {
+            root.open = false
+            event.accepted = true
+        }
     }
 
     HyprlandFocusGrab {

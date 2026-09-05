@@ -45,7 +45,7 @@ changes are explicit opt-ins.
 │   │   └── NetworkManager/conf.d/ #   wifi.powersave=2
 │   └── bootloader/
 │       └── patch-pcie-aspm.sh     #   idempotent patcher for systemd-boot entries
-│   └── sddm/                      #   opt-in MyRice Hyprland session artifacts
+│   └── sddm/                      #   opt-in login theme and Hyprland session artifacts
 ├── packages/
 │   ├── pacman.txt
 │   ├── lts-kernel.txt              # opt-in fallback-kernel packages
@@ -124,6 +124,7 @@ applied paths; rollback never deletes or restores anything automatically.
 ./install.sh --all --skip system          # skip /etc deployments
 ./install.sh --all --dry-run              # print what would happen
 ./install.sh --all --laptop-wifi-fix      # include RTL8821CE driver
+./install.sh --stage sddm-theme           # install MyRice's SDDM login screen
 ./install.sh --stage myrice-hyprland-session # install MyRice's separate SDDM session
 ```
 
@@ -146,8 +147,9 @@ Stages:
 | `lts-kernel` | Install `linux-lts` + add a mirrored systemd-boot entry. Your fallback when the main kernel breaks. |
 | `backup`   | Install `timeshift`, materialise `/etc/timeshift/timeshift.json` from the template (root UUID auto-detected), deploy the pre-pacman snapshot hook, and create a first known-good snapshot. See [docs/BACKUP.md](docs/BACKUP.md) for the rollback workflow. |
 | `sddm` | Install SDDM for the opt-in MyRice Hyprland session. |
+| `sddm-theme` | **Opt-in.** Install the monochrome MyRice SDDM login screen and select it in SDDM. |
 | `wifi-fix` | **Opt-in.** Installs `rtl8821ce-dkms-git`, deploys rtw88 blacklist, runs `patch-pcie-aspm.sh`, rebuilds initramfs. For the Realtek RTL8821CE chipset that drops the link with `"failed to get tx report from firmware"`. |
-| `myrice-hyprland-session` | **Opt-in.** Installs a separate `MyRice Hyprland` SDDM session. It runs `Hyprland --config "$HOME/.config/hypr/hyprland.hl"` and leaves the packaged `Hyprland` session unchanged. |
+| `myrice-hyprland-session` | **Opt-in.** Installs a separate `MyRice Hyprland` SDDM session. It runs `Hyprland --config "$HOME/.config/hypr/hyprland.conf"` and leaves the packaged `Hyprland` session unchanged. |
 
 The installer is idempotent: re-running it skips already-linked files
 and already-deployed configs.
