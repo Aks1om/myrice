@@ -67,10 +67,11 @@ Loader {
                     spacing: Colors.spacingMd
 
                     Icon {
-                        variant: "bold"
-                        name: loader.network.ethernetConnected ? "monitor" : loader.network.wifiEnabled ? "wifi-high" : "wifi-slash"
+                        variant: "regular"
+                        sourcePath: loader.network.ethernetConnected ? "icons/myrice/monitor-outline.svg" : ""
+                        name: loader.network.ethernetConnected ? "monitor-outline" : loader.network.wifiEnabled ? "wifi-high" : "wifi-slash"
                         color: Colors.textPrim
-                        size: 13
+                        size: Metrics.iconSize
                     }
 
                     Text {

@@ -225,8 +225,9 @@ Item {
 
     Icon {
       Layout.alignment: Qt.AlignVCenter
-      variant: "bold"
-       name: root.kind === "eth" ? "monitor"
+      variant: "regular"
+      sourcePath: root.kind === "eth" ? "icons/myrice/monitor-outline.svg" : ""
+      name: root.kind === "eth" ? "monitor-outline"
           : root.kind === "wifi"
             ? (root.activeStrength >= 75 ? "wifi-high"
               : root.activeStrength >= 50 ? "wifi-medium"
@@ -236,7 +237,7 @@ Item {
             : "wifi-slash"
       color: (root.kind === "off" || root.kind === "wifi-off")
              ? Qt.rgba(1, 1, 1, 0.5) : Colors.textPrim
-      size: 15
+      size: Metrics.iconSize
     }
     Text {
       visible: root.label.length > 0

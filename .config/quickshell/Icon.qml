@@ -5,6 +5,7 @@ import "theme"
 Item {
   id: root
   property string name: ""
+  property string sourcePath: ""
   property string variant: "regular"  // "thin" | "light" | "regular" | "bold" | "fill"
   property color color: Colors.textPrim
   property int size: Metrics.iconSize
@@ -15,7 +16,9 @@ Item {
   Image {
     id: img
     anchors.fill: parent
-    source: root.name
+    source: root.sourcePath
+      ? Qt.resolvedUrl(root.sourcePath)
+      : root.name
       ? `${Qt.resolvedUrl("icons/phosphor/assets/" + root.variant)}/${root.name}${root.variant === "regular" ? "" : "-" + root.variant}.svg`
       : ""
     sourceSize.width: root.size
