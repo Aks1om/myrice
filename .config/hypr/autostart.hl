@@ -5,7 +5,6 @@ exec-once = qs
 exec-once = swaybg -o DP-1 -i /home/aks1om/wallpaper/84f20f35e4d914498fe74daca6e2eaa1.jpg -m fill
 exec-once = hypridle
 # exec-once = swaync
-exec-once = nm-applet --indicator
 exec-once = blueman-applet
 exec-once = clipse -listen
 exec-once = /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1

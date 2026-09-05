@@ -1,12 +1,13 @@
 import QtQuick
 import QtQuick.Effects
+import "theme"
 
 Item {
   id: root
   property string name: ""
   property string variant: "regular"  // "thin" | "light" | "regular" | "bold" | "fill"
-  property color color: "#ffffff"
-  property int size: 16
+  property color color: Colors.textPrim
+  property int size: Metrics.iconSize
 
   implicitWidth: size
   implicitHeight: size
@@ -17,12 +18,12 @@ Item {
     source: root.name
       ? `${Qt.resolvedUrl("icons/phosphor/assets/" + root.variant)}/${root.name}${root.variant === "regular" ? "" : "-" + root.variant}.svg`
       : ""
-    sourceSize.width: root.size * 2
-    sourceSize.height: root.size * 2
+    sourceSize.width: root.size
+    sourceSize.height: root.size
     fillMode: Image.PreserveAspectFit
     smooth: true
     asynchronous: true
-    mipmap: true
+    mipmap: false
 
     layer.enabled: true
     layer.effect: MultiEffect {
