@@ -225,7 +225,7 @@ Item {
 
     Icon {
       Layout.alignment: Qt.AlignVCenter
-      variant: root.kind === "eth" ? "fill" : "regular"
+      variant: "regular"
        name: root.kind === "eth" ? "monitor"
           : root.kind === "wifi"
             ? (root.activeStrength >= 75 ? "wifi-high"

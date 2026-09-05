@@ -67,7 +67,7 @@ Loader {
                     spacing: Colors.spacingMd
 
                     Icon {
-                        variant: loader.network.ethernetConnected ? "fill" : "regular"
+                        variant: "regular"
                         name: loader.network.ethernetConnected ? "monitor" : loader.network.wifiEnabled ? "wifi-high" : "wifi-slash"
                         color: Colors.textPrim
                         size: 9
