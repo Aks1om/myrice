@@ -17,7 +17,7 @@ Scope {
   readonly property var allBinds: [
     // Apps
     { cat: "Приложения", keys: "SUPER + T",         desc: "Терминал (Ghostty)" },
-    { cat: "Приложения", keys: "SUPER + E",         desc: "Файлы (Nemo)" },
+    { cat: "Приложения", keys: "SUPER + E",         desc: "Файлы (Nautilus)" },
     { cat: "Приложения", keys: "SUPER + SPACE",     desc: "Поиск приложений" },
     { cat: "Приложения", keys: "SUPER + V",         desc: "Буфер обмена (clipse)" },
     { cat: "Приложения", keys: "SUPER + SHIFT + W", desc: "NetworkManager editor" },
@@ -56,8 +56,7 @@ Scope {
     { cat: "Workspaces", keys: "SUPER + SHIFT + S", desc: "Окно в/из special workspace" },
 
     // Notifications
-    { cat: "Уведомления", keys: "SUPER + N",         desc: "Открыть/закрыть swaync" },
-    { cat: "Уведомления", keys: "SUPER + SHIFT + N", desc: "Toggle Do Not Disturb" },
+    { cat: "Уведомления", keys: "SUPER + N",         desc: "Открыть/закрыть центр уведомлений" },
 
     // Media keys
     { cat: "Медиа",      keys: "XF86 Volume ±",     desc: "Громкость ±5%" },

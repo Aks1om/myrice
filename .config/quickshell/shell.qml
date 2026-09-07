@@ -4,6 +4,8 @@ import QtQuick
 import Quickshell
 
 ShellRoot {
+  NotificationCenter { id: notificationCenter }
+
   Variants {
     model: Quickshell.screens
     PanelWindow {
@@ -21,6 +23,7 @@ ShellRoot {
       Bar {
         anchors.fill: parent
         screen: modelData
+        notificationCenter: notificationCenter
       }
     }
   }

@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Layouts
-import Quickshell.Io
 import "theme"
 
 Item {
@@ -8,37 +7,8 @@ Item {
   implicitWidth: layout.implicitWidth
   implicitHeight: layout.implicitHeight
 
-  property int count: 0
-  property bool dnd: false
-
-  Process {
-    id: countProbe
-    command: ["swaync-client", "-c"]
-    running: true
-    stdout: StdioCollector {
-      onStreamFinished: {
-        const n = parseInt(text.trim(), 10);
-        if (!isNaN(n)) root.count = n;
-      }
-    }
-  }
-  Process {
-    id: dndProbe
-    command: ["swaync-client", "-D"]
-    running: true
-    stdout: StdioCollector {
-      onStreamFinished: { root.dnd = text.trim() === "true"; }
-    }
-  }
-  Process { id: toggleUi; command: ["swaync-client", "-t", "-sw"] }
-  Process { id: toggleDnd; command: ["swaync-client", "-d", "-sw"] }
-
-  Timer {
-    interval: 3000
-    running: true
-    repeat: true
-    onTriggered: { countProbe.running = true; dndProbe.running = true; }
-  }
+  property var center
+  readonly property int count: center ? center.count : 0
 
   RowLayout {
     id: layout
@@ -47,17 +17,13 @@ Item {
 
     Icon {
       Layout.alignment: Qt.AlignVCenter
-      name: root.dnd ? "bell-slash"
-          : root.count > 0 ? "bell-ringing"
-                           : "bell"
-      color: root.dnd ? Colors.accent
-           : root.count > 0 ? Colors.textPrim
-                            : Qt.rgba(1, 1, 1, 0.55)
+      name: root.count > 0 ? "bell-ringing" : "bell"
+      color: root.count > 0 ? Colors.textPrim : Colors.textMuted
       size: 16
     }
     Text {
       Layout.alignment: Qt.AlignVCenter
-      visible: root.count > 0 && !root.dnd
+      visible: root.count > 0
       text: root.count
       color: Colors.textPrim
       font.family: Colors.fontPrimary
@@ -68,11 +34,8 @@ Item {
 
   MouseArea {
     anchors.fill: parent
-    acceptedButtons: Qt.LeftButton | Qt.RightButton
+    acceptedButtons: Qt.LeftButton
     cursorShape: Qt.PointingHandCursor
-    onClicked: (m) => {
-      if (m.button === Qt.LeftButton) toggleUi.running = true;
-      else { toggleDnd.running = true; dndProbe.running = true; }
-    }
+    onClicked: root.center?.toggle()
   }
 }

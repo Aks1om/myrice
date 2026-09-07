@@ -1,17 +1,17 @@
 $mainMod = SUPER
-source = ~/.config/hypr/env.conf
-source = ~/.config/hypr/monitors.conf
-source = ~/.config/hypr/input.conf
-source = ~/.config/hypr/rules.conf
-source = ~/.config/hypr/bindings.conf
-source = ~/.config/hypr/autostart.conf
+source = ~/.config/hypr/env.hl
+source = ~/.config/hypr/monitors.hl
+source = ~/.config/hypr/input.hl
+source = ~/.config/hypr/rules.hl
+source = ~/.config/hypr/bindings.hl
+source = ~/.config/hypr/autostart.hl
 
 # write full logs (incl. config errors) to hyprland.log for debugging
 debug:disable_logs = false
 
 general {
-  gaps_in = 6
-  gaps_out = 12
+  gaps_in = 4
+  gaps_out = 8
   border_size = 2
   col.active_border = rgba(ffffffff)
   col.inactive_border = rgba(7f7f7faa)

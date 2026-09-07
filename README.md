@@ -149,7 +149,7 @@ Stages:
 | `sddm` | Install SDDM for the opt-in MyRice Hyprland session. |
 | `sddm-theme` | **Opt-in.** Install the monochrome MyRice SDDM login screen and select it in SDDM. |
 | `wifi-fix` | **Opt-in.** Installs `rtl8821ce-dkms-git`, deploys rtw88 blacklist, runs `patch-pcie-aspm.sh`, rebuilds initramfs. For the Realtek RTL8821CE chipset that drops the link with `"failed to get tx report from firmware"`. |
-| `myrice-hyprland-session` | **Opt-in.** Installs a separate `MyRice Hyprland` SDDM session. It runs `Hyprland --config "$HOME/.config/hypr/hyprland.conf"` and leaves the packaged `Hyprland` session unchanged. |
+| `myrice-hyprland-session` | **Opt-in.** Installs a separate `MyRice Hyprland` SDDM session. It runs `start-hyprland -- --config "$HOME/.config/hypr/hyprland.hl"` and leaves the packaged `Hyprland` session unchanged. |
 
 The installer is idempotent: re-running it skips already-linked files
 and already-deployed configs.
@@ -207,9 +207,9 @@ python3 scripts/generate-theme.py --check
 
 ## Notes
 
-- Russian layout is enabled in `~/.config/hypr/input.conf` (`us,ru`, toggle `Alt+Shift`).
+- Russian layout is enabled in `~/.config/hypr/input.hl` (`us,ru`, toggle `Alt+Shift`).
 - Power mode is manual only: click its bar icon to switch between normal and battery. Battery sets only the single built-in backlight to 40%; normal restores the exact prior brightness. It does not change refresh rate, PPD, GPU, compositor, terminal, Wi-Fi, or idle settings.
-- Monitor names in `.config/hypr/monitors.conf` are mine — tune for your hardware.
+- Monitor names in `.config/hypr/monitors.hl` are mine — tune for your hardware.
 - `doctor` reports missing optional personal commands (`ollama`, `opencode`,
   `solitaire-tui`) without making them package requirements.
 - Telegram's user desktop entry sets `QT_QPA_PLATFORMTHEME=xdgdesktopportal` only
@@ -243,7 +243,7 @@ Monitor scenes are declarative JSON files in
 `~/.config/myrice/scenes/{home,office,presentation}.json`. Their example output
 names are deliberately generic and must be changed to the names reported by
 `hyprctl monitors` on the target computer. The scene helper does not read or
-modify `.config/hypr/monitors.conf`; it validates enabled output names against
+modify `.config/hypr/monitors.hl`; it validates enabled output names against
 the current Hyprland session before applying any `hyprctl keyword monitor`
 command.
 

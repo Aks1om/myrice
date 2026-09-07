@@ -5,6 +5,7 @@ import "theme"
 Rectangle {
   id: root
   property var screen
+  property var notificationCenter
   radius: 0
   color: "#000000"
   border.width: 0
@@ -83,7 +84,7 @@ Rectangle {
     TrayToggle {}
     Network {}
     Bluetooth {}
-    Notifications {}
+    Notifications { center: root.notificationCenter }
     PowerMode {}
     Volume {}
     Language {}

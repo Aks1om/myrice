@@ -19,7 +19,7 @@
 #                        blacklist rtw88, patch cmdline, rebuild initramfs
 #  11. sddm-theme       — opt-in: install the MyRice SDDM login theme
 #  12. myrice-hyprland-session — opt-in: install the SDDM session that starts
-#                        ~/.config/hypr/hyprland.conf without changing stock Hyprland
+#                        ~/.config/hypr/hyprland.hl without changing stock Hyprland
 #
 # Flags:
 #   --all                run everything end-to-end

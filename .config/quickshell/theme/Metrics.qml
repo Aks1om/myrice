@@ -9,6 +9,8 @@ QtObject {
   function px(value) { return Math.round(value * density) }
 
   // Semantic dimensions
+  readonly property int notificationPanelWidth: px(420)
+  readonly property int notificationPanelAnimationMs: px(220)
   readonly property int panelWidth: px(320)
   readonly property int panelPadding: px(10)
   readonly property int popupInset: px(10)

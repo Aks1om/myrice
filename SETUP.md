@@ -36,13 +36,13 @@ Kernel (DRM/KMS)
 ```
 ~/.config/
 ├── hypr/
-│   ├── hyprland.conf       ← main entry point, sources everything below
-│   ├── monitors.conf       ← monitor layout (currently: auto/preferred/1x)
-│   ├── env.conf            ← Wayland env vars, cursor, locale
-│   ├── input.conf          ← keyboard (us,ru / alt+shift), touchpad
+│   ├── hyprland.hl         ← main entry point, sources everything below
+│   ├── monitors.hl         ← monitor layout (currently: auto/preferred/1x)
+│   ├── env.hl              ← Wayland env vars, cursor, locale
+│   ├── input.hl            ← keyboard (us,ru / alt+shift), touchpad
 │   ├── bindings.hl         ← ALL keybinds
-│   ├── rules.conf          ← window rules + workspace assignments
-│   ├── autostart.conf      ← exec-once entries
+│   ├── rules.hl            ← window rules + workspace assignments
+│   ├── autostart.hl        ← exec-once entries
 │   ├── hyprpaper.conf      ← wallpaper path (~/Pictures/wallpapers/default.jpg)
 │   ├── hyprlock.conf       ← lock screen (black bg, white clock, password field)
 │   ├── hypridle.conf       ← lock@5min, DPMS@6min, suspend@30min
@@ -76,18 +76,18 @@ Kernel (DRM/KMS)
 
 ## Hyprland config structure
 
-`hyprland.conf` sources everything via `source =`. The actual settings are split:
+`hyprland.hl` sources everything via `source =`. The actual settings are split:
 
 | File | Content |
 |---|---|
-| `env.conf` | `env =` lines: XCURSOR, locale, QT/GDK/SDL Wayland hints |
-| `monitors.conf` | `monitor =` lines. Currently `,preferred,auto,1` (auto-detect) |
-| `input.conf` | `input {}` + `gestures {}` blocks |
-| `rules.conf` | `windowrule =` + `workspace =` assignments |
+| `env.hl` | `env =` lines: XCURSOR, locale, QT/GDK/SDL Wayland hints |
+| `monitors.hl` | `monitor =` lines. Currently `,preferred,auto,1` (auto-detect) |
+| `input.hl` | `input {}` + `gestures {}` blocks |
+| `rules.hl` | `windowrule =` + `workspace =` assignments |
 | `bindings.hl` | `bind =`, `bindel =`, `bindm =` |
-| `autostart.conf` | `exec-once =` (waybar, hyprpaper, hypridle, swaync, etc.) |
+| `autostart.hl` | `exec-once =` (waybar, hyprpaper, hypridle, swaync, etc.) |
 
-**Core visual settings** (in hyprland.conf directly):
+**Core visual settings** (in hyprland.hl directly):
 - Gaps: 6px inner / 12px outer
 - Border: 2px, white active / grey inactive
 - Rounding: 8px
@@ -193,7 +193,7 @@ Kernel (DRM/KMS)
 
 ### Input
 - Layout: `us,ru` — toggle with `Alt+Shift`
-- Caps Lock → Escape (remapped in input.conf)
+- Caps Lock → Escape (remapped in input.hl)
 - Touchpad: natural scroll, tap-to-click, clickfinger
 
 ---
@@ -287,7 +287,7 @@ Ghostty, Wi-Fi, or idle settings.
 **Add a new monitor:**
 ```bash
 hyprctl monitors   # get name
-# Edit ~/.config/hypr/monitors.conf:
+# Edit ~/.config/hypr/monitors.hl:
 # monitor = DP-1, 1920x1080@60, 0x0, 1
 ```
 

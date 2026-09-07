@@ -11,7 +11,7 @@
 
 set -euo pipefail
 
-CONF="$HOME/.config/hypr/monitors.conf"
+CONF="$HOME/.config/hypr/monitors.hl"
 MIN=0.80
 MAX=2.50
 STEP=0.05

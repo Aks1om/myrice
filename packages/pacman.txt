@@ -24,6 +24,8 @@ ghostty
 # Daily tools
 nautilus
 file-roller
+imv
+mpv
 gvfs
 network-manager-applet
 networkmanager
