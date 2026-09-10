@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+set -u
+
+app_id=${1:-}
+app_startup_class=${2:-}
+app_name=${3:-}
+
+if [[ -z "$app_id" ]]; then
+  exit 2
+fi
+
+# DesktopEntry ids may include the .desktop suffix; gtk-launch does not need it.
+launch_id=${app_id%.desktop}
+
+# Match desktop metadata against Hyprland's class and initialClass while
+# ignoring punctuation and case (for example, org.mozilla.firefox == Firefox).
+normalize='ascii_downcase | gsub("[^a-z0-9]"; "")'
+address=$(hyprctl -j clients 2>/dev/null | jq -r \
+  --arg id "$launch_id" \
+  --arg startup_class "$app_startup_class" \
+  --arg name "$app_name" \
+  --argjson current "$(hyprctl -j activeworkspace 2>/dev/null || printf '{}')" \
+  'def norm: '"$normalize"';
+   ($id | norm) as $wanted_id |
+   ($wanted_id | sub("desktop$"; "")) as $wanted_id_without_suffix |
+   ($startup_class | norm) as $wanted_startup_class |
+   ($wanted_startup_class | sub("desktop$"; "")) as $wanted_startup_class_without_suffix |
+   ($name | norm) as $wanted_name |
+   .[]
+   | (.class // "" | norm) as $class
+   | (.initialClass // "" | norm) as $initial_class
+   | select($class == $wanted_id
+         or $initial_class == $wanted_id
+         or $class == $wanted_id_without_suffix
+         or $initial_class == $wanted_id_without_suffix
+         or ($wanted_startup_class != "" and ($class == $wanted_startup_class or $initial_class == $wanted_startup_class))
+         or ($wanted_startup_class_without_suffix != "" and ($class == $wanted_startup_class_without_suffix or $initial_class == $wanted_startup_class_without_suffix))
+         or ($wanted_name != "" and ($class == $wanted_name or $initial_class == $wanted_name)))
+   | [.address, (.workspace.id // 0), ($current.id // 0)]
+   | @tsv' | head -n 1)
+
+if [[ -n "$address" ]]; then
+  IFS=$'\t' read -r window_address window_workspace current_workspace <<< "$address"
+  if [[ "$window_workspace" != "$current_workspace" ]]; then
+    hyprctl dispatch movetoworkspacesilent "${current_workspace},address:${window_address}" >/dev/null
+  fi
+  hyprctl dispatch focuswindow "address:${window_address}" >/dev/null
+  exit 0
+fi
+
+# Quickshell performs the fallback launch to preserve DBus activation and the
+# desktop entry's exact Exec line.
+exit 1

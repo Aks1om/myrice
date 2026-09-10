@@ -9,6 +9,7 @@ qt6-wayland
 hyprpaper
 hyprlock
 hypridle
+swaybg
 
 # Bar / shell — Quickshell-based (replaces waybar+mako+rofi)
 quickshell

@@ -1,2 +1,4 @@
 # The monitor advertises 50 Hz as preferred, so select the available 144 Hz mode explicitly.
 monitor = DP-1,3440x1440@144,auto,1
+# Portable fallback for laptop panels and other displays.
+monitor = ,preferred,auto,1

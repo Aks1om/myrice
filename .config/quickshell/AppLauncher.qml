@@ -25,6 +25,23 @@ Scope {
   }
 
   property var results: []
+  property string pendingAppId: ""
+  property string pendingAppStartupClass: ""
+  property string pendingAppName: ""
+  property var pendingApp: null
+  readonly property string userBin: Quickshell.env("HOME") + "/.local/bin"
+
+  Process {
+    id: launchProcess
+    command: [root.userBin + "/launch-or-focus", root.pendingAppId, root.pendingAppStartupClass, root.pendingAppName]
+    running: false
+
+    onExited: (exitCode, exitStatus) => {
+      const app = root.pendingApp
+      root.pendingApp = null
+      if (exitCode !== 0 && app && typeof app.execute === "function") app.execute()
+    }
+  }
 
   function recompute() {
     const all = DesktopEntries.applications?.values ?? []
@@ -73,8 +90,14 @@ Scope {
   function launch(idx) {
     if (idx < 0 || idx >= root.results.length) return
     const app = root.results[idx]
+    if (!app) return
+
     root.isOpen = false
-    if (app && typeof app.execute === "function") app.execute()
+    root.pendingApp = app
+    root.pendingAppId = app.id || app.name || ""
+    root.pendingAppStartupClass = app.startupClass || ""
+    root.pendingAppName = app.name || ""
+    launchProcess.running = true
   }
 
   Loader {

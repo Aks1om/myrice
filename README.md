@@ -15,6 +15,7 @@ changes are explicit opt-ins.
 - **zsh + starship** prompt
 - **Waybar** kept as an optional fallback bar
 - Hypr helper scripts (screenshot, scale, system-monitor, toggle-special-window, lock-input, …)
+- Launch-or-focus helper for the Quickshell application launcher (`home/.local/bin/launch-or-focus`)
 - Manual two-state power mode: normal or battery backlight (`.config/hypr/scripts/power-mode.sh`)
 - Lid-handler toggle for "mobile" mode (`home/.local/bin/lid-mobile-toggle` + `lid-mobile.service`)
 - System presets in `system/etc/` (NetworkManager Wi-Fi powersave, optional rtw88 stability options, journald 500M cap, systemd-oomd slice policies, pacman→timeshift pre-transaction hook)
@@ -36,6 +37,7 @@ changes are explicit opt-ins.
 │   ├── .config/systemd/user/      # symlinked into ~/.config/systemd/user/
 │   │   └── lid-mobile.service
 │   └── .local/bin/                # symlinked into ~/.local/bin/
+│       ├── launch-or-focus
 │       └── lid-mobile-toggle
 │   └── .local/share/applications/ # symlinked into ~/.local/share/applications/
 │       └── org.telegram.desktop.desktop # Telegram portal file-picker override
