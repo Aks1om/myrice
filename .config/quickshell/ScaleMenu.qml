@@ -1,5 +1,4 @@
 import QtQuick
-import QtCore
 import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
@@ -14,8 +13,10 @@ Scope {
 
     property bool isOpen: false
     property int scalePct: 100
+    property int scaleIndex: 1
+    property int selectedPct: 100
     property var validScales: [80, 100, 107, 120, 133, 150, 160, 200, 213, 240]
-    readonly property string configHome: StandardPaths.writableLocation(StandardPaths.ConfigLocation)
+    readonly property string configHome: Quickshell.env("HOME") + "/.config"
 
     function indexForScale(pct) {
         let bestIndex = 0;
@@ -50,6 +51,10 @@ Scope {
             root.isOpen = false;
         }
 
+        function set(percent: int): void {
+            root.apply(percent);
+        }
+
         function toggle() {
             if (!root.isOpen) {
                 listScales.running = true;
@@ -70,8 +75,11 @@ Scope {
         stdout: StdioCollector {
             onStreamFinished: {
                 const value = parseInt(text.trim(), 10);
-                if (!isNaN(value))
+                if (!isNaN(value)) {
                     root.scalePct = value;
+                    root.scaleIndex = root.indexForScale(value);
+                    root.selectedPct = root.validScales[root.scaleIndex];
+                }
             }
         }
     }
@@ -84,8 +92,11 @@ Scope {
         stdout: StdioCollector {
             onStreamFinished: {
                 const values = text.trim().split(/\s+/).map(Number).filter(value => !isNaN(value));
-                if (values.length > 0)
+                if (values.length > 0) {
                     root.validScales = values;
+                    root.scaleIndex = root.indexForScale(root.scalePct);
+                    root.selectedPct = root.validScales[root.scaleIndex];
+                }
             }
         }
     }
@@ -153,7 +164,7 @@ Scope {
                         }
 
                         Text {
-                            text: root.validScales[Math.round(slider.value)] + "%"
+                            text: root.selectedPct + "%"
                             color: Colors.textPrim
                             font.family: Colors.fontMono
                             font.pixelSize: Colors.fontSizeBase
@@ -172,10 +183,14 @@ Scope {
                         to: Math.max(0, root.validScales.length - 1)
                         stepSize: 1
                         snapMode: Slider.SnapAlways
-                        value: root.indexForScale(root.scalePct)
+                        value: root.scaleIndex
+                        onMoved: {
+                            root.scaleIndex = Math.round(value);
+                            root.selectedPct = root.validScales[root.scaleIndex];
+                        }
                         onPressedChanged: {
                             if (!pressed)
-                                root.apply(root.validScales[Math.round(value)]);
+                                root.apply(root.selectedPct);
                         }
 
                         background: Rectangle {
