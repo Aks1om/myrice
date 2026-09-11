@@ -7,7 +7,7 @@ import "theme"
 Item {
   id: root
   implicitWidth: layout.implicitWidth
-  implicitHeight: layout.implicitHeight
+  implicitHeight: Metrics.iconSize
   visible: dev?.isLaptopBattery ?? false
 
   readonly property var dev: UPower.displayDevice
@@ -20,7 +20,7 @@ Item {
 
   RowLayout {
     id: layout
-    anchors.fill: parent
+    anchors.centerIn: parent
     spacing: Colors.spacingSm
 
     Item {

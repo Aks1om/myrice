@@ -5,21 +5,21 @@ import "theme"
 Item {
   id: root
   implicitWidth: layout.implicitWidth
-  implicitHeight: layout.implicitHeight
+  implicitHeight: Metrics.iconSize
 
   property var center
   readonly property int count: center ? center.count : 0
 
   RowLayout {
     id: layout
-    anchors.fill: parent
+    anchors.centerIn: parent
     spacing: Colors.spacingSm
 
     Icon {
       Layout.alignment: Qt.AlignVCenter
       name: root.count > 0 ? "bell-ringing" : "bell"
       color: root.count > 0 ? Colors.textPrim : Colors.textMuted
-      size: 16
+      size: Metrics.iconSize
     }
     Text {
       Layout.alignment: Qt.AlignVCenter

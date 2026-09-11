@@ -6,8 +6,8 @@ import "theme"
 Item {
   id: root
   visible: hasBattery
-  implicitWidth: 16
-  implicitHeight: 16
+  implicitWidth: Metrics.iconSize
+  implicitHeight: Metrics.iconSize
 
   property string mode: "normal"
   property bool hasBattery: false
@@ -51,7 +51,7 @@ Item {
     visible: root.hasBattery
     name: root.mode === "battery" ? "leaf" : "gauge"
     color: root.mode === "battery" ? "#86efac" : Qt.rgba(1, 1, 1, 0.55)
-    size: 16
+    size: Metrics.iconSize
   }
 
   MouseArea {

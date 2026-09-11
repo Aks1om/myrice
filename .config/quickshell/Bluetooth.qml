@@ -8,7 +8,7 @@ import "theme"
 Item {
   id: root
   implicitWidth: layout.implicitWidth
-  implicitHeight: layout.implicitHeight
+  implicitHeight: Metrics.iconSize
 
   readonly property string dongleAddress: "8C:68:8B:C0:69:C1"
 
@@ -76,7 +76,7 @@ Item {
 
   RowLayout {
     id: layout
-    anchors.fill: parent
+    anchors.centerIn: parent
     spacing: Colors.spacingXs
 
     Icon {
@@ -85,7 +85,7 @@ Item {
           : root.connectedDevice ? "bluetooth-connected"
                                  : "bluetooth"
       color: !root.enabled ? Qt.rgba(1, 1, 1, 0.5) : Colors.textPrim
-      size: 16
+      size: Metrics.iconSize
     }
 
     Text {

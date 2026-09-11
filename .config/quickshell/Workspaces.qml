@@ -10,12 +10,12 @@ Item {
   readonly property int activeId: monitor?.activeWorkspace?.id ?? 1
 
   implicitWidth: row.implicitWidth
-  implicitHeight: 22
+  implicitHeight: Metrics.iconSize
 
   RowLayout {
     id: row
     anchors.centerIn: parent
-    spacing: 4
+    spacing: Colors.spacingXs
 
     Repeater {
       model: 10
@@ -27,14 +27,14 @@ Item {
         readonly property bool occupied: ws !== undefined
 
         Layout.preferredWidth: dot.width
-        Layout.preferredHeight: row.height
+        Layout.preferredHeight: Metrics.iconSize
 
         Rectangle {
           id: dot
           anchors.verticalCenter: parent.verticalCenter
-          width: cell.active ? 18 : 6
-          height: 6
-          radius: 3
+          width: cell.active ? Metrics.iconSize + Colors.spacingXs / 2 : Colors.spacingSm
+          height: Colors.spacingSm
+          radius: height / 2
           color: cell.active ? "#ffffff"
                : cell.occupied ? Qt.rgba(1, 1, 1, 0.45)
                : Qt.rgba(1, 1, 1, 0.18)

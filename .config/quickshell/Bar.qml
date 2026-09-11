@@ -16,8 +16,8 @@ Rectangle {
     id: centerSep
     anchors.horizontalCenter: parent.horizontalCenter
     anchors.verticalCenter: parent.verticalCenter
-    width: 1
-    height: 14
+    width: Metrics.px(1)
+    height: Metrics.px(14)
     color: Qt.rgba(1, 1, 1, 0.18)
     z: 2
   }
@@ -56,20 +56,20 @@ Rectangle {
     SpecialWorkspace { screen: root.screen }
     Rectangle {
       visible: title.text.length > 0
-      Layout.preferredWidth: 1
-      Layout.preferredHeight: 14
+      Layout.preferredWidth: Metrics.px(1)
+      Layout.preferredHeight: Metrics.px(14)
       color: Qt.rgba(1, 1, 1, 0.12)
     }
     WindowTitle {
       id: title
       screen: root.screen
       visible: text.length > 0
-      Layout.maximumWidth: 280
+      Layout.maximumWidth: Metrics.px(280)
     }
     Rectangle {
       visible: mediaLeft.visible
-      Layout.preferredWidth: 1
-      Layout.preferredHeight: 14
+      Layout.preferredWidth: Metrics.px(1)
+      Layout.preferredHeight: Metrics.px(14)
       color: Qt.rgba(1, 1, 1, 0.12)
     }
     MediaPlayer { id: mediaLeft }

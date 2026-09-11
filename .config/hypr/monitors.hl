@@ -1,4 +1,6 @@
 # The monitor advertises 50 Hz as preferred, so select the available 144 Hz mode explicitly.
 monitor = DP-1,3440x1440@144,auto,1
+# Use the laptop panel's native high-refresh mode and an integer logical viewport.
+monitor = eDP-1,3072x1920@120,auto,1.2
 # Portable fallback for laptop panels and other displays.
 monitor = ,preferred,auto,1

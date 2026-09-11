@@ -7,7 +7,7 @@ import "theme"
 Item {
   id: root
   implicitWidth: layout.implicitWidth
-  implicitHeight: layout.implicitHeight
+  implicitHeight: Metrics.iconSize
 
   readonly property var sink: Pipewire.defaultAudioSink
   readonly property real vol: sink?.audio?.volume ?? 0
@@ -17,7 +17,7 @@ Item {
 
   RowLayout {
     id: layout
-    anchors.fill: parent
+    anchors.centerIn: parent
     spacing: Colors.spacingSm
 
     Icon {
@@ -27,7 +27,7 @@ Item {
           : root.vol >= 0.3 ? "speaker-low"
                             : "speaker-none"
       color: root.muted ? Qt.rgba(1, 1, 1, 0.5) : Colors.textPrim
-      size: 16
+      size: Metrics.iconSize
     }
   }
 

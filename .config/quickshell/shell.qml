@@ -2,6 +2,7 @@
 //@ pragma IconTheme Papirus-Dark
 import QtQuick
 import Quickshell
+import "theme"
 
 ShellRoot {
   NotificationCenter { id: notificationCenter }
@@ -17,7 +18,7 @@ ShellRoot {
         left: true
         right: true
       }
-      implicitHeight: 36
+      implicitHeight: Metrics.px(36)
       color: "transparent"
 
       Bar {

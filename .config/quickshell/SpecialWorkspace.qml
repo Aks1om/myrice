@@ -12,7 +12,7 @@ Item {
   readonly property string state: visible_ ? "active" : occupied ? "occupied" : "empty"
 
   implicitWidth: txt.implicitWidth
-  implicitHeight: 14
+  implicitHeight: Metrics.iconSize
 
   Text {
     id: txt

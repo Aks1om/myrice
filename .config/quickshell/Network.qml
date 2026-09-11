@@ -7,7 +7,7 @@ import "theme"
 Item {
   id: root
   implicitWidth: layout.implicitWidth
-  implicitHeight: layout.implicitHeight
+  implicitHeight: Metrics.iconSize
 
   property bool wifiEnabled: false
   property bool wifiConnected: false
@@ -220,7 +220,7 @@ Item {
 
   RowLayout {
     id: layout
-    anchors.fill: parent
+    anchors.centerIn: parent
     spacing: Colors.spacingSm
 
     Icon {

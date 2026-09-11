@@ -36,8 +36,8 @@ RowLayout {
         delegate: Item {
             required property SystemTrayItem modelData
 
-            Layout.preferredWidth: 18
-            Layout.preferredHeight: 18
+            Layout.preferredWidth: Metrics.iconSize
+            Layout.preferredHeight: Metrics.iconSize
 
             IconImage {
                 anchors.fill: parent

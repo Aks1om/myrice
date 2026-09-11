@@ -6,7 +6,7 @@ import "theme"
 Item {
   id: root
   implicitWidth: layout.implicitWidth
-  implicitHeight: layout.implicitHeight
+  implicitHeight: Metrics.iconSize
   visible: !!player
 
   readonly property var players: Mpris.players?.values ?? []
@@ -16,14 +16,14 @@ Item {
 
   RowLayout {
     id: layout
-    anchors.fill: parent
+    anchors.centerIn: parent
     spacing: Colors.spacingSm
 
     Icon {
       Layout.alignment: Qt.AlignVCenter
       name: root.player?.playbackState === MprisPlaybackState.Playing ? "pause" : "play"
       color: Colors.textPrim
-      size: 14
+      size: Metrics.iconSize
     }
     Text {
       Layout.alignment: Qt.AlignVCenter

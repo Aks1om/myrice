@@ -81,6 +81,7 @@ Scope {
     screen: Hyprland.focusedMonitor?.screen ?? Quickshell.screens[0]
     color: "transparent"
     WlrLayershell.layer: WlrLayer.Top
+    WlrLayershell.exclusionMode: ExclusionMode.Ignore
     anchors {
       top: true
       right: true

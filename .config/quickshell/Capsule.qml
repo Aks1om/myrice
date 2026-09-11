@@ -5,14 +5,14 @@ import "theme"
 Rectangle {
   id: root
   default property alias content: layout.data
-  property real hPadding: 10
+  property real hPadding: Metrics.px(10)
 
   color: Colors.bgDeep
-  radius: 8
+  radius: Metrics.px(8)
   border.color: Qt.rgba(1, 1, 1, 0.22)
   border.width: 1
 
-  implicitHeight: 30
+  implicitHeight: Metrics.px(30)
   implicitWidth: layout.implicitWidth + hPadding * 2
 
   RowLayout {
@@ -20,6 +20,6 @@ Rectangle {
     anchors.fill: parent
     anchors.leftMargin: root.hPadding
     anchors.rightMargin: root.hPadding
-    spacing: 6
+    spacing: Metrics.px(6)
   }
 }
