@@ -1,7 +1,8 @@
 # Rice Setup — Full Reference
 
 > Arch Linux + Wayland. Minimal monochrome aesthetic (black/white, no colour accents).
-> Last synced: 2026-09-04.
+> Last synced: 2026-09-11. For installation and profile details, use
+> [README.md](README.md); this file is a manual component reference.
 
 ---
 
@@ -43,7 +44,7 @@ Kernel (DRM/KMS)
 │   ├── bindings.hl         ← ALL keybinds
 │   ├── rules.hl            ← window rules + workspace assignments
 │   ├── autostart.hl        ← exec-once entries
-│   ├── hyprpaper.conf      ← wallpaper path (~/Pictures/wallpapers/default.jpg)
+│   ├── hyprpaper.conf      ← persistent wallpaper link managed by Waypaper
 │   ├── hyprlock.conf       ← lock screen (black bg, white clock, password field)
 │   ├── hypridle.conf       ← lock@5min, DPMS@6min, suspend@30min
 │   └── scripts/
@@ -57,6 +58,9 @@ Kernel (DRM/KMS)
 │   ├── shell.qml                ← Quickshell entry point
 │   ├── *Menu.qml / *Panel.qml   ← desktop control panels
 │   └── theme/                   ← generated theme and shared UI
+│
+├── waypaper/
+│   └── config.ini               ← wallpaper picker and persistent selection
 │
 │
 ├── swaync/
@@ -85,7 +89,7 @@ Kernel (DRM/KMS)
 | `input.hl` | `input {}` + `gestures {}` blocks |
 | `rules.hl` | `windowrule =` + `workspace =` assignments |
 | `bindings.hl` | `bind =`, `bindel =`, `bindm =` |
-| `autostart.hl` | `exec-once =` (waybar, hyprpaper, hypridle, swaync, etc.) |
+| `autostart.hl` | `exec-once =` (Quickshell, wallpaper, hypridle, tray applets, etc.) |
 
 **Core visual settings** (in hyprland.hl directly):
 - Gaps: 6px inner / 12px outer
@@ -97,19 +101,12 @@ Kernel (DRM/KMS)
 
 ---
 
-## Waybar layout
+## Quickshell layout
 
-```
-[ ⊞  | 1 2 3 … 10 | ◆ | ws-label | window-title ]   [ mpris · clock ]   [ GPU | CPU | temp | net | BT | 🔔 | vol | lang | bat ]
-  ↑         ↑          ↑       ↑
-  start   workspaces  special  named label
-  menu
-```
-
-- Right-click on the ⊞ button → power menu
-- Battery module only shows when BAT0 exists
-- GPU module: reads `/sys/class/drm`, falls back gracefully for iGPU
-- `launch.sh` sets `GDK_SCALE=2` on displays >2560px wide
+The active bar and all desktop panels are implemented in `.config/quickshell/`.
+The shell includes workspaces, media, clock, network, Bluetooth, volume,
+battery, tray, notifications, launcher, power, display, scale, screenshot, and
+keybinding panels. Theme values come from `theme/tokens.json`.
 
 ---
 
@@ -117,14 +114,12 @@ Kernel (DRM/KMS)
 
 1. `dbus-update-activation-environment` — propagate Wayland vars to D-Bus/systemd
 2. `systemctl --user import-environment` — same for user units
-3. `waybar` (via `launch.sh`)
-4. `hyprpaper` — wallpaper
+3. `qs` — Quickshell bar and panels
+4. `hyprpaper` for a selected wallpaper, otherwise a dark `swaybg` fallback
 5. `hypridle` — idle daemon
-6. `swaync` — notification center
-7. `nm-applet` — network tray
-8. `blueman-applet` — BT tray
-9. `wl-paste --watch cliphist store` × 2 (text + image)
-10. `polkit-gnome` — auth agent
+6. `blueman-applet` — Bluetooth tray
+7. `clipse -listen` — clipboard history
+8. `polkit-gnome` — authentication agent
 
 ---
 
@@ -250,7 +245,6 @@ adw-gtk-theme        ← GTK dark theme
 papirus-icon-theme    ← fixed Quickshell/AppLauncher icon theme
 bibata-cursor-theme  ← cursor
 ttf-jetbrains-mono-nerd  ← monospace font
-tesseract tesseract-data-eng tesseract-data-rus ← OCR keybinds
 ```
 
 ---
@@ -273,9 +267,11 @@ the configs.
 
 **Change wallpaper:**
 ```bash
-# Edit path in ~/.config/hypr/hyprpaper.conf, then:
-hyprctl hyprpaper wallpaper ",~/Pictures/wallpapers/newfile.jpg"
+waypaper
 ```
+
+Waypaper writes the selected image to the persistent
+`~/.local/share/hyprpaper/current-wallpaper` link used on the next login.
 
 **Switch power mode:**
 Click the power-mode icon in the Quickshell bar. The two modes are manual only:
@@ -295,13 +291,8 @@ hyprctl monitors   # get name
 Edit `~/.config/hypr/bindings.hl`. The `show-keybinds.sh` script auto-parses it.
 
 **Change bar modules:**  
-Edit `~/.config/waybar/config.jsonc` → `modules-left/center/right`.  
-Bar hot-reloads CSS on change (`reload_style_on_change: true`), but JSON needs `launch.sh` restart.
-
-**Restart waybar:**
-```bash
-bash ~/.config/waybar/launch.sh
-```
+Edit the relevant QML component under `~/.config/quickshell/`; Quickshell
+reloads the shell when its configuration changes.
 
 **Regenerate Russian locale (one-time, system):**
 ```bash

@@ -11,10 +11,25 @@ Item {
   implicitHeight: Metrics.iconSize
 
   readonly property string dongleAddress: "8C:68:8B:C0:69:C1"
+  readonly property string bluetoothHelper: "/home/aks1om/.local/bin/airpods-bluetooth"
 
   property var pathToMac: ({})
   property int _adaptersTick: 0
   property int _macTick: 0
+  property bool powered: false
+
+  Process {
+    id: powerQuery
+    command: [root.bluetoothHelper, "status"]
+    stdout: StdioCollector {
+      onStreamFinished: root.powered = text.trim() === "on"
+    }
+  }
+
+  Timer {
+    interval: 2000; running: true; repeat: true
+    onTriggered: { if (!powerQuery.running) powerQuery.running = true }
+  }
 
   Connections {
     target: Bluetooth.adapters
@@ -65,7 +80,8 @@ Item {
     }
     return Bluetooth.defaultAdapter
   }
-  readonly property bool enabled: adapter ? adapter.enabled : false
+  // Quickshell's adapter state can remain stale when BlueZ starts after the panel.
+  readonly property bool enabled: powered
   readonly property var connectedDevice: {
     if (!adapter || !adapter.devices) return null
     const dl = adapter.devices.values
@@ -84,19 +100,10 @@ Item {
       name: !root.enabled ? "bluetooth-slash"
           : root.connectedDevice ? "bluetooth-connected"
                                  : "bluetooth"
-      color: !root.enabled ? Qt.rgba(1, 1, 1, 0.5) : Colors.textPrim
+      color: !root.enabled ? Colors.textMuted : Colors.textPrim
       size: Metrics.iconSize
     }
 
-    Text {
-      Layout.alignment: Qt.AlignVCenter
-      visible: root.isDongle
-      text: "USB"
-      color: !root.enabled ? Qt.rgba(1, 1, 1, 0.4) : "#7dd3fc"
-      font.family: Colors.fontSecondary
-      font.pixelSize: 8
-      font.weight: Font.Bold
-    }
   }
 
   MouseArea {

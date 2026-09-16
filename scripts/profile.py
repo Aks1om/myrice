@@ -10,7 +10,7 @@ from pathlib import Path
 
 STAGES = {
     "preflight", "pacman", "aur", "dotfiles", "system", "services", "locale",
-    "lts-kernel", "backup", "wifi-fix", "sddm", "myrice-hyprland-session",
+    "lts-kernel", "backup", "wifi-fix", "sddm", "sddm-theme", "myrice-hyprland-session",
     "nvidia", "nvidia-prime",
 }
 CAPABILITIES = {
@@ -25,6 +25,7 @@ STAGE_CAPABILITIES = {
     "backup": "backup",
     "wifi-fix": "rtl8821ce_wifi",
     "sddm": "sddm_session",
+    "sddm-theme": "sddm_session",
     "myrice-hyprland-session": "sddm_session",
     "nvidia": "nvidia_graphics",
     "nvidia-prime": "nvidia_graphics",

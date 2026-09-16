@@ -1,7 +1,7 @@
 {
   "version": 1,
   "name": "system-management",
-  "stages": ["system", "locale", "backup", "sddm", "myrice-hyprland-session"],
+  "stages": ["system", "locale", "backup", "sddm", "sddm-theme", "myrice-hyprland-session"],
   "capabilities": {
     "system": true,
     "backup": true,

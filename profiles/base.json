@@ -11,5 +11,5 @@
     "sddm_session": false,
     "nvidia_graphics": false
   },
-  "optional_commands": ["ollama", "opencode", "solitaire-tui"]
+  "optional_commands": ["ollama", "opencode"]
 }

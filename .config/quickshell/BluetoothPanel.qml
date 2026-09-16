@@ -17,47 +17,70 @@ Loader {
   asynchronous: true
 
   readonly property string dongleAddress: "8C:68:8B:C0:69:C1"
-  readonly property string builtinAddress: "28:D0:43:9A:48:F8"
-  property string adapterAddress: ""
-  property string adapterHci: ""
-  property bool adapterIsDongle: false
+  readonly property string bluetoothHelper: "/home/aks1om/.local/bin/airpods-bluetooth"
+  property bool powered: false
+  property var scannedDevices: []
 
-  Process { id: btctl }
-  Process { id: btPowerOn }
-
-  function _ctlScript(cmd) {
-    const sel = adapterAddress ? "select " + adapterAddress + "\\n" : ""
-    return "printf '" + sel + cmd + "\\n' | bluetoothctl"
+  function refreshPower() {
+    if (!powerQuery.running) powerQuery.running = true
   }
+
+  Process {
+    id: powerQuery
+    command: [loader.bluetoothHelper, "status"]
+    stdout: StdioCollector {
+      onStreamFinished: loader.powered = text.trim() === "on"
+    }
+  }
+  Timer {
+    interval: 2000; running: true; repeat: true
+    onTriggered: loader.refreshPower()
+  }
+
+  Process { id: btctl; onExited: loader.refreshPower() }
+  Process {
+    id: scanProc
+    stdout: SplitParser {
+      onRead: line => {
+        const match = line.match(/Device ((?:[0-9A-F]{2}:){5}[0-9A-F]{2})\s+(.+)/)
+        if (!match) return
+        const address = match[1]
+        const devices = loader.scannedDevices.filter(device => device.address !== address)
+        devices.push({ address: address, name: match[2], paired: false, connected: false })
+        loader.scannedDevices = devices
+      }
+    }
+  }
+
   function btCmd(args) {
-    btctl.command = ["sh", "-c", _ctlScript(args.join(" "))]
+    btctl.command = [loader.bluetoothHelper].concat(args)
     btctl.running = true
   }
 
   function powerOff() {
-    let script = _ctlScript("power off")
-    if (adapterIsDongle) {
-      script += " && printf 'select " + builtinAddress + "\\npower off\\n' | bluetoothctl"
-    }
-    btctl.command = ["sh", "-c", script]
-    btctl.running = true
+    btCmd(["power", "off"])
   }
 
   function powerOn() {
-    const hciIdx = adapterHci || ""
-    let rfkill
-    if (hciIdx) {
-      rfkill = "sudo -n /usr/bin/rfkill unblock " +
-        "$(grep -rl '" + hciIdx + "' /sys/class/rfkill/*/name 2>/dev/null | grep -oP '(?<=rfkill)\\d+' | head -1)"
-    } else {
-      rfkill = "sudo -n /usr/bin/rfkill unblock bluetooth"
+    btCmd(["power", "on"])
+  }
+
+  function pairOrConnect(address, paired) {
+    if (paired) {
+      btCmd(["connect", address])
+      return
     }
-    let script = rfkill + " && " + _ctlScript("power on")
-    if (adapterIsDongle) {
-      script += " && printf 'select " + builtinAddress + "\\npower off\\n' | bluetoothctl"
+    btctl.command = [loader.bluetoothHelper, "pair-connect", address]
+    btctl.running = true
+  }
+
+  function toggleScan(scanning) {
+    if (scanning) {
+      btCmd(["scan", "off"])
+      return
     }
-    btPowerOn.command = ["sh", "-c", script]
-    btPowerOn.running = true
+    scanProc.command = [loader.bluetoothHelper, "scan", "20"]
+    scanProc.running = true
   }
 
   sourceComponent: Ui.AnchoredPopup {
@@ -97,7 +120,10 @@ Loader {
         }
       }
     }
-    Component.onCompleted: popMacFetcher.running = true
+    Component.onCompleted: {
+      popMacFetcher.running = true
+      loader.toggleScan(false)
+    }
 
     readonly property var adapter: {
       pop._adaptersTick; pop._macTick
@@ -112,23 +138,21 @@ Loader {
       }
       return Bluetooth.defaultAdapter
     }
-    readonly property bool enabled: adapter ? adapter.enabled : false
+    readonly property bool enabled: loader.powered
     readonly property bool discovering: adapter ? adapter.discovering : false
-    readonly property bool isDongle: adapter && pop.pathToMac[adapter.dbusPath] === loader.dongleAddress
-    readonly property string adapterMac: adapter ? (pop.pathToMac[adapter.dbusPath] || "") : ""
-    readonly property string adapterHci: {
-      if (!adapter || !adapter.dbusPath) return ""
-      const m = adapter.dbusPath.match(/\/(hci\d+)$/)
-      return m ? m[1] : ""
-    }
-
-    onAdapterMacChanged: loader.adapterAddress = adapterMac
-    onAdapterHciChanged: loader.adapterHci = adapterHci
-    onIsDongleChanged: loader.adapterIsDongle = isDongle
-
     readonly property var devices: {
-      if (!adapter || !adapter.devices) return []
-      const arr = adapter.devices.values.slice()
+      const arr = adapter && adapter.devices ? adapter.devices.values.slice() : []
+      const seen = {}
+      for (const device of arr) {
+        seen[(device.address || "").toUpperCase()] = true
+      }
+      for (const device of loader.scannedDevices) {
+        const address = (device.address || "").toUpperCase()
+        if (!seen[address]) {
+          arr.push(device)
+          seen[address] = true
+        }
+      }
       arr.sort((a, b) => {
         if (a.connected !== b.connected) return a.connected ? -1 : 1
         if (a.paired !== b.paired) return a.paired ? -1 : 1
@@ -162,7 +186,7 @@ Loader {
             name: pop.enabled
                   ? (pop.adapter?.devices?.values?.some(d => d.connected) ? "bluetooth-connected" : "bluetooth")
                   : "bluetooth-slash"
-            color: pop.enabled ? Colors.textPrim : Qt.rgba(1, 1, 1, 0.5)
+            color: pop.enabled ? Colors.textPrim : Colors.textMuted
             size: 9
           }
           ColumnLayout {
@@ -176,14 +200,6 @@ Loader {
               font.family: Colors.fontSecondary
               font.pixelSize: Colors.fontSizeBase
               font.weight: Font.DemiBold
-            }
-            Text {
-              visible: pop.adapter
-              Layout.fillWidth: true
-              text: pop.isDongle ? "USB dongle" : "Built-in"
-              color: pop.isDongle ? "#7dd3fc" : "#fbbf24"
-              font.family: Colors.fontSecondary
-              font.pixelSize: 9
             }
           }
 
@@ -209,7 +225,7 @@ Loader {
               anchors.fill: parent
               hoverEnabled: true
               cursorShape: pop.enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-              onClicked: loader.btCmd(["scan", pop.discovering ? "off" : "on"])
+              onClicked: loader.toggleScan(pop.discovering)
             }
           }
 
@@ -278,7 +294,8 @@ Loader {
               cursorShape: Qt.PointingHandCursor
               onDoubleClicked: {
                 if (!delegateRoot.dev?.address) return
-                loader.btCmd([delegateRoot.isConnected ? "disconnect" : "connect", delegateRoot.dev.address])
+                if (delegateRoot.isConnected) loader.btCmd(["disconnect", delegateRoot.dev.address])
+                else loader.pairOrConnect(delegateRoot.dev.address, delegateRoot.dev.paired)
               }
             }
 
@@ -313,7 +330,7 @@ Loader {
                     if (delegateRoot.isDisconnecting) return "Отключение…"
                     if (delegateRoot.isConnected) return "Подключено · двойной клик отключить"
                     if (delegateRoot.dev?.paired) return "Сопряжено · двойной клик подключить"
-                    return "Двойной клик подключить"
+                    return "Двойной клик сопрячь и подключить"
                   }
                   color: Colors.textMuted
                   font.family: Colors.fontSecondary

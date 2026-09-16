@@ -1,10 +1,17 @@
 #!/usr/bin/env bash
-# Set the focused monitor's compositor scale and persist its exact monitor rule.
-# Requested values are snapped to scales that produce an integer logical viewport.
+# Global UI scale for Quickshell, GTK/Qt apps, and the terminal.
+# Per-monitor adaptive: snaps requested scale to each monitor's own valid set.
+# Persists by rewriting only the scale values in the active Lua configuration.
+#
+# Usage:
+#   scale.sh menu       # GTK slider + digit typing
+#   scale.sh up|down    # ±5%
+#   scale.sh reset      # 100%
+#   scale.sh set 1.50   # exact request (will be snapped per monitor)
 
 set -euo pipefail
 
-CONF="$HOME/.config/hypr/monitors.hl"
+CONF="$HOME/.config/hypr/hyprland.lua"
 MIN=0.80
 MAX=2.50
 
@@ -133,27 +140,27 @@ persist_rule() {
 }
 
 apply() {
-  local requested="$1" name width height refresh current scale mode requested_pct applied_pct
+  local req="$1"
+  local pct requested_pct applied_pct
+  # Apply live to every connected monitor with its own snapped scale.
+  while IFS=$'\t' read -r name w h refresh; do
+    local s
+    s="$(snap_for "$req" "$w" "$h")"
+    # Keep the active mode; using `preferred` would reset this monitor to 50 Hz.
+    hyprctl eval "hl.monitor({ output = '${name}', mode = '${w}x${h}@${refresh}', position = 'auto', scale = ${s} })" >/dev/null
+    # Preserve explicit per-output rules when they exist in the active Lua config.
+    sed -i -E \
+      "s|(hl\\.monitor\\(\\{ output = \\\"${name}\\\".*scale = )[0-9.]+|\\1${s}|" \
+      "$CONF"
+  done < <(hyprctl -j monitors | jq -r '.[] | "\(.name)\t\(.width)\t\(.height)\t\(.refreshRate)"')
 
-  [[ "$requested" =~ ^[0-9]+([.][0-9]+)?$ ]] || {
-    printf 'invalid scale: %s\n' "$requested" >&2
-    exit 2
-  }
+  # Update the generic Lua monitor rule for outputs without an explicit rule.
+  read -r fw fh < <(hyprctl -j monitors | jq -r '.[] | select(.focused==true) | "\(.width) \(.height)"')
+  pct="$(snap_for "$req" "$fw" "$fh")"
+  sed -i -E "s|(hl\\.monitor\\(\\{ output = \\\"\\\".*scale = )[0-9.]+|\\1${pct}|" "$CONF"
 
-  IFS=$'\t' read -r name width height refresh current <<< "$(monitor_info)"
-  [[ -n "$name" ]] || {
-    printf 'no focused monitor\n' >&2
-    exit 1
-  }
-
-  scale="$(snap_for "$requested" "$width" "$height")"
-  mode="${width}x${height}@$(awk -v rate="$refresh" 'BEGIN { printf "%.3f", rate }')"
-
-  hyprctl keyword monitor "${name},${mode},auto,${scale}" >/dev/null
-  persist_rule "$name" "$mode" "$scale"
-
-  requested_pct="$(awk -v value="$requested" 'BEGIN { printf "%.0f", value * 100 }')"
-  applied_pct="$(awk -v value="$scale" 'BEGIN { printf "%.0f", value * 100 }')"
+  requested_pct="$(awk -v value="$req" 'BEGIN { printf "%.0f", value * 100 }')"
+  applied_pct="$(awk -v value="$pct" 'BEGIN { printf "%.0f", value * 100 }')"
 
   hyprctl dismissnotify >/dev/null 2>&1 || true
   if [[ "$requested_pct" == "$applied_pct" ]]; then

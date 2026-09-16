@@ -20,6 +20,7 @@ Scope {
     { cat: "Приложения", keys: "SUPER + E",         desc: "Файлы (Nautilus)" },
     { cat: "Приложения", keys: "SUPER + SPACE",     desc: "Поиск приложений" },
     { cat: "Приложения", keys: "SUPER + V",         desc: "Буфер обмена (clipse)" },
+    { cat: "Приложения", keys: "SUPER + W",         desc: "Выбор обоев" },
     { cat: "Приложения", keys: "SUPER + SHIFT + W", desc: "NetworkManager editor" },
 
     // Window mgmt
@@ -30,7 +31,7 @@ Scope {
     { cat: "Окна",       keys: "SUPER + F",         desc: "Fullscreen" },
     { cat: "Окна",       keys: "SUPER + B",         desc: "Сменить split (V/H)" },
     { cat: "Окна",       keys: "SUPER + SHIFT + T", desc: "Tile окно из floating" },
-    { cat: "Окна",       keys: "SUPER + SHIFT + V", desc: "Все окна WS во floating" },
+    { cat: "Окна",       keys: "SUPER + SHIFT + V", desc: "Toggle floating активного окна" },
     { cat: "Окна",       keys: "SUPER + LMB drag", desc: "Двигать окно" },
     { cat: "Окна",       keys: "SUPER + RMB drag", desc: "Ресайз окна" },
 
@@ -65,6 +66,7 @@ Scope {
 
     // Misc
     { cat: "Прочее",     keys: "SUPER + ALT + S",   desc: "Toggle sudo-nopasswd" },
+    { cat: "Прочее",     keys: "SUPER + SHIFT + M", desc: "Server mode: экран выкл., крышка не усыпляет" },
     { cat: "Прочее",     keys: "SUPER + SHIFT + Q", desc: "Выйти из Hyprland" },
     { cat: "Прочее",     keys: "SUPER + SHIFT + ESC", desc: "Диспетчер задач (btop)" }
   ]

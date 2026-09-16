@@ -15,7 +15,7 @@ bind = $mainMod, V, exec, ~/.config/hypr/scripts/clipboard.sh
 bind = $mainMod, N, exec, qs ipc call notifications toggle
 bind = $mainMod, S, togglespecialworkspace, magic
 bind = $mainMod SHIFT, S, exec, ~/.config/hypr/scripts/toggle-special-window.sh
-bind = $mainMod ALT, S, exec, /usr/local/bin/sudo-nopasswd-toggle
+bind = $mainMod ALT, S, exec, ~/.local/bin/sudo-nopasswd-toggle
 bind = $mainMod, B, layoutmsg, togglesplit
 bind = $mainMod, P, exec, qs ipc call display open
 bind = $mainMod, F1, exec, qs ipc call keybinds open
@@ -63,12 +63,8 @@ bind = $mainMod, L, exec, ~/.local/bin/myrice-action lock
 bind = $mainMod SHIFT, P, exec, ~/.local/bin/myrice-scene --dry-run presentation
 bind = $mainMod CTRL, P, exec, ~/.local/bin/myrice-scene presentation
 bind = $mainMod, A, exec, ghostty -e ollama run qwen2.5:7b   # локальная нейронка чат (офлайн)
-bind = $mainMod SHIFT, A, exec, ghostty -e opencode --model ollama/qwen2.5:7b   # optional: requires opencode on PATH
-bind = $mainMod, C, exec, ghostty -e solitaire-tui   # optional: requires solitaire-tui on PATH
-bind = $mainMod, O, exec, ~/.config/hypr/scripts/ocr.sh copy   # OCR области → буфер обмена
-bind = $mainMod SHIFT, O, exec, ~/.config/hypr/scripts/ocr.sh google   # OCR области → поиск в Google
 
-# UI scale (all apps, Waybar, etc. — Wayland monitor scale)
+# UI scale for all Wayland applications (per-monitor scale)
 bind = $mainMod CTRL, equal, exec, ~/.config/hypr/scripts/scale.sh up
 bind = $mainMod CTRL, minus, exec, ~/.config/hypr/scripts/scale.sh down
 bind = $mainMod CTRL, 0, exec, ~/.config/hypr/scripts/scale.sh reset

@@ -36,4 +36,5 @@ ShellRoot {
   AppLauncher {}
   DisplayMenu {}
   KeybindsMenu {}
+  WallpaperChooser {}
 }

@@ -24,6 +24,8 @@ MANAGED_PATHS = {
     "lts-kernel": ["/boot/loader/entries/*-lts.conf"],
     "backup": ["/etc/timeshift/timeshift.json", "/etc/pacman.d/hooks/50-timeshift.hook"],
     "wifi-fix": ["/etc/modprobe.d/blacklist-rtw88.conf", "/etc/modprobe.d/rtw88.conf", "/etc/modprobe.d/8821ce.conf", "/etc/modprobe.d/cfg80211.conf", "/etc/NetworkManager/conf.d/30-wifi-powersave.conf", "/boot/loader/entries/*.conf"],
+    "sddm": ["/etc/systemd/system/display-manager.service"],
+    "sddm-theme": ["/etc/sddm.conf.d/10-myrice-theme.conf", "/usr/share/sddm/themes/myrice/metadata.desktop", "/usr/share/sddm/themes/myrice/Main.qml", "/usr/share/sddm/themes/myrice/theme.conf"],
     "myrice-hyprland-session": ["/usr/local/bin/myrice-hyprland", "/usr/local/share/wayland-sessions/myrice-hyprland.desktop", "/etc/sddm.conf.d/90-myrice-wayland-sessions.conf"],
 }
 

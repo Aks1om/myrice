@@ -16,9 +16,6 @@ quickshell
 swaync
 jq
 
-# Keep waybar around as a fallback bar option (no longer the default)
-waybar
-
 # Terminal / editor support
 ghostty
 
@@ -57,13 +54,11 @@ pipewire-audio
 pipewire-pulse
 wireplumber
 
-# Wallpaper / portals / OCR
+# Wallpaper / portals
+mpvpaper
 waypaper
 xdg-desktop-portal-gtk
 xdg-user-dirs
-tesseract
-tesseract-data-eng
-tesseract-data-rus
 
 # Shell
 zsh

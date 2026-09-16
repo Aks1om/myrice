@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+rule="/etc/sudoers.d/99-${USER}-nopasswd"
+
+if sudo test -e "$rule"; then
+  sudo rm -f "$rule"
+  notify-send "sudo" "Passwordless sudo disabled" || true
+  printf 'Passwordless sudo disabled.\n'
+else
+  printf '%s ALL=(ALL:ALL) NOPASSWD: ALL\n' "$USER" | sudo install -m 0440 /dev/stdin "$rule"
+  sudo visudo -cf "$rule"
+  notify-send "sudo" "Passwordless sudo enabled" || true
+  printf 'Passwordless sudo enabled.\n'
+fi

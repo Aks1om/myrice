@@ -33,7 +33,7 @@ else
     next_state="custom"
 fi
 
-hyprctl keyword input:kb_file "$target" >/dev/null
+hyprctl eval "hl.config({ input = { kb_file = '$target' } })" >/dev/null
 while IFS=$'\t' read -r keyboard layout_index; do
     [[ -n "$keyboard" ]] || continue
     hyprctl switchxkblayout "$keyboard" "$layout_index" >/dev/null

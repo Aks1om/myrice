@@ -13,7 +13,7 @@ changes are explicit opt-ins.
 - **swaync** for system notifications
 - **ghostty** terminal
 - **zsh + starship** prompt
-- **Waybar** kept as an optional fallback bar
+- **Waypaper** configuration for selecting and persisting wallpapers
 - Hypr helper scripts (screenshot, scale, system-monitor, toggle-special-window, lock-input, …)
 - Launch-or-focus helper for the Quickshell application launcher (`home/.local/bin/launch-or-focus`)
 - Manual two-state power mode: normal or battery backlight (`.config/hypr/scripts/power-mode.sh`)
@@ -29,7 +29,7 @@ changes are explicit opt-ins.
 ├── .config/                       # symlinked into ~/.config/ by install.sh
 │   ├── hypr/                      #   Hyprland + scripts
 │   ├── quickshell/                #   Quickshell QML shell (Bar.qml, *Panel.qml, …)
-│   ├── waybar/                    #   optional fallback bar
+│   ├── waypaper/                  #   wallpaper picker configuration
 │   ├── swaync/                    #   notification daemon
 │   ├── ghostty/                   #   terminal
 │   └── starship.toml
@@ -38,7 +38,8 @@ changes are explicit opt-ins.
 │   │   └── lid-mobile.service
 │   └── .local/bin/                # symlinked into ~/.local/bin/
 │       ├── launch-or-focus
-│       └── lid-mobile-toggle
+│       ├── lid-mobile-toggle
+│       └── sudo-nopasswd-toggle
 │   └── .local/share/applications/ # symlinked into ~/.local/share/applications/
 │       └── org.telegram.desktop.desktop # Telegram portal file-picker override
 ├── system/                        # deployed into /etc and /boot by install.sh
@@ -130,8 +131,9 @@ applied paths; rollback never deletes or restores anything automatically.
 ./install.sh --stage myrice-hyprland-session # install MyRice's separate SDDM session
 ```
 
-The `system-management` profile installs SDDM before deploying the MyRice
-Hyprland SDDM session. `install.sh` remains available for existing workflows and flags. Its `--all`
+The `system-management` profile installs SDDM and its MyRice theme before
+deploying the MyRice Hyprland SDDM session. `install.sh` remains available for
+existing workflows and flags. Its `--all`
 behaviour is unchanged except that RTL8821CE Wi-Fi files are now installed only
 by the explicit `wifi-fix` stage. Prefer `bootstrap.sh` on a new machine.
 
@@ -148,7 +150,7 @@ Stages:
 | `locale`   | Generate `ru_RU.UTF-8` if missing |
 | `lts-kernel` | Install `linux-lts` + add a mirrored systemd-boot entry. Your fallback when the main kernel breaks. |
 | `backup`   | Install `timeshift`, materialise `/etc/timeshift/timeshift.json` from the template (root UUID auto-detected), deploy the pre-pacman snapshot hook, and create a first known-good snapshot. See [docs/BACKUP.md](docs/BACKUP.md) for the rollback workflow. |
-| `sddm` | Install SDDM for the opt-in MyRice Hyprland session. |
+| `sddm` | Install SDDM and enable it for the next boot for the opt-in MyRice Hyprland session. |
 | `sddm-theme` | **Opt-in.** Install the monochrome MyRice SDDM login screen and select it in SDDM. |
 | `wifi-fix` | **Opt-in.** Installs `rtl8821ce-dkms-git`, deploys rtw88 blacklist, runs `patch-pcie-aspm.sh`, rebuilds initramfs. For the Realtek RTL8821CE chipset that drops the link with `"failed to get tx report from firmware"`. |
 | `myrice-hyprland-session` | **Opt-in.** Installs a separate `MyRice Hyprland` SDDM session. It runs `start-hyprland -- --config "$HOME/.config/hypr/hyprland.hl"` and leaves the packaged `Hyprland` session unchanged. |
@@ -158,7 +160,8 @@ and already-deployed configs.
 
 ## After install
 
-1. Put a wallpaper at `~/Pictures/wallpapers/default.jpg` (or edit `.config/hypr/hyprpaper.conf`).
+1. Put wallpapers in `~/wallpaper` and select one with Waypaper. Until then,
+   Hyprland starts with the same dark background as the SDDM theme.
 2. Log into Hyprland.
 3. If `--laptop-wifi-fix` was used, **reboot** so the out-of-tree `8821ce` module takes over from `rtw88_8821ce`.
 
@@ -212,8 +215,8 @@ python3 scripts/generate-theme.py --check
 - Russian layout is enabled in `~/.config/hypr/input.hl` (`us,ru`, toggle `Alt+Shift`).
 - Power mode is manual only: click its bar icon to switch between normal and battery. Battery sets only the single built-in backlight to 40%; normal restores the exact prior brightness. It does not change refresh rate, PPD, GPU, compositor, terminal, Wi-Fi, or idle settings.
 - Monitor names in `.config/hypr/monitors.hl` are mine — tune for your hardware.
-- `doctor` reports missing optional personal commands (`ollama`, `opencode`,
-  `solitaire-tui`) without making them package requirements.
+- `doctor` reports missing optional personal commands (`ollama`, `opencode`)
+  without making them package requirements.
 - Telegram's user desktop entry sets `QT_QPA_PLATFORMTHEME=xdgdesktopportal` only
   for launches through its desktop entry, so its file picker uses the portal
   without changing the global Qt environment. Restart Telegram, then launch it

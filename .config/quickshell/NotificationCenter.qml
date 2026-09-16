@@ -13,6 +13,7 @@ Scope {
   property bool isOpen: false
   property bool mounted: false
   property int transitionId: 0
+  property var toastNotifications: []
   readonly property int count: server.trackedNotifications?.values?.length ?? 0
 
   Timer {
@@ -51,6 +52,14 @@ Scope {
     items.forEach(notification => notification.dismiss())
   }
 
+  function addToast(notification) {
+    root.toastNotifications = [notification, ...root.toastNotifications].slice(0, 3)
+  }
+
+  function removeToast(notification) {
+    root.toastNotifications = root.toastNotifications.filter(item => item !== notification)
+  }
+
   NotificationServer {
     id: server
     bodySupported: true
@@ -61,6 +70,47 @@ Scope {
 
     onNotification: notification => {
       notification.tracked = true
+      root.addToast(notification)
+    }
+  }
+
+  PanelWindow {
+    id: toastWindow
+    screen: Hyprland.focusedMonitor?.screen ?? Quickshell.screens[0]
+    color: "transparent"
+    visible: root.toastNotifications.length > 0
+    WlrLayershell.layer: WlrLayer.Top
+    anchors {
+      top: true
+      right: true
+    }
+    margins.top: 46
+    margins.right: Metrics.popupInset
+    implicitWidth: 380
+    implicitHeight: toasts.height
+
+    ListView {
+      id: toasts
+      width: parent.width
+      height: contentHeight
+      interactive: false
+      spacing: Metrics.popupInset
+      model: root.toastNotifications
+
+      delegate: NotificationCard {
+        required property var modelData
+        width: toasts.width
+        notification: modelData
+
+        Timer {
+          interval: modelData.expireTimeout > 0 ? modelData.expireTimeout : 5000
+          running: true
+          repeat: false
+          onTriggered: root.removeToast(modelData)
+        }
+
+        onDismissed: root.removeToast(modelData)
+      }
     }
   }
 
