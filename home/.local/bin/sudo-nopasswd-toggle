@@ -1,15 +1,34 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-rule="/etc/sudoers.d/99-${USER}-nopasswd"
+# A Hyprland keybinding has no terminal for sudo to prompt in. pkexec delegates
+# authentication to the running graphical Polkit agent instead.
+command -v pkexec >/dev/null 2>&1 || {
+  notify-send "sudo" "pkexec is required to change passwordless sudo" || true
+  exit 1
+}
 
-if sudo test -e "$rule"; then
-  sudo rm -f "$rule"
-  notify-send "sudo" "Passwordless sudo disabled" || true
-  printf 'Passwordless sudo disabled.\n'
+if result="$(pkexec /usr/bin/env bash -c '
+  set -euo pipefail
+  username="$1"
+  [[ "$username" =~ ^[a-z_][a-z0-9_-]*$ ]] || exit 2
+  rule="/etc/sudoers.d/99-${username}-nopasswd"
+
+  if [[ -e "$rule" ]]; then
+    rm -f -- "$rule"
+    printf "disabled\n"
+  else
+    temporary_rule="$(mktemp)"
+    trap "rm -f -- \"$temporary_rule\"" EXIT
+    printf "%s ALL=(ALL:ALL) NOPASSWD: ALL\\n" "$username" > "$temporary_rule"
+    visudo -cf "$temporary_rule" >/dev/null
+    install -m 0440 "$temporary_rule" "$rule"
+    printf "enabled\n"
+  fi
+' bash "$USER")"; then
+  notify-send "sudo" "Passwordless sudo ${result}" || true
+  printf 'Passwordless sudo %s.\n' "$result"
 else
-  printf '%s ALL=(ALL:ALL) NOPASSWD: ALL\n' "$USER" | sudo install -m 0440 /dev/stdin "$rule"
-  sudo visudo -cf "$rule"
-  notify-send "sudo" "Passwordless sudo enabled" || true
-  printf 'Passwordless sudo enabled.\n'
+  notify-send "sudo" "Authentication failed or was cancelled" || true
+  exit 1
 fi
