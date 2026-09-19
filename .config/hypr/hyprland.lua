@@ -61,7 +61,7 @@ hl.config({
 
 hl.env("XCURSOR_SIZE", "24")
 hl.env("XCURSOR_THEME", "Bibata-Modern-Classic")
-hl.env("GTK_THEME", "Adwaita:dark")
+hl.env("GTK_THEME", "adw-gtk3-dark")
 hl.env("HYPRCURSOR_THEME", "Bibata-Modern-Classic")
 hl.env("HYPRCURSOR_SIZE", "24")
 hl.env("LANG", "ru_RU.UTF-8")
@@ -70,6 +70,7 @@ hl.env("LC_TIME", "ru_RU.UTF-8")
 hl.env("LC_MONETARY", "ru_RU.UTF-8")
 hl.env("LC_MEASUREMENT", "ru_RU.UTF-8")
 hl.env("LC_PAPER", "ru_RU.UTF-8")
+hl.env("PATH", (os.getenv("HOME") or "") .. "/.local/bin:" .. (os.getenv("HOME") or "") .. "/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/lib/jvm/default/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl")
 hl.env("QT_QPA_PLATFORM", "wayland;xcb")
 hl.env("QT_WAYLAND_DISABLE_WINDOWDECORATION", "1")
 hl.env("QT_AUTO_SCREEN_SCALE_FACTOR", "1")
@@ -82,6 +83,10 @@ hl.env("XDG_SESSION_DESKTOP", "Hyprland")
 
 hl.monitor({ output = "DP-1", mode = "3440x1440@144", position = "auto", scale = 1.0000000000 })
 hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1.0000000000 })
+
+-- Hardware-specific monitor layouts live outside the repository.
+local local_config_dir = os.getenv("XDG_CONFIG_HOME") or ((os.getenv("HOME") or "") .. "/.config")
+pcall(dofile, local_config_dir .. "/myrice-local/hypr/device.lua")
 
 hl.curve("easeOut", { type = "bezier", points = { { 0.16, 1 }, { 0.3, 1 } } })
 hl.animation({ leaf = "windows", enabled = true, speed = 6, bezier = "easeOut" })
@@ -106,8 +111,8 @@ for i = 1, 10 do
 end
 
 hl.on("hyprland.start", function()
-    hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
-    hl.exec_cmd("systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
+    hl.exec_cmd("dbus-update-activation-environment --systemd PATH WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
+    hl.exec_cmd("systemctl --user import-environment PATH WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
     hl.exec_cmd("qs")
     hl.exec_cmd("~/.config/hypr/scripts/wallpaper-apply.sh restore")
     hl.exec_cmd("hypridle")

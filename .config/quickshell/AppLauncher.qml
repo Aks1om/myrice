@@ -33,7 +33,11 @@ Scope {
 
   Process {
     id: launchProcess
-    command: [root.userBin + "/launch-or-focus", root.pendingAppId, root.pendingAppStartupClass, root.pendingAppName]
+    command: [
+      "/bin/sh", "-c",
+      "helper=$1; shift; if [ -x \"$helper\" ]; then exec \"$helper\" \"$@\"; fi; exit 127",
+      "launcher", root.userBin + "/launch-or-focus", root.pendingAppId, root.pendingAppStartupClass, root.pendingAppName
+    ]
     running: false
 
     onExited: (exitCode, exitStatus) => {
@@ -162,7 +166,7 @@ Scope {
                 root.selected = Math.max(0, root.selected - 1)
                 e.accepted = true
               } else if (e.key === Qt.Key_Return || e.key === Qt.Key_Enter) {
-                root.launch(0)
+                root.launch(root.selected)
                 e.accepted = true
               } else if (e.key === Qt.Key_Escape) {
                 root.isOpen = false

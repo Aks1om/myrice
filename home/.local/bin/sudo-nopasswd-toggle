@@ -3,6 +3,12 @@ set -euo pipefail
 
 # A Hyprland keybinding has no terminal for sudo to prompt in. pkexec delegates
 # authentication to the running graphical Polkit agent instead.
+readonly SESSION_ID="${XDG_SESSION_ID:-}"
+
+[[ -n "$SESSION_ID" ]] || {
+  notify-send "sudo" "No graphical session ID is available" || true
+  exit 1
+}
 command -v pkexec >/dev/null 2>&1 || {
   notify-send "sudo" "pkexec is required to change passwordless sudo" || true
   exit 1
@@ -11,11 +17,17 @@ command -v pkexec >/dev/null 2>&1 || {
 if result="$(pkexec /usr/bin/env bash -c '
   set -euo pipefail
   username="$1"
+  session_id="$2"
   [[ "$username" =~ ^[a-z_][a-z0-9_-]*$ ]] || exit 2
+  [[ "$session_id" =~ ^[A-Za-z0-9_-]+$ ]] || exit 2
   rule="/etc/sudoers.d/99-${username}-nopasswd"
+  unit="myrice-sudo-nopasswd-${username}"
+  session_scope="$(loginctl show-session "$session_id" -p Scope --value)"
+  [[ "$session_scope" == session-*.scope ]] || exit 2
 
   if [[ -e "$rule" ]]; then
     rm -f -- "$rule"
+    systemctl stop "${unit}.service" 2>/dev/null || true
     printf "disabled\n"
   else
     temporary_rule="$(mktemp)"
@@ -23,9 +35,20 @@ if result="$(pkexec /usr/bin/env bash -c '
     printf "%s ALL=(ALL:ALL) NOPASSWD: ALL\\n" "$username" > "$temporary_rule"
     visudo -cf "$temporary_rule" >/dev/null
     install -m 0440 "$temporary_rule" "$rule"
-    printf "enabled\n"
+    systemctl stop "${unit}.service" 2>/dev/null || true
+    # The cleanup unit is stopped with this login session, including logout and
+    # a normal system shutdown, so the sudo rule cannot survive the session.
+    if ! systemd-run --quiet --unit "$unit" --remain-after-exit \
+      --property="BindsTo=$session_scope" \
+      --property="After=$session_scope" \
+      --property="ExecStopPost=/usr/bin/rm -f -- $rule" \
+      /usr/bin/true; then
+      rm -f -- "$rule"
+      exit 1
+    fi
+    printf "enabled until logout or shutdown\n"
   fi
-' bash "$USER")"; then
+' bash "$USER" "$SESSION_ID")"; then
   notify-send "sudo" "Passwordless sudo ${result}" || true
   printf 'Passwordless sudo %s.\n' "$result"
 else

@@ -154,7 +154,9 @@ stage_preflight() {
   fi
   [[ -f /etc/arch-release ]] || { err "Not Arch Linux. Aborting."; exit 1; }
   [[ $EUID -ne 0 ]] || { err "Don't run as root. Use a normal user with sudo."; exit 1; }
-  sudo -v
+  # `sudo -v` asks for a password even when a NOPASSWD sudoers rule is active.
+  # Test an actual non-interactive command first so desktop-triggered access works.
+  sudo -n true 2>/dev/null || sudo -v
   command -v yay >/dev/null 2>&1 || warn "yay not found — AUR stage will be skipped."
   log "OK"
 }
@@ -237,6 +239,16 @@ ensure_phosphor_icons() {
   run git clone --depth=1 --filter=blob:none https://github.com/phosphor-icons/core.git "$target"
 }
 
+ensure_device_config() {
+  local target="${XDG_CONFIG_HOME:-$HOME/.config}/myrice-local/hypr/device.lua"
+  local template="$REPO_DIR/profiles/local/hypr-device.lua.example"
+  [[ -e "$target" ]] && return
+
+  log "Creating machine-local Hyprland config: $target"
+  run mkdir -p "$(dirname "$target")"
+  run cp "$template" "$target"
+}
+
 stage_dotfiles() {
   log "Symlinking dotfiles (backup: $HOME_BACKUP_DIR)"
   ensure_phosphor_icons
@@ -245,6 +257,7 @@ stage_dotfiles() {
     rel=".config/$(basename "$p")"
     link_into_home "$rel"
   done < <(find "$REPO_DIR/.config" -mindepth 1 -maxdepth 1 -print0)
+  ensure_device_config
 
   # home/.config/systemd/user/*.service
   if [[ -d "$REPO_DIR/home/.config/systemd/user" ]]; then

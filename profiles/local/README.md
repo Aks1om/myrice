@@ -15,3 +15,11 @@ and capabilities, then use it with:
 The base profile never enables system, boot, SDDM, Wi-Fi, or laptop settings.
 Every dangerous stage must enable its matching capability; for example,
 `"stages": ["services"]` requires `"laptop_services": true`.
+
+## Device-specific Hyprland settings
+
+`install.sh --stage dotfiles` creates
+`~/.config/myrice-local/hypr/device.lua` once from `hypr-device.lua.example`.
+That file is outside the repository and is never overwritten by future syncs.
+Put monitor layout, refresh rate, scale, and other hardware-specific Hyprland
+overrides there.
