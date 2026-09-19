@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Global UI scale for Quickshell, GTK/Qt apps, and the terminal.
 # Per-monitor adaptive: snaps requested scale to each monitor's own valid set.
-# Persists by rewriting only the scale values in the active Lua configuration.
+# Persists monitor rules in the machine-local Lua configuration.
 #
 # Usage:
 #   scale.sh menu       # GTK slider + digit typing
@@ -11,7 +11,7 @@
 
 set -euo pipefail
 
-CONF="$HOME/.config/hypr/hyprland.lua"
+LOCAL_CONF="${XDG_CONFIG_HOME:-$HOME/.config}/myrice-local/hypr/device.lua"
 MIN=0.80
 MAX=2.50
 
@@ -104,60 +104,27 @@ list_for() {
   '
 }
 
-persist_rule() {
-  local name="$1" mode="$2" scale="$3" tmp
-  tmp="$(mktemp "${CONF}.XXXXXX")"
-
-  awk -v name="$name" -v rule="monitor = ${name},${mode},auto,${scale}" '
-    BEGIN { replaced = 0; inserted = 0 }
-    {
-      target = $0
-      sub(/^[[:space:]]*monitor[[:space:]]*=[[:space:]]*/, "", target)
-      split(target, fields, ",")
-      gsub(/^[[:space:]]+|[[:space:]]+$/, "", fields[1])
-
-      if (fields[1] == name) {
-        if (!replaced)
-          print rule
-        replaced = 1
-        next
-      }
-
-      if (!replaced && !inserted && fields[1] == "" && $0 ~ /^[[:space:]]*monitor[[:space:]]*=/) {
-        print rule
-        inserted = 1
-      }
-
-      print
-    }
-    END {
-      if (!replaced && !inserted)
-        print rule
-    }
-  ' "$CONF" > "$tmp"
-
-  mv "$tmp" "$CONF"
-}
-
 apply() {
   local req="$1"
-  local pct requested_pct applied_pct
+  local pct requested_pct applied_pct tmp
+  install -d -m 700 "${LOCAL_CONF%/*}"
+  tmp="$(mktemp "${LOCAL_CONF}.XXXXXX")"
+  printf '%s\n' '-- Machine-local monitor settings managed by scale.sh.' >"$tmp"
+
   # Apply live to every connected monitor with its own snapped scale.
   while IFS=$'\t' read -r name w h refresh; do
     local s
     s="$(snap_for "$req" "$w" "$h")"
     # Keep the active mode; using `preferred` would reset this monitor to 50 Hz.
     hyprctl eval "hl.monitor({ output = '${name}', mode = '${w}x${h}@${refresh}', position = 'auto', scale = ${s} })" >/dev/null
-    # Preserve explicit per-output rules when they exist in the active Lua config.
-    sed -i -E \
-      "s|(hl\\.monitor\\(\\{ output = \\\"${name}\\\".*scale = )[0-9.]+|\\1${s}|" \
-      "$CONF"
+    printf 'hl.monitor({ output = "%s", mode = "%sx%s@%s", position = "auto", scale = %s })\n' \
+      "$name" "$w" "$h" "$refresh" "$s" >>"$tmp"
   done < <(hyprctl -j monitors | jq -r '.[] | "\(.name)\t\(.width)\t\(.height)\t\(.refreshRate)"')
 
-  # Update the generic Lua monitor rule for outputs without an explicit rule.
+  mv "$tmp" "$LOCAL_CONF"
+
   read -r fw fh < <(hyprctl -j monitors | jq -r '.[] | select(.focused==true) | "\(.width) \(.height)"')
   pct="$(snap_for "$req" "$fw" "$fh")"
-  sed -i -E "s|(hl\\.monitor\\(\\{ output = \\\"\\\".*scale = )[0-9.]+|\\1${pct}|" "$CONF"
 
   requested_pct="$(awk -v value="$req" 'BEGIN { printf "%.0f", value * 100 }')"
   applied_pct="$(awk -v value="$pct" 'BEGIN { printf "%.0f", value * 100 }')"

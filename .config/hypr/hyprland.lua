@@ -81,12 +81,19 @@ hl.env("XDG_CURRENT_DESKTOP", "Hyprland")
 hl.env("XDG_SESSION_TYPE", "wayland")
 hl.env("XDG_SESSION_DESKTOP", "Hyprland")
 
-hl.monitor({ output = "DP-1", mode = "3440x1440@144", position = "auto", scale = 1.0000000000 })
 hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1.0000000000 })
 
 -- Hardware-specific monitor layouts live outside the repository.
 local local_config_dir = os.getenv("XDG_CONFIG_HOME") or ((os.getenv("HOME") or "") .. "/.config")
-pcall(dofile, local_config_dir .. "/myrice-local/hypr/device.lua")
+local local_device_file = local_config_dir .. "/myrice-local/hypr/device.lua"
+local local_device_handle = io.open(local_device_file, "r")
+if local_device_handle then
+    local_device_handle:close()
+    local ok, err = pcall(dofile, local_device_file)
+    if not ok then
+        print("MyRice local device config was not applied: " .. err)
+    end
+end
 
 hl.curve("easeOut", { type = "bezier", points = { { 0.16, 1 }, { 0.3, 1 } } })
 hl.animation({ leaf = "windows", enabled = true, speed = 6, bezier = "easeOut" })
@@ -116,7 +123,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("qs")
     hl.exec_cmd("~/.config/hypr/scripts/wallpaper-apply.sh restore")
     hl.exec_cmd("hypridle")
-    hl.exec_cmd("sh -c 'plugin=\"$HOME/.local/src/hypr-autoscroll/build/hypr-autoscroll.so\"; [ ! -f \"$plugin\" ] || { hyprctl plugin load \"$plugin\" && hyprctl keyword plugin:hypr_autoscroll:enabled true && hyprctl keyword plugin:hypr_autoscroll:direct_activation true && hyprctl keyword plugin:hypr_autoscroll:sensitivity 2; }'")
+    hl.exec_cmd("sh -c 'plugin=\"$HOME/.local/src/hypr-autoscroll/build/hypr-autoscroll.so\"; [ ! -f \"$plugin\" ] || hyprctl plugin load \"$plugin\"'")
     hl.exec_cmd("blueman-applet")
     hl.exec_cmd("clipse -listen")
     hl.exec_cmd("/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1")

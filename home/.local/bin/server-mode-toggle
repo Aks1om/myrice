@@ -66,8 +66,7 @@ restore_dpms_wake_options() {
 
   current_value=$(get_dpms_wake_option misc:mouse_move_enables_dpms)
   if [ "$current_value" = false ]; then
-    hyprctl keyword misc:mouse_move_enables_dpms "$mouse_value" >/dev/null
-    hyprctl keyword misc:key_press_enables_dpms "$key_value" >/dev/null
+    hyprctl eval "hl.config({ misc = { mouse_move_enables_dpms = $mouse_value, key_press_enables_dpms = $key_value } })" >/dev/null
   fi
 
   rm -f "$STATE_FILE"
@@ -85,8 +84,7 @@ else
   mouse_value=$(get_dpms_wake_option misc:mouse_move_enables_dpms)
   key_value=$(get_dpms_wake_option misc:key_press_enables_dpms)
   save_dpms_wake_options "$mouse_value" "$key_value"
-  hyprctl keyword misc:mouse_move_enables_dpms false >/dev/null
-  hyprctl keyword misc:key_press_enables_dpms false >/dev/null
+  hyprctl eval "hl.config({ misc = { mouse_move_enables_dpms = false, key_press_enables_dpms = false } })" >/dev/null
   notify-send -a "server-mode" -t 2500 "🖥️ Server mode ON" "ноут с закрытой крышкой, экран выключен"
   sleep 0.4
   hyprctl dispatch dpms off >/dev/null
