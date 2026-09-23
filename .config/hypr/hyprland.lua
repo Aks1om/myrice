@@ -80,6 +80,9 @@ hl.env("CLUTTER_BACKEND", "wayland")
 hl.env("XDG_CURRENT_DESKTOP", "Hyprland")
 hl.env("XDG_SESSION_TYPE", "wayland")
 hl.env("XDG_SESSION_DESKTOP", "Hyprland")
+-- Prefer the native Wayland backend for every Electron application started
+-- from this Hyprland session. This avoids XWayland popup/blur artifacts.
+hl.env("ELECTRON_OZONE_PLATFORM_HINT", "wayland")
 
 hl.monitor({ output = "", mode = "preferred", position = "auto", scale = 1.0000000000 })
 
