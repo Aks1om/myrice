@@ -2,6 +2,8 @@
 
 local mainMod = "SUPER"
 
+hl.plugin.load((os.getenv("HOME") or "") .. "/.local/src/hypr-autoscroll/build/hypr-autoscroll.so")
+
 hl.config({
     general = {
         gaps_in = 4,
@@ -41,6 +43,13 @@ hl.config({
         key_press_enables_dpms = true,
     },
     xwayland = { force_zero_scaling = true },
+    plugin = {
+        hypr_autoscroll = {
+            enabled = true,
+            direct_activation = true,
+            sensitivity = 2,
+        },
+    },
     input = {
         kb_layout = "us,ru",
         kb_options = "grp:alt_shift_toggle,caps:escape",
@@ -126,7 +135,6 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("qs")
     hl.exec_cmd("~/.config/hypr/scripts/wallpaper-apply.sh restore")
     hl.exec_cmd("hypridle")
-    hl.exec_cmd("sh -c 'plugin=\"$HOME/.local/src/hypr-autoscroll/build/hypr-autoscroll.so\"; [ ! -f \"$plugin\" ] || hyprctl plugin load \"$plugin\"'")
     hl.exec_cmd("blueman-applet")
     hl.exec_cmd("clipse -listen")
     hl.exec_cmd("/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1")
