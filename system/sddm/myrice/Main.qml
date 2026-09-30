@@ -9,11 +9,13 @@ Rectangle {
     property color statusColor: "#dcdcdc"
     property int sessionIndex: sessionModel.lastIndex
     property date currentTime: new Date()
+    property bool loggingIn: false
 
     function login() {
-        if (username.text.length === 0 || password.text.length === 0)
+        if (loggingIn || username.text.length === 0 || password.text.length === 0)
             return
 
+        loggingIn = true
         statusText = "Checking..."
         statusColor = "#dcdcdc"
         sddm.login(username.text, password.text, sessionIndex)
@@ -23,6 +25,7 @@ Rectangle {
         target: sddm
 
         function onLoginFailed() {
+            root.loggingIn = false
             password.text = ""
             statusText = "Incorrect password"
             statusColor = "#ff8aa2"
@@ -36,10 +39,17 @@ Rectangle {
     }
 
     Timer {
-        interval: 1000
+        // The display only shows minutes; avoid repainting the large clock
+        // every second while typing a password.
+        interval: 10000
         running: true
         repeat: true
-        onTriggered: root.currentTime = new Date()
+        onTriggered: {
+            var now = new Date()
+            if (Qt.formatTime(now, "hh:mm") !== Qt.formatTime(root.currentTime, "hh:mm") ||
+                    now.getDate() !== root.currentTime.getDate())
+                root.currentTime = now
+        }
     }
 
     Rectangle {
@@ -58,6 +68,8 @@ Rectangle {
 
         Text {
             anchors.horizontalCenter: parent.horizontalCenter
+            width: Math.min(root.width * 0.76, 1040)
+            horizontalAlignment: Text.AlignHCenter
             color: "#ffffff"
             font.family: "Noto Sans"
             font.pixelSize: Math.min(root.width * 0.105, 120)

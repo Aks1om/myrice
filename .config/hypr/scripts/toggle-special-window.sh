@@ -2,55 +2,41 @@
 
 set -euo pipefail
 
-current_workspace="$({
-  hyprctl -j activewindow 2>/dev/null || true
-} | python3 -c 'import json, sys
-try:
-    data = json.load(sys.stdin)
-except Exception:
-    print("")
-    raise SystemExit
+# On Hyprland's Lua configuration, `hyprctl dispatch` expects Lua expressions,
+# not the old text dispatcher syntax. Select the window by address so focus
+# changes between the query and the move cannot send another window away.
+read -r address current_workspace < <(hyprctl -j activewindow | python3 -c 'import json, sys
+window = json.load(sys.stdin)
+print(window.get("address", ""), (window.get("workspace") or {}).get("name", ""))
+')
+[[ "$address" =~ ^0x[0-9a-fA-F]+$ && -n "$current_workspace" ]] || exit 0
 
-workspace = data.get("workspace") or {}
-print(workspace.get("name", ""))
-')"
-
-if [[ -z "$current_workspace" ]]; then
-  exit 0
+if [[ "$current_workspace" == special:magic ]]; then
+  target_workspace=$(hyprctl -j monitors | python3 -c 'import json, sys
+monitors = json.load(sys.stdin)
+monitor = next((m for m in monitors if m.get("focused")), None)
+print((monitor or {}).get("activeWorkspace", {}).get("id", ""))
+')
+  [[ "$target_workspace" =~ ^[1-9][0-9]*$ ]] || exit 1
+else
+  target_workspace=special:magic
+  was_visible=$(hyprctl -j monitors | python3 -c 'import json, sys
+print(any((m.get("specialWorkspace") or {}).get("name") == "special:magic" for m in json.load(sys.stdin)))
+')
 fi
 
-if [[ "$current_workspace" == special:* ]]; then
-  target_workspace="$({
-    hyprctl -j monitors 2>/dev/null || true
-  } | python3 -c 'import json, sys
-try:
-    monitors = json.load(sys.stdin)
-except Exception:
-    print("")
-    raise SystemExit
+hyprctl eval "hl.dispatch(hl.dsp.focus({ window = 'address:$address' })); hl.dispatch(hl.dsp.window.move({ workspace = '$target_workspace' }))"
 
-focused = next((monitor for monitor in monitors if monitor.get("focused")), monitors[0] if monitors else {})
-workspace = focused.get("activeWorkspace") or {}
-name = str(workspace.get("name", ""))
-
-if name and not name.startswith("special:"):
-    print(name)
-    raise SystemExit
-
-workspace_id = workspace.get("id")
-if isinstance(workspace_id, int) and workspace_id > 0:
-    print(workspace_id)
-else:
-    print("")
-')"
-
-  if [[ -z "$target_workspace" ]]; then
-    exit 1
+if [[ "$current_workspace" == special:magic ]]; then
+  # Close an empty special workspace, but leave it open for any other windows.
+  if ! hyprctl -j clients | python3 -c 'import json, sys
+sys.exit(0 if any((c.get("workspace") or {}).get("name") == "special:magic" for c in json.load(sys.stdin)) else 1)
+' && hyprctl -j monitors | python3 -c 'import json, sys
+sys.exit(0 if any((m.get("specialWorkspace") or {}).get("name") == "special:magic" for m in json.load(sys.stdin)) else 1)
+'; then
+    hyprctl eval "hl.dispatch(hl.dsp.workspace.toggle_special('magic'))"
   fi
-
-  hyprctl dispatch movetoworkspacesilent "$target_workspace"
-  hyprctl dispatch togglespecialworkspace magic
-  exit 0
+elif [[ "$was_visible" == False ]]; then
+  # Lua's move follows the window into the special workspace; hide it again.
+  hyprctl eval "hl.dispatch(hl.dsp.workspace.toggle_special('magic'))"
 fi
-
-hyprctl dispatch movetoworkspacesilent special:magic
