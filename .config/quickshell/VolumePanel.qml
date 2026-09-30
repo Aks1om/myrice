@@ -14,7 +14,6 @@ Loader {
   property bool open: false
 
   active: open
-  asynchronous: true
 
   Process { id: setDefault }
   function makeDefault(id) {

@@ -14,7 +14,6 @@ Loader {
   property bool open: false
 
   active: open
-  asynchronous: true
 
   readonly property string dongleAddress: "8C:68:8B:C0:69:C1"
   readonly property string bluetoothHelper: "/home/aks1om/.local/bin/airpods-bluetooth"

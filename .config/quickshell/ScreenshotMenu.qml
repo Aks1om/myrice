@@ -146,7 +146,6 @@ Scope {
         id: loader
 
         active: root.isOpen
-        asynchronous: true
 
         sourceComponent: Ui.ModalOverlay {
             open: root.isOpen

@@ -18,7 +18,6 @@ Loader {
     property string expandedSsid: ""
 
     active: open
-    asynchronous: true
     onOpenChanged: {
         if (!open) {
             expandedSsid = "";

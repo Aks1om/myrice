@@ -88,7 +88,9 @@ Scope {
 
   Connections {
     target: DesktopEntries
-    function onApplicationsChanged() { root.recompute() }
+    function onApplicationsChanged() {
+      if (root.isOpen) root.recompute()
+    }
   }
 
   function launch(idx) {
