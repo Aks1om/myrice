@@ -30,6 +30,30 @@ Loader {
     readonly property var sink: Pipewire.defaultAudioSink
     readonly property var source: Pipewire.defaultAudioSource
 
+    property var outputDevices: []
+    // Read every relevant property so node changes also schedule a rebuild.
+    // Only primitives escape this binding; delegates never receive PwNodes.
+    readonly property string outputDevicesRevision: JSON.stringify(
+      Pipewire.nodes.values.map(n => [
+        n.id, n.description, n.name, n.isSink, n.isStream, !!n.audio
+      ]))
+
+    onOutputDevicesRevisionChanged: scheduleOutputDevicesRebuild()
+    Component.onCompleted: scheduleOutputDevicesRebuild()
+
+    function scheduleOutputDevicesRebuild() {
+      // Qt.callLater coalesces calls with the same named function.
+      Qt.callLater(pop.rebuildOutputDevices)
+    }
+
+    function rebuildOutputDevices() {
+      const next = JSON.parse(outputDevicesRevision)
+        .filter(n => n[3] && !n[4] && n[5])
+        .map(n => ({ id: n[0], label: n[1] || n[2] || "" }))
+      if (JSON.stringify(next) !== JSON.stringify(outputDevices))
+        outputDevices = next
+    }
+
     PwObjectTracker { objects: [pop.sink, pop.source].filter(o => o) }
 
     Ui.PanelSurface {
@@ -152,8 +176,7 @@ Loader {
         }
 
         Repeater {
-          model: Pipewire.nodes.values.filter(n =>
-            n.isSink && n.audio && !n.isStream)
+          model: pop.outputDevices
           delegate: Item {
             required property var modelData
             Layout.fillWidth: true
@@ -174,7 +197,7 @@ Loader {
 
               Text {
                 Layout.fillWidth: true
-                text: modelData.description || modelData.name || ""
+                text: modelData.label
                 color: parent.parent.isActive ? Colors.textPrim : Colors.textSecondary
                 font.family: Colors.fontSecondary
                 font.pixelSize: Colors.fontSizeSmall
