@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import Quickshell
 import "theme"
 
 Rectangle {
@@ -7,6 +8,12 @@ Rectangle {
 
   property var notification
   signal dismissed()
+
+  // Keep the QObject valid until ListView releases the delegate.
+  RetainableLock {
+    object: root.notification
+    locked: true
+  }
 
   implicitHeight: content.implicitHeight + Metrics.panelPadding * 2
   color: Colors.surface

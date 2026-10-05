@@ -48,12 +48,16 @@ Scope {
   }
 
   function clear() {
-    const items = server.trackedNotifications?.values ?? []
+    // Dismissing mutates the live ObjectModel, so iterate over a snapshot.
+    const items = [...(server.trackedNotifications?.values ?? [])]
     items.forEach(notification => notification.dismiss())
   }
 
   function addToast(notification) {
-    root.toastNotifications = [notification, ...root.toastNotifications].slice(0, 3)
+    // Clients can close notifications before ListView finishes incubating a card.
+    // Remove them before Quickshell destroys the underlying QObject.
+    notification.closed.connect(() => root.removeToast(notification))
+    root.toastNotifications = [notification, ...root.toastNotifications.filter(item => item !== notification)].slice(0, 3)
   }
 
   function removeToast(notification) {
@@ -103,7 +107,7 @@ Scope {
         notification: modelData
 
         Timer {
-          interval: modelData.expireTimeout > 0 ? modelData.expireTimeout : 5000
+          interval: modelData && modelData.expireTimeout > 0 ? modelData.expireTimeout * 1000 : 5000
           running: true
           repeat: false
           onTriggered: root.removeToast(modelData)
