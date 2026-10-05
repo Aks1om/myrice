@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Controls
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
@@ -12,7 +13,7 @@ Scope {
 
   property bool isOpen: false
   property bool mounted: false
-  property int transitionId: 0
+  property bool doNotDisturb: false
   property var toastNotifications: []
   readonly property int count: server.trackedNotifications?.values?.length ?? 0
 
@@ -30,21 +31,22 @@ Scope {
   function toggle() {
     if (root.isOpen) {
       root.isOpen = false
-      root.transitionId++
-      surface.x = surface.width
       closeTimer.restart()
     } else {
       closeTimer.stop()
-      root.mounted = true
       root.isOpen = true
-      root.transitionId++
-      const transition = root.transitionId
-      surface.x = surface.width
-      Qt.callLater(() => {
-        if (root.isOpen && root.transitionId === transition)
-          surface.x = 0
-      })
+      root.mounted = true
     }
+  }
+
+  function setDoNotDisturb(enabled) {
+    root.doNotDisturb = enabled
+    if (enabled)
+      root.toastNotifications = []
+  }
+
+  function toggleDoNotDisturb() {
+    root.setDoNotDisturb(!root.doNotDisturb)
   }
 
   function clear() {
@@ -74,7 +76,8 @@ Scope {
 
     onNotification: notification => {
       notification.tracked = true
-      root.addToast(notification)
+      if (!root.doNotDisturb)
+        root.addToast(notification)
     }
   }
 
@@ -128,6 +131,16 @@ Scope {
     function clear() {
       root.clear()
     }
+
+    function toggleDoNotDisturb() {
+      root.toggleDoNotDisturb()
+    }
+
+    function status(): string {
+      return JSON.stringify({ open: root.isOpen, mounted: root.mounted,
+        doNotDisturb: root.doNotDisturb, count: root.count,
+        toastCount: root.toastNotifications.length, surfaceX: surface.x })
+    }
   }
 
   PanelWindow {
@@ -141,7 +154,7 @@ Scope {
       right: true
       bottom: true
     }
-    margins.top: Metrics.popupInset
+    margins.top: Metrics.px(46)
     margins.bottom: Metrics.popupInset
     margins.right: 0
     implicitWidth: Metrics.notificationPanelWidth
@@ -154,20 +167,18 @@ Scope {
 
       Rectangle {
         id: surface
+        x: root.isOpen ? 0 : width
         width: parent.width
         height: parent.height
         color: Colors.bgBase
         radius: Colors.radiusXl
 
         Behavior on x {
+          enabled: root.mounted
           NumberAnimation {
             duration: Metrics.notificationPanelAnimationMs
             easing.type: Easing.OutCubic
 
-            onStopped: {
-              if (!root.isOpen)
-                root.mounted = false
-            }
           }
         }
 
@@ -218,6 +229,79 @@ Scope {
                 anchors.fill: parent
                 cursorShape: Qt.PointingHandCursor
                 onClicked: root.clear()
+              }
+            }
+
+            Item {
+              Layout.preferredWidth: Metrics.px(28)
+              Layout.preferredHeight: Metrics.px(28)
+
+              Icon {
+                anchors.centerIn: parent
+                name: "x"
+                color: Colors.textSecondary
+                size: Metrics.iconSize
+              }
+
+              MouseArea {
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
+                onClicked: root.toggle()
+              }
+            }
+          }
+
+          RowLayout {
+            Layout.fillWidth: true
+
+            ColumnLayout {
+              Layout.fillWidth: true
+              spacing: Colors.spacingXs
+
+              Text {
+                text: "Не беспокоить"
+                color: Colors.textPrim
+                font.family: Colors.fontPrimary
+                font.pixelSize: Colors.fontSizeMedium
+              }
+
+              Text {
+                text: root.doNotDisturb ? "Только история, без всплывающих окон" : "Всплывающие уведомления включены"
+                color: Colors.textSecondary
+                font.family: Colors.fontPrimary
+                font.pixelSize: Colors.fontSizeSmall
+              }
+            }
+
+            Switch {
+              id: dndSwitch
+              checked: root.doNotDisturb
+              onToggled: root.setDoNotDisturb(checked)
+              Accessible.name: "Не беспокоить"
+              implicitWidth: Metrics.px(48)
+              implicitHeight: Metrics.px(32)
+
+              indicator: Rectangle {
+                anchors.centerIn: parent
+                width: Metrics.px(40)
+                height: Metrics.px(22)
+                radius: height / 2
+                color: dndSwitch.checked ? Colors.accent : Colors.border
+                border.width: dndSwitch.visualFocus ? 2 : 0
+                border.color: Colors.textPrim
+
+                Rectangle {
+                  x: dndSwitch.checked ? parent.width - width - Metrics.px(3) : Metrics.px(3)
+                  anchors.verticalCenter: parent.verticalCenter
+                  width: Metrics.px(16)
+                  height: width
+                  radius: width / 2
+                  color: dndSwitch.checked ? Colors.bgBase : Colors.textPrim
+
+                  Behavior on x {
+                    NumberAnimation { duration: 120 }
+                  }
+                }
               }
             }
           }
