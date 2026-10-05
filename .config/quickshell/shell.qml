@@ -5,7 +5,7 @@ import Quickshell
 import "theme"
 
 ShellRoot {
-  NotificationCenter { id: notificationCenter }
+  NotificationCenter { id: notificationCenterService }
 
   Variants {
     model: Quickshell.screens
@@ -24,7 +24,7 @@ ShellRoot {
       Bar {
         anchors.fill: parent
         screen: modelData
-        notificationCenter: notificationCenter
+        notificationCenter: notificationCenterService
       }
     }
   }

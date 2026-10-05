@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Layouts
-import QtQuick.Controls
 import "theme"
 
 Item {
@@ -11,12 +10,6 @@ Item {
   property var center
   readonly property int count: center ? center.count : 0
   readonly property bool doNotDisturb: center ? center.doNotDisturb : false
-
-  ToolTip.visible: mouse.containsMouse
-  ToolTip.delay: 600
-  ToolTip.text: root.doNotDisturb
-    ? "Уведомления · Не беспокоить включён"
-    : "Открыть уведомления"
 
   RowLayout {
     id: layout
