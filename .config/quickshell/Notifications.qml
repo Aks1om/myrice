@@ -15,8 +15,8 @@ Item {
   ToolTip.visible: mouse.containsMouse
   ToolTip.delay: 600
   ToolTip.text: root.doNotDisturb
-    ? "Не беспокоить · ПКМ: включить уведомления"
-    : "Уведомления · ПКМ: не беспокоить"
+    ? "Уведомления · Не беспокоить включён"
+    : "Открыть уведомления"
 
   RowLayout {
     id: layout
@@ -43,14 +43,9 @@ Item {
   MouseArea {
     id: mouse
     anchors.fill: parent
-    acceptedButtons: Qt.LeftButton | Qt.RightButton
+    acceptedButtons: Qt.LeftButton
     hoverEnabled: true
     cursorShape: Qt.PointingHandCursor
-    onClicked: event => {
-      if (event.button === Qt.RightButton)
-        root.center?.toggleDoNotDisturb()
-      else
-        root.center?.toggle()
-    }
+    onClicked: root.center?.toggle()
   }
 }
